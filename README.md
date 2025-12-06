@@ -1,6 +1,6 @@
 # Machine Learning con Python
 
-![Flujo del Modulo](CourseOutline.png)
+![Flujo del Modulo](./images/CourseOutline.png)
 
 ## Introducción a Python
 
