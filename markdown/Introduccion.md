@@ -43,3 +43,10 @@ header-includes:
 
 ## Python
 https://www.python.org/downloads/
+
+---
+
+# VSCode Extensiones
+![Python Extension](../images/PythonExtension.png){ height=200px }
+![Jupyter Extension](../images/JupyterExtension.png){ height=200px }
+![Prettier Extension](../images/PrettierExtension.png){ height=200px }

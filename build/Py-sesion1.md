@@ -10,7 +10,7 @@ header-includes:
 
 # Objetivos de la sesión
 - Comprender qué es Python y por qué es tan popular.
-- Ejecutar código en el intérprete y desde archivos.
+- Ejecutar código en el intérprete, desde archivos y en notebooks.
 - Usar variables y tipos de datos básicos.
 - Leer datos del usuario con `input()`.
 - Mostrar información con `print()`.
@@ -21,7 +21,6 @@ header-includes:
 
 # ¿Qué es Python?
 
-- Change in content
 - Lenguaje de programación interpretado.
 - Fácil de aprender y leer.
 - Multiplataforma.
@@ -43,11 +42,7 @@ Destaca su sintaxis sencilla y su amplia comunidad.
 # ¿Cómo ejecutar Python?
 
 ## Intérprete interactivo (REPL)
-::: notes
- Read-Eval-Print Loop
-Open up a terminal and run 'python'
 
-:::
 ```bash
 python
 ```
@@ -56,25 +51,21 @@ python
 ```bash
 python archivo.py
 ```
-
----
-
-# Editores recomendados
-::: notes
-Recomienda VS Code para principiantes.
-:::
-
-- VS Code
-- Jupyter Notebook
+## Usaremos Notebooks y Editores
 - Google Colab
+- VsCode
 
+::: notes
+- Read-Eval-Print Loop
+- Open up a terminal and run 'python'
+- Open up a terminal and run 'python archivo.py'
+:::
 ---
+
 
 # Variables en Python
-::: notes
-Explica que Python es dinámicamente tipado.
-:::
 
+##
 ```python
 nombre = "Cesar"
 edad = 59
@@ -82,16 +73,20 @@ precio = 19.99
 activo = True
 ```
 
+##
 - No se declara el tipo explícitamente.
 - Las variables se crean al asignarles un valor.
 
+## No hay Chequeo de tipos
+
+```python
+nombre = 123
+```
 ---
 
 # Tipos de datos básicos
-::: notes
-Proporciona ejemplos prácticos durante la presentación.
-:::
 
+##
 - `int` — enteros
 - `float` — decimales
 - `str` — texto
@@ -101,6 +96,8 @@ Proporciona ejemplos prácticos durante la presentación.
 ---
 
 # La función type()
+
+##
 ```python
 x = 10
 y = 3.5
@@ -116,56 +113,72 @@ print(type(z))  # str
 
 
 # Entrada de datos con input()
-::: notes
-Asegúrate de mostrar cómo input siempre devuelve una cadena.
-:::
+
+##
 
 ```python
 nombre = input("¿Cómo te llamas? ")
 print("Hola", nombre)
 ```
 
+## Notas
+
 - `input()` siempre devuelve texto (`str`).
 - Para usar números, debes convertir con `int()` o `float()`.
+- Puede crear errores si no se convierte correctamente.
 
 ---
 
 # Conversión de tipos
+
+##
+
 ```python
 edad_texto = input("Edad: ")
 edad = int(edad_texto)
 print(f"El año que viene tendrás {edad + 1} años.")
 ```
 
-Funciones útiles:  
+## Funciones útiles:  
 - `int("10")`  
 - `float("3.14")`  
 - `str(10)`  
 
 ---
 
-# Salida formateada con f-strings
-::: notes
-F-strings son esenciales para claridad en Python moderno.
-:::
+# Salida formateada 
 
 ```python
 nombre = "Cesar"
 edad = 59
-print(f"Hola, me llamo {nombre} y tengo {edad} años.")
 ```
+
+## Formateo tradicional
+```python
+print("Me llamo ", nombre, " y tengo ", edad, " años.")
+print("Me llamo " + str(nombre) + " y tengo " + str(edad) + " años.")
+print("Me llamo %s y tengo %d años." % (nombre, edad))
+
+```
+
+## f-strings
+```python
+print(f"Me llamo {nombre} y tengo {edad} años.")
+```
+
 
 ---
 
 # Operadores aritméticos
-::: notes
-Muestra algunos ejemplos en vivo en el intérprete.
-:::
+
+
 
 ```python
 a = 10
 b = 3
-
+```
+## Operaciones
+```python
 print(a + b)   # 13
 print(a - b)   # 7
 print(a * b)   # 30

@@ -8,11 +8,11 @@ header-includes:
   - \usepackage{pdfpc}
 ---
 
-# Profesor
+# Contacto  
 
-- Profesor: César García
-- email: gypsaman@gmail.com
-- github: https://github.com/gypsaman/Python-ML
+- César García
+- gypsaman@gmail.com
+- https://github.com/gypsaman/Python-ML
 
 
 ---
@@ -43,3 +43,10 @@ header-includes:
 
 ## Python
 https://www.python.org/downloads/
+
+---
+
+# VSCode Extensiones
+![Python Extension](/home/cesar/teaching/Python-ML/images/PythonExtension.png){ height=200px }
+![Jupyter Extension](/home/cesar/teaching/Python-ML/images/JupyterExtension.png){ height=200px }
+![Prettier Extension](/home/cesar/teaching/Python-ML/images/PrettierExtension.png){ height=200px }
