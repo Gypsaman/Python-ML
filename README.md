@@ -12,4 +12,4 @@
 > Instead use: **File → Save a copy in Drive** to create your own editable copy.
 
 
-[![ML- Classico - Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/modelos_classicos_ml_demo.ipynb)
+[![ML- Classico - Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/modelos_clasicos_ml_demo.ipynb)
