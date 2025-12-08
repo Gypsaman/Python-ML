@@ -682,7 +682,7 @@ $$
 
 # Tensorflow Playground
 
-[![Playground](../images/Playground-Tensorflow.png)](https://playground.tensorflow.org/)
+[![Playground](/home/cesar/teaching/Python-ML/images/Playground-Tensorflow.png)](https://playground.tensorflow.org/)
 
 
 ---

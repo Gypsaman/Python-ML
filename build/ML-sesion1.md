@@ -19,9 +19,11 @@ header-includes:
 - Comprender qué es el aprendizaje automático (Machine Learning).
 - Diferenciar entre aprendizaje clásico y aprendizaje profundo.
 - Identificar tipos de problemas: regresión, clasificación, clustering.
-- Conectar conceptos con aplicaciones del mundo real.
-- Entender por qué el ML funciona y qué patrones aprende.
-- Construir intuiciones visuales clave.
+- Revision de algoritmos classicos: 
+  - regresión lineal, 
+  - KNN, 
+  - árboles de decisión, 
+  - SVM.
 
 ---
 
@@ -38,7 +40,7 @@ El Machine Learning permite a los sistemas aprender patrones a partir de datos s
 
 ##
 
-- El ML identifica patrones que no son evidentes ni siquiera al ver los datos.
+- El ML identifica patrones que no son evidentes a primera vista de los datos.
 - Aprende relaciones multivariadas donde cada variable influye en combinación con otras.
 - Encuentra fronteras de decisión o reglas matemáticas imposibles de deducir manualmente.
 - Aprovecha grandes volúmenes de datos para reducir ruido y generalizar a nuevos casos.
@@ -75,56 +77,15 @@ Detección de fraude en tarjetas de crédito:
 - Support Vector Machines (SVM)
 
 ## Deep Learning (Redes Neuronales)
+- Redes Feedforward (FNN)
 - Convolucionales (CNN)  
 - Recurrentes (RNN, LSTM)  
 - Variational Autoencoders (VAE)
 - Ganerative Adversarial Networks (GAN)
-- Transformers
+- Transformers (ChatGPT, Gemeni)
 
 ---
 
-
-## Diagrama: Red neuronal simple (intuición)
-
-```{=latex}
-\begin{tikzpicture}[
-  >=Stealth,
-  node distance=1.2cm and 1.6cm,
-  input/.style={circle, draw, minimum size=0.6cm},
-  hidden/.style={circle, draw, minimum size=0.6cm},
-  output/.style={circle, draw, minimum size=0.6cm}
-]
-
-% Capa de entrada
-\node[input] (x1) at (0,1.5) {$x_1$};
-\node[input] (x2) at (0,0.5) {$x_2$};
-\node[input] (x3) at (0,-0.5) {$x_3$};
-
-% Capa oculta
-\node[hidden] (h1) at (2,2) {};
-\node[hidden] (h2) at (2,1) {};
-\node[hidden] (h3) at (2,0) {};
-\node[hidden] (h4) at (2,-1) {};
-
-% Capa de salida
-\node[output] (y) at (4,0.5) {$\hat y$};
-
-% Conexiones entrada -> oculta
-\foreach \i in {x1,x2,x3}{
-  \foreach \h in {h1,h2,h3,h4}{
-    \draw[->] (\i) -- (\h);
-  }
-}
-
-% Conexiones oculta -> salida
-\foreach \h in {h1,h2,h3,h4}{
-  \draw[->] (\h) -- (y);
-}
-
-\end{tikzpicture}
-```
-
----
 
 # Regresión lineal – Características
 

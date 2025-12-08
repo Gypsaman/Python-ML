@@ -27,7 +27,7 @@ Refuerza los conceptos fundamentales vistos previamente.
 - Variables y tipos básicos.
 - Uso de `input()` y `print()`.
 - Operadores aritméticos y lógicos.
-- Mini-proyecto: Calculadora de propinas.
+- Concepto de Verdad/Falsedad en Python.
 
 ---
 
