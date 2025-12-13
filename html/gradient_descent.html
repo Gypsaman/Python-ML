@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gradient Descent (2D View Only)</title>
+  <style>
+    :root { --bg:#0b0f19; --panel:#121a2a; --text:#e8eefc; --muted:#a8b3cf; --grid:#22314f; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:var(--bg); color:var(--text); }
+    header { padding:16px 18px; border-bottom:1px solid #1b2740; background:linear-gradient(180deg, #0b0f19, #0b0f19 60%, #0a0e16); }
+    header h1 { margin:0; font-size:18px; letter-spacing:.2px; }
+    header p { margin:6px 0 0; color:var(--muted); font-size:13px; line-height:1.35; }
+
+    main { display:grid; grid-template-columns: 360px 1fr; gap:14px; padding:14px; }
+    .card { background:var(--panel); border:1px solid #1b2740; border-radius:14px; overflow:hidden; box-shadow: 0 10px 24px rgba(0,0,0,.25); }
+    .card h2 { margin:0; padding:12px 14px; font-size:14px; border-bottom:1px solid #1b2740; color:#dbe6ff; }
+
+    .controls { padding:12px 14px; display:grid; gap:12px; }
+    .row { display:grid; gap:6px; }
+    label { font-size:12px; color:var(--muted); display:flex; justify-content:space-between; }
+    input[type="range"] { width:100%; }
+
+    .btns { display:flex; gap:10px; flex-wrap:wrap; }
+    button {
+      appearance:none; border:1px solid #2a3b60; background:#0e1524; color:var(--text);
+      padding:9px 10px; border-radius:12px; cursor:pointer; font-weight:600; font-size:12px;
+    }
+    button:hover { background:#111b30; }
+    button:active { transform: translateY(1px); }
+
+    .pill { display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px; border:1px solid #24365a; background:#0e1524; }
+    .pill b { font-size:12px; }
+    .pill span { color:var(--muted); font-size:12px; }
+
+    .readout { padding:12px 14px; border-top:1px solid #1b2740; color:var(--muted); font-size:12px; line-height:1.5; }
+    .small { font-size:11px; }
+
+    .canvasWrap { position:relative; height: min(78vh, 820px); }
+    canvas { width:100%; height:100%; display:block; background: radial-gradient(1200px 600px at 30% 10%, #121f3a 0%, #0b1020 55%, #070b14 100%); }
+    .overlay {
+      position:absolute; left:12px; top:12px; right:12px;
+      display:flex; justify-content:space-between; gap:10px; pointer-events:none; flex-wrap:wrap;
+    }
+    .note { font-size:11px; color:var(--muted); padding:0 14px 14px; }
+    .sep { height:1px; background:#1b2740; margin:4px 0; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Gradient Descent: 2D View (Plain GD)</h1>
+  <p>
+    Update rule: <b>w ← w − η ∇L(w)</b>. The orange arrow shows the <b>negative gradient</b> (downhill direction).
+  </p>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Controls</h2>
+    <div class="controls">
+      <div class="row">
+        <label>Learning rate η <span id="lrVal">0.08</span></label>
+        <input id="lr" type="range" min="0.001" max="0.35" step="0.001" value="0.08" />
+      </div>
+
+      <div class="row">
+        <label>Steps / second <span id="speedVal">30</span></label>
+        <input id="speed" type="range" min="1" max="120" step="1" value="30" />
+      </div>
+
+      <div class="row">
+        <label>Start position <span id="startVal">(w1,w2)=(-2.2, 2.0)</span></label>
+        <input id="startPreset" type="range" min="0" max="4" step="1" value="0" />
+      </div>
+
+      <div class="btns">
+        <button id="toggle">Run</button>
+        <button id="step">Step</button>
+        <button id="reset">Reset</button>
+        <button id="randomize">Random start</button>
+      </div>
+
+      <div class="sep"></div>
+
+      <div class="pill"><b>Mode</b><span>Plain Gradient Descent</span></div>
+      <div class="pill"><b>Stop criteria</b><span>‖∇L‖ &lt; 1e-3 or max steps</span></div>
+    </div>
+
+    <div class="readout">
+      <div><b>Update:</b> w ← w − η∇L(w)</div>
+      <div class="small" id="eqLine">η = 0.080</div>
+      <div class="small" id="gradLine">∇L = (…)</div>
+      <div class="small" id="miscLine">step: 0</div>
+    </div>
+
+    <div class="note">
+      Teaching tip: first use a small η for smooth convergence, then raise η to demonstrate overshooting and zig-zagging.
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2D view: Loss surface L(w1,w2) and optimization path</h2>
+    <div class="canvasWrap">
+      <canvas id="c2"></canvas>
+      <div class="overlay">
+        <div class="pill"><b>(w1,w2)</b><span id="w2d">0.00, 0.00</span></div>
+        <div class="pill"><b>L</b><span id="L2d">0.00</span></div>
+        <div class="pill"><b>‖∇L‖</b><span id="gnorm">0.00</span></div>
+      </div>
+    </div>
+    <div class="note small">
+      The surface is rendered as a pseudo-3D wireframe heightfield for intuition; the gradient is computed analytically.
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  // ------------------------------
+  // Loss function (2D) and gradient
+  // ------------------------------
+  // Non-convex but smooth surface (good for illustrating basins of attraction)
+  function L(w1, w2) {
+    const bowl   = 0.15*w1*w1 + 0.10*w2*w2;
+    const ripple = 0.35*Math.sin(1.6*w1) * Math.cos(1.3*w2);
+    const valley = 0.20*Math.sin(0.7*(w1 + 1.2*w2));
+    return bowl + ripple + valley;
+  }
+  function gradL(w1, w2) {
+    const dBowl1 = 0.30*w1;
+    const dBowl2 = 0.20*w2;
+
+    const dRipple1 = 0.35*(1.6*Math.cos(1.6*w1))*Math.cos(1.3*w2);
+    const dRipple2 = 0.35*Math.sin(1.6*w1)*(-1.3*Math.sin(1.3*w2));
+
+    const dValley1 = 0.20*(0.7*Math.cos(0.7*(w1 + 1.2*w2)));
+    const dValley2 = 0.20*(0.7*1.2*Math.cos(0.7*(w1 + 1.2*w2)));
+
+    return [dBowl1 + dRipple1 + dValley1, dBowl2 + dRipple2 + dValley2];
+  }
+
+  // ------------------------------
+  // UI
+  // ------------------------------
+  const $ = (id) => document.getElementById(id);
+
+  const lr = $("lr"), speed = $("speed"), startPreset = $("startPreset");
+  const lrVal = $("lrVal"), speedVal = $("speedVal"), startVal = $("startVal");
+
+  const toggleBtn = $("toggle"), stepBtn = $("step"), resetBtn = $("reset"), randomBtn = $("randomize");
+
+  const eqLine = $("eqLine"), gradLine = $("gradLine"), miscLine = $("miscLine");
+  const w2dOut = $("w2d"), L2dOut = $("L2d"), gnormOut = $("gnorm");
+
+  function fmt(x) { return (Math.abs(x) < 1e-6 ? 0 : x).toFixed(3); }
+
+  // ------------------------------
+  // State
+  // ------------------------------
+  let running = false;
+  let stepCount = 0;
+
+  let w1 = -2.2, w2 = 2.0;
+
+  const presets = [
+    {w1:-2.2, w2: 2.0},
+    {w1: 2.0, w2: 1.8},
+    {w1:-1.0, w2:-2.4},
+    {w1: 2.6, w2:-2.2},
+    {w1: 0.3, w2: 2.8}
+  ];
+
+  function applyPreset(i){
+    const p = presets[i|0];
+    w1 = p.w1; w2 = p.w2;
+    stepCount = 0;
+    path.length = 0;
+    // seed first point
+    path.push({w1,w2,L:L(w1,w2)});
+  }
+
+  function randomStart(){
+    w1 = (Math.random()*6 - 3);
+    w2 = (Math.random()*6 - 3);
+    stepCount = 0;
+    path.length = 0;
+    path.push({w1,w2,L:L(w1,w2)});
+  }
+
+  // ------------------------------
+  // Canvas
+  // ------------------------------
+  const c2 = $("c2");
+  const ctx2 = c2.getContext("2d");
+
+  function resizeCanvas(){
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const rect = c2.getBoundingClientRect();
+    c2.width  = Math.floor(rect.width * dpr);
+    c2.height = Math.floor(rect.height * dpr);
+    ctx2.setTransform(dpr,0,0,dpr,0,0);
+  }
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+
+  function lerp(a,b,t){ return a + (b-a)*t; }
+
+  const path = [];
+  const maxPath = 700;
+
+  // ------------------------------
+  // Draw: 2D pseudo-3D surface + path + -grad arrow
+  // ------------------------------
+  function draw2D(){
+    const W = c2.getBoundingClientRect().width;
+    const H = c2.getBoundingClientRect().height;
+    ctx2.clearRect(0,0,W,H);
+
+    // parameter space range
+    const xmin=-3.2, xmax=3.2;
+    const ymin=-3.2, ymax=3.2;
+
+    // project (w1,w2,L) to screen using a simple pseudo-3D projection
+    function project(x,y,z){
+      const nx = (x - xmin)/(xmax-xmin)*2 - 1;
+      const ny = (y - ymin)/(ymax-ymin)*2 - 1;
+
+      const scale = Math.min(W,H)*0.42;
+      const ox = W*0.52;
+      const oy = H*0.66;
+
+      const px = ox + (nx*0.95 - ny*0.95)*scale;
+      const py = oy + (nx*0.55 + ny*0.55)*scale - z*72;
+      return [px,py];
+    }
+
+    // compute surface mesh heights + z range
+    const gx=30, gy=24;
+    let zmin=Infinity, zmax=-Infinity;
+    const Z = [];
+    for(let j=0;j<=gy;j++){
+      Z[j]=[];
+      for(let i=0;i<=gx;i++){
+        const x = lerp(xmin,xmax,i/gx);
+        const y = lerp(ymin,ymax,j/gy);
+        const z = L(x,y);
+        Z[j][i]=z;
+        zmin=Math.min(zmin,z);
+        zmax=Math.max(zmax,z);
+      }
+    }
+    const zSpan = (zmax-zmin)||1;
+
+    // draw mesh
+    for(let j=0;j<=gy;j++){
+      ctx2.beginPath();
+      for(let i=0;i<=gx;i++){
+        const x=lerp(xmin,xmax,i/gx), y=lerp(ymin,ymax,j/gy);
+        const zn=(Z[j][i]-zmin)/zSpan;
+        const [px,py]=project(x,y,(zn-0.5)*1.8);
+        if(i===0) ctx2.moveTo(px,py); else ctx2.lineTo(px,py);
+      }
+      ctx2.strokeStyle="rgba(120, 150, 220, 0.85)";
+      ctx2.lineWidth=1;
+      ctx2.stroke();
+    }
+    for(let i=0;i<=gx;i++){
+      ctx2.beginPath();
+      for(let j=0;j<=gy;j++){
+        const x=lerp(xmin,xmax,i/gx), y=lerp(ymin,ymax,j/gy);
+        const zn=(Z[j][i]-zmin)/zSpan;
+        const [px,py]=project(x,y,(zn-0.5)*1.8);
+        if(j===0) ctx2.moveTo(px,py); else ctx2.lineTo(px,py);
+      }
+      ctx2.strokeStyle="rgba(120, 150, 220, 0.85)";
+      ctx2.lineWidth=1;
+      ctx2.stroke();
+    }
+
+    // labels
+    ctx2.fillStyle="rgba(232,238,252,0.9)";
+    ctx2.font="12px system-ui";
+    ctx2.fillText("w1", W*0.80, H*0.90);
+    ctx2.fillText("w2", W*0.16, H*0.90);
+    ctx2.fillText("L", 12, 18);
+
+    // path
+    if(path.length > 1){
+      ctx2.beginPath();
+      for(let k=0;k<path.length;k++){
+        const p=path[k];
+        const zn=(p.L - zmin)/zSpan;
+        const [px,py]=project(p.w1,p.w2,(zn-0.5)*1.8);
+        if(k===0) ctx2.moveTo(px,py); else ctx2.lineTo(px,py);
+      }
+      ctx2.strokeStyle="rgba(120,200,255,0.85)";
+      ctx2.lineWidth=2.5;
+      ctx2.stroke();
+    }
+
+    // current point
+    const Lcur = L(w1,w2);
+    const zn=(Lcur - zmin)/zSpan;
+    const [px,py]=project(w1,w2,(zn-0.5)*1.8);
+
+    // negative gradient arrow (downhill)
+    const [g1,g2] = gradL(w1,w2);
+    const gnorm = Math.hypot(g1,g2) || 1;
+
+    // take a small step in -grad direction for drawing arrow
+    const arrowStep = 0.45;
+    const ax = w1 - (g1/gnorm)*arrowStep;
+    const ay = w2 - (g2/gnorm)*arrowStep;
+    const Lax = L(ax,ay);
+    const zna = (Lax - zmin)/zSpan;
+    const [apx,apy]=project(ax,ay,(zna-0.5)*1.8);
+
+    ctx2.strokeStyle="rgba(255,180,100,0.95)";
+    ctx2.lineWidth=3;
+    ctx2.beginPath(); ctx2.moveTo(px,py); ctx2.lineTo(apx,apy); ctx2.stroke();
+
+    // arrow head
+    const hx = apx - px, hy = apy - py;
+    const hn = Math.hypot(hx,hy) || 1;
+    const ux = hx/hn, uy = hy/hn;
+    ctx2.fillStyle="rgba(255,180,100,0.95)";
+    ctx2.beginPath();
+    ctx2.moveTo(apx,apy);
+    ctx2.lineTo(apx - ux*12 - uy*6, apy - uy*12 + ux*6);
+    ctx2.lineTo(apx - ux*12 + uy*6, apy - uy*12 - ux*6);
+    ctx2.closePath();
+    ctx2.fill();
+
+    // point
+    ctx2.fillStyle="rgba(255,180,100,0.95)";
+    ctx2.beginPath(); ctx2.arc(px,py,6,0,Math.PI*2); ctx2.fill();
+
+    // overlay
+    w2dOut.textContent = `${fmt(w1)}, ${fmt(w2)}`;
+    L2dOut.textContent = fmt(Lcur);
+    gnormOut.textContent = fmt(gnorm);
+  }
+
+  // ------------------------------
+  // Plain GD step: w <- w - eta * grad
+  // ------------------------------
+  function stepOnce(){
+    const eta = parseFloat(lr.value);
+    const [g1,g2] = gradL(w1,w2);
+
+    w1 -= eta * g1;
+    w2 -= eta * g2;
+
+    const Lcur = L(w1,w2);
+    path.push({w1,w2,L:Lcur});
+    if(path.length > maxPath) path.shift();
+
+    stepCount++;
+
+    const gnorm = Math.hypot(...gradL(w1,w2));
+    if(gnorm < 1e-3 || stepCount > 5000){
+      running = false;
+      toggleBtn.textContent = "Run";
+    }
+
+    eqLine.textContent = `η = ${eta.toFixed(3)}`;
+    gradLine.textContent = `∇L(w1,w2) = (${fmt(g1)}, ${fmt(g2)})`;
+    miscLine.textContent = `step: ${stepCount}   |   L(w1,w2)=${fmt(Lcur)}`;
+  }
+
+  // ------------------------------
+  // Animation loop
+  // ------------------------------
+  let lastT = performance.now();
+  let acc = 0;
+
+  function frame(t){
+    const dt = (t - lastT)/1000;
+    lastT = t;
+
+    const sps = parseInt(speed.value,10);
+    const stepDt = 1 / Math.max(1,sps);
+
+    if(running){
+      acc += dt;
+      while(acc >= stepDt){
+        stepOnce();
+        acc -= stepDt;
+        if(!running) break;
+      }
+    }
+
+    draw2D();
+    requestAnimationFrame(frame);
+  }
+
+  // ------------------------------
+  // Wiring
+  // ------------------------------
+  function syncLabels(){
+    lrVal.textContent = parseFloat(lr.value).toFixed(3);
+    speedVal.textContent = speed.value;
+    const p = presets[parseInt(startPreset.value,10)];
+    startVal.textContent = `(w1,w2)=(${p.w1}, ${p.w2})`;
+  }
+
+  ["input","change"].forEach(ev=>{
+    lr.addEventListener(ev, syncLabels);
+    speed.addEventListener(ev, syncLabels);
+  });
+
+  startPreset.addEventListener("input", () => {
+    applyPreset(parseInt(startPreset.value,10));
+    syncLabels();
+    running = false;
+    toggleBtn.textContent = "Run";
+    eqLine.textContent = `η = ${parseFloat(lr.value).toFixed(3)}`;
+    gradLine.textContent = `∇L(w1,w2) = (…)`;
+    miscLine.textContent = `step: 0`;
+  });
+
+  toggleBtn.addEventListener("click", () => {
+    running = !running;
+    toggleBtn.textContent = running ? "Pause" : "Run";
+  });
+
+  stepBtn.addEventListener("click", () => {
+    if(!running) stepOnce();
+  });
+
+  resetBtn.addEventListener("click", () => {
+    applyPreset(parseInt(startPreset.value,10));
+    syncLabels();
+    running = false;
+    toggleBtn.textContent = "Run";
+    eqLine.textContent = `η = ${parseFloat(lr.value).toFixed(3)}`;
+    gradLine.textContent = `∇L(w1,w2) = (…)`;
+    miscLine.textContent = `step: 0`;
+  });
+
+  randomBtn.addEventListener("click", () => {
+    randomStart();
+    running = false;
+    toggleBtn.textContent = "Run";
+    miscLine.textContent = `step: 0`;
+  });
+
+  // init
+  syncLabels();
+  applyPreset(parseInt(startPreset.value,10));
+  eqLine.textContent = `η = ${parseFloat(lr.value).toFixed(3)}`;
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
