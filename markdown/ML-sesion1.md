@@ -32,7 +32,8 @@ header-includes:
 ## Definición
 El Machine Learning permite a los sistemas aprender patrones a partir de datos sin ser programados explícitamente.
 
-![ML Ciclo](../images/ML%20Ciclo.jpg){height=250px}
+![Ciclo típico de Machine Learning: recolección de datos, preparación, entrenamiento, evaluación y despliegue](https://towardsdatascience.com/wp-content/uploads/2024/11/1_dlG-Cju5ke-DKp8DQ9hiA@2x.jpeg)
+
 
 ---
 
@@ -300,15 +301,10 @@ Comenta que en la práctica muchos frameworks dan buenos valores por defecto; el
 
 # Comparación rápida de modelos
 
-- **Regresión lineal/polinomial**
-  - Cuando importa la interpretabilidad y las relaciones son relativamente simples.
-- **KNN**
-  - Bueno como modelo base; sencillo, pero sufre con muchos datos/dimensiones.
-- **Árboles de decisión**
-  - Interpretables, capturan no linealidades, pero sobreajustan fácilmente.
-- **Random Forests**
-  - Buen rendimiento general; robustos y relativamente fáciles de usar.
-- **SVM**
-  - Potentes en alta dimensión y con datos no lineales (con kernel), pero más costosos.
-
+| Modelo                | Mejor para...                       | Riesgo principal              |
+|-----------------------|-------------------------------------|-------------------------------|
+| Regresión Lineal      | Relaciones simples, interpretable   | Subajuste en no lineales      |
+| KNN                   | Fronteras complejas                 | Lento en grandes datos        |
+| Árboles/Random Forest | No linealidades e interacciones     | Sobreajuste (árbol único)     |
+| SVM                   | Alta dimensión y no lineal (kernel) | Costoso en datasets grandes   |
 ---
