@@ -32,7 +32,7 @@ header-includes:
 ## Definición
 El Machine Learning permite a los sistemas aprender patrones a partir de datos sin ser programados explícitamente.
 
-![Ciclo típico de Machine Learning: recolección de datos, preparación, entrenamiento, evaluación y despliegue](https://towardsdatascience.com/wp-content/uploads/2024/11/1_dlG-Cju5ke-DKp8DQ9hiA@2x.jpeg)
+![Ciclo típico de Machine Learning](../images/ML-Ciclo.jpeg){height=200px}
 
 
 ---
@@ -69,7 +69,7 @@ Detección de fraude en tarjetas de crédito:
 
 ---
 
-# Algoritmos Aprendizaje Supervisado
+# Algoritmos de Machine Learning
 ## Algoritmos Clásicos
 - Regresión lineal/polinomial  
 - KNN  
@@ -99,6 +99,9 @@ Detección de fraude en tarjetas de crédito:
   - Sensible a outliers.
   - Supone cierta estructura en los datos (linealidad, homocedasticidad, etc.).
 
+
+![Regresion Lineal](../images/regresion_lineal.png){height=150px}
+
 ---
 
 # Regresión polinomial
@@ -114,6 +117,8 @@ Detección de fraude en tarjetas de crédito:
   - Grado muy alto riesgo de **sobreajuste**.
   - Se suele combinar con **regularización** (Ridge, Lasso).
 
+  ![Regresion Polinomial](../images/regresion_polinomial.png){height=150px}
+
 ---
 
 
@@ -127,6 +132,8 @@ Detección de fraude en tarjetas de crédito:
   3. Regresión: promedio de los valores numéricos de los vecinos.
 
 - Depende fuertemente de la **noción de distancia** (normalmente Euclídea).
+
+![KNN](../images/KNN.png){height=150px}
 
 ---
 
@@ -169,6 +176,8 @@ Detección de fraude en tarjetas de crédito:
 
 - Objetivo: dividir el espacio de características en regiones cada vez más “puras”.
 
+![Árbol de Decisión](../images/arboles_decision.png){height=150px}
+
 ---
 
 # Árboles de decisión – Construcción
@@ -183,6 +192,9 @@ Detección de fraude en tarjetas de crédito:
   - Profundidad máxima.
   - Número mínimo de muestras por hoja.
   - O hasta que ya no mejore la pureza.
+
+![Arbol de Decision - Flujo](../images/arboles_decision_arbol.png){height=115px}
+
 
 ---
 
@@ -210,9 +222,13 @@ Detección de fraude en tarjetas de crédito:
 
 - Idea clave: muchos modelos débiles -> un modelo fuerte mediante **promediado**.
 
+![Random Forests - geeksforgeeks.com](../images/random_forest.png){height=125px}
+
 ---
 
-# Random Forests – Aleatoriedad controlada
+# Random Forests 
+
+### 
 
 - Dos fuentes de aleatoriedad:
   - **Bootstrap**: cada árbol ve una muestra aleatoria (con reemplazo) del conjunto de entrenamiento.
@@ -222,9 +238,8 @@ Detección de fraude en tarjetas de crédito:
   - Reduce varianza (menos sobreajuste que un solo árbol).
   - Maneja bien datos ruidosos y características irrelevantes.
 
----
 
-# Random Forests – Características
+### 
 
 - **Ventajas**
   - Buen rendimiento “out of the box”.
@@ -236,18 +251,7 @@ Detección de fraude en tarjetas de crédito:
   - Modelo más pesado y más lento en predicción que un solo árbol.
   - Muchos hiperparámetros posibles (número de árboles, profundidad, etc.).
 
----
 
-# Random Forests – Hiperparámetros clave
-
-- n_estimators: número de árboles.
-- Profundidad máxima de cada árbol.
-- Número mínimo de muestras por hoja o por división.
-- Número de características consideradas en cada división.
-
-::: notes
-Comenta que en la práctica muchos frameworks dan buenos valores por defecto; el ajuste fino se puede hacer más adelante.
-:::
 
 ---
 
@@ -260,6 +264,9 @@ Comenta que en la práctica muchos frameworks dan buenos valores por defecto; el
 
 - Intuición: entre todas las fronteras que separan las clases, SVM elige la que ofrece más “colchón” (margen).
 
+![SVM](../images/svm.png){height=150px}
+
+
 ---
 
 # SVM – Margen y errores
@@ -271,21 +278,8 @@ Comenta que en la práctica muchos frameworks dan buenos valores por defecto; el
   - $C$ alto -> menos errores, margen más ajustado (riesgo de sobreajuste).
   - $C$ bajo -> más errores permitidos, margen más ancho (mejor generalización).
 
----
 
-# SVM – Kernel trick
-
-- Cuando los datos **no son linealmente separables** en el espacio original:
-  - Se usan **kernels** para proyectarlos implícitamente a un espacio de mayor dimensión.
-- Kernels comunes:
-  - Lineal
-  - Polinomial
-  - RBF (Radial Basis Function / Gaussiano)
-- El kernel RBF es muy utilizado por su capacidad de modelar fronteras complejas.
-
----
-
-# SVM – Ventajas y desventajas
+###
 
 - **Ventajas**
   - Buen rendimiento en problemas con pocas muestras y alta dimensión.
@@ -307,4 +301,4 @@ Comenta que en la práctica muchos frameworks dan buenos valores por defecto; el
 | KNN                   | Fronteras complejas                 | Lento en grandes datos        |
 | Árboles/Random Forest | No linealidades e interacciones     | Sobreajuste (árbol único)     |
 | SVM                   | Alta dimensión y no lineal (kernel) | Costoso en datasets grandes   |
----
+

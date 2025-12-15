@@ -2,25 +2,19 @@
 
 ![Flujo del Modulo](./images/CourseOutline.png)
 
+---
+
 ## Introducción a Python
 
-- Python básico: Sesion 1
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/Py-sesion1.ipynb)
-
-> ⚠️ **This is a read-only version.**
->
-> Do **NOT** use *File → Save changes to GitHub*.  
-> Instead use: **File → Save a copy in Drive** to create your own editable copy.
-
-- ML algoritmos clásicos: regresión, árboles, SVM.
-[![ML- Classico - Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/modelos_clasicos_ml_demo.ipynb)
-
-- Python básico: Sesion 2
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/Py-sesion2.ipynb)
-
-
-- Python Modulos: NumPy, Pandas, Matplotlib.
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/Python_modules.ipynb)
-
-- Python básico: Sesion 3.
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/Py-sesion3.ipynb)
+| Título / Topic | Colab |
+| :--- | :--- |
+| Python básico: Sesion 1 | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/Py-sesion1.ipynb) |
+| Python básico: Sesion 2 | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/Py-sesion2.ipynb) |
+| Python Modulos: NumPy, Pandas, Matplotlib. | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/Python_modules.ipynb) |
+| Python básico: Sesion 3. | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/Py-sesion3.ipynb) |
+| Python básico: Sesion 4. | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/Py-sesion4.ipynb) |
+| Python básico: Sesion 5. | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/Py-sesion5.ipynb) |
+| ML algoritmos clásicos: regresión, árboles, SVM. | [![ML- Classico - Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/modelos_clasicos_ml_demo.ipynb) |
+> ⚠️ **Estas son versiones read-only.**
+> No usar:  *File → Save changes to GitHub*.
+> En vez de eso, usa: **File → Save a copy in Drive** para crear tu propia copia editable.
