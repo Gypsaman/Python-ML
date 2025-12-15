@@ -9,8 +9,7 @@ header-includes:
   - \usetikzlibrary{arrows.meta}
 ---
 
-# Introducción
-## Objetivos de la sesión
+# Objetivos de la sesión
 - Comprender qué significa entrenar una red neuronal.
 - Entender el rol de las funciones de pérdida.
 - Explicar el concepto de descenso de gradiente de forma intuitiva.
@@ -151,6 +150,7 @@ Donde:
 ---
 
 # Descenso de Gradiente (Gradient Descent)
+
 ## Intuición
 - Imagina una montaña donde el objetivo es llegar al punto más bajo.
 - El gradiente indica en qué dirección sube más rápido la montaña.
@@ -159,24 +159,45 @@ Donde:
 ## Idea central
 Actualizar los pesos con pequeños pasos que reduzcan la pérdida.
 
-[gradient descent](../html/gradient_descent.html)
+## Visualización
+- [gradient descent](../html/gradient_descent.html)
+
 
 ---
 
-## Importancia de las derivadas en redes neuronales
+# Importancia de las derivadas en redes neuronales
 
-**Idea clave**
+### Idea clave
 
-Las derivadas determinan **cómo cambia la salida** de la red cuando cambiamos ligeramente los pesos.  
-Sin derivadas no podríamos ajustar los parámetros → la red no podría aprender.
+Las derivadas nos indican **qué tan sensible es el error del modelo** a pequeños cambios en sus parámetros (pesos y sesgos).  
+En otras palabras, responden a la pregunta:
 
-**En cada capa**
+> *“Si cambio un peso un poco, ¿el error mejora o empeora, y cuánto?”*
 
-Dado:
-- $z = Wx + b$
-- $a = f(z)$
+Sin derivadas no hay forma sistemática de saber **cómo ajustar los pesos**, por lo tanto **no hay aprendizaje**.
 
-Las derivadas que necesitamos son:
+---
+
+### ¿Dónde aparecen las derivadas?
+
+En cada neurona ocurren dos pasos fundamentales:
+
+1. **Combinación lineal**
+   $$
+   z = W x + b
+   $$
+
+2. **Función de activación**
+   $$
+   a = f(z)
+   $$
+
+Para poder entrenar la red necesitamos saber:
+
+- Cómo cambia la activación cuando cambia $z$
+- Cómo cambia $z$ cuando cambian los pesos
+
+Esto se expresa mediante derivadas locales:
 
 $$
 \frac{\partial a}{\partial z} = f'(z)
@@ -185,23 +206,46 @@ $$
 
 $$
 \frac{\partial z}{\partial W} = x
-\qquad\text{(cómo afecta el peso al valor interno)}
+\qquad\text{(cómo el peso afecta al valor interno)}
 $$
 
-Estas derivadas permiten calcular el gradiente del error respecto a cada parámetro.
+Estas derivadas **no optimizan nada por sí solas**, pero son los bloques básicos que permiten calcular el gradiente del error.
 
 ---
 
-### ¿Por qué es crítico?
+### Derivadas y aprendizaje
 
-- Las activaciones determinan **cómo se propaga el gradiente** hacia atrás.  
-- Funciones como Sigmoid y Tanh pueden causar **gradientes muy pequeños** (“vanishing gradient”).  
-- ReLU, GELU, Swish y ELU mantienen gradientes útiles en la mayor parte del dominio.  
-- Sin derivadas bien comportadas, el aprendizaje se vuelve lento o imposible.
+El entrenamiento de una red neuronal funciona porque:
+
+- La función de pérdida mide el error.
+- Las derivadas indican **en qué dirección cambia ese error**.
+- El descenso de gradiente ajusta los pesos en la dirección que **reduce la pérdida**.
+
+Conceptualmente:
+
+> **Derivadas grandes** → el aprendizaje avanza rápido  
+> **Derivadas cercanas a cero** → el aprendizaje se vuelve lento o se detiene
 
 ---
 
-### Visualización
+### Importancia de las funciones de activación
+
+Las funciones de activación no solo introducen no linealidad,  
+también determinan **cómo se propaga el gradiente hacia atrás**.
+
+- **Sigmoid y Tanh**
+  - Se “aplanan” para valores grandes o pequeños.
+  - Sus derivadas se vuelven muy pequeñas.
+  - Pueden causar el problema de **vanishing gradient**.
+
+- **ReLU, GELU, ELU, Swish**
+  - Mantienen derivadas útiles en gran parte del dominio.
+  - Permiten entrenar redes profundas de forma estable.
+  - Son preferidas en arquitecturas modernas.
+
+---
+
+### Visualización conceptual
 
 \centering
 \begin{tikzpicture}[scale=0.8,>=latex]
@@ -209,14 +253,36 @@ Estas derivadas permiten calcular el gradiente del error respecto a cada paráme
   \draw[->] (-3,0) -- (3,0) node[right] {$z$};
   \draw[->] (0,-1) -- (0,2.5) node[above] {$f'(z)$};
 
-  % Derivada de ReLU
+  % Derivada ReLU
   \draw[thick, blue] (-3,0) -- (0,0);
-  \draw[thick, blue] (0,1.5) -- (3,1.5) node[right] {\small $f'(z)$ para ReLU};
+  \draw[thick, blue] (0,1.5) -- (3,1.5) node[right] {\small Derivada de ReLU};
 
-  % Comment
-  \node at (0,-1.2) {\small Derivadas grandes → aprendizaje rápido.};
-  \node at (0,-1.8) {\small Derivadas cercanas a 0 → gradientes que desaparecen.};
+  % Comentarios
+  \node at (0,-1.2) {\small Derivadas grandes → aprendizaje eficiente};
+  \node at (0,-1.8) {\small Derivadas $\approx 0$ → aprendizaje lento};
 \end{tikzpicture}
+
+---
+
+### Qué **no** necesitamos calcular a mano
+
+- No calculamos derivadas completas de la función de pérdida a mano.
+- Frameworks modernos (TensorFlow, PyTorch) lo hacen automáticamente.
+- Lo importante es entender:
+  - **Qué papel juegan las derivadas**
+  - **Por qué ciertas activaciones funcionan mejor que otras**
+
+Más adelante veremos cómo estas ideas se organizan en el algoritmo de  
+**propagación hacia atrás (backpropagation)**.
+
+---
+
+### Mensaje final
+
+Las derivadas son el **mecanismo interno del aprendizaje** en redes neuronales.  
+No son un fin matemático en sí mismas, sino la herramienta que permite:
+
+> convertir el error en información útil para mejorar el modelo.
 
 
 ---
@@ -269,20 +335,3 @@ Una actualización de pesos por cada batch.
 - Reduce ruido en la actualización.
 - Optimiza el uso del hardware (GPU/CPU).
 
----
-
-# Actividad de Cierre
-Comparar tres escenarios:
-1. Batch completo  
-2. Mini-batch  
-3. SGD  
-
-Explicar cuál sería más estable, más ruidoso y más rápido.
-
----
-
-# Notas del Presentador
-- Usar la analogía de la montaña para descenso de gradiente.
-- Explicar por qué el batch afecta la estabilidad.
-- Evitar matemáticas y enfocarse en intuición visual.
-- Conectar esta sesión con la siguiente sobre generalización.
