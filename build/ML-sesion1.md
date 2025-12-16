@@ -302,5 +302,3 @@ Detección de fraude en tarjetas de crédito:
 | Árboles/Random Forest | No linealidades e interacciones     | Sobreajuste (árbol único)     |
 | SVM                   | Alta dimensión y no lineal (kernel) | Costoso en datasets grandes   |
 
-
----
