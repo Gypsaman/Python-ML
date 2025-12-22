@@ -1,5 +1,5 @@
 ---
-title: "Funciones de Pérdida en Redes Neuronales"
+title: "Entrenamiento de Redes Neuronales"
 author: "Cesar Garcia"
 date: "2025"
 lang: es

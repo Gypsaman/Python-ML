@@ -21,4 +21,10 @@
 - No usar:  *File → Save changes to GitHub*.  
 - En vez de eso, usa: **File → Save a copy in Drive** para crear tu propia copia editable.  
 ```
+## Practica de Numpy, Matplotlib, Pandas
 
+| Título / Topic | Colab |
+| :--- | :--- |
+| Numpy | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/NumPy_examples.ipynb) |
+| Pandas | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/Pandas_examples.ipynb) |
+| Matplotlib | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/Matplotlib_examples.ipynb) |

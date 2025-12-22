@@ -8,7 +8,6 @@ header-includes:
   - \usepackage{pdfpc}
   - \usepackage{tikz}
   - \usetikzlibrary{positioning,arrows.meta}
-
 ---
 
 # Objetivos
@@ -19,8 +18,6 @@ header-includes:
 - Familiarizarse con funciones de activación comunes.
 
 ---
-
-
 
 # ¿Qué es una Red Neuronal?
 
@@ -95,8 +92,6 @@ $$
 
 \end{tikzpicture}
 
-
-
 ---
 
 # Perceptron
@@ -135,13 +130,13 @@ $$
 \draw[arrow] (X2) -- node[above] {$w_2$} (SUM);
 \draw[arrow] (X3) -- node[below] {$w_3$} (SUM);
 
-% Summation → addition
+% Summation -> addition
 \draw[arrow] (SUM) -- (ADD);
 
-% Bias → addition (rewrite as +b next to arrow)
+% Bias -> addition (rewrite as +b next to arrow)
 \draw[arrow] (4,2.2) -- node[right] {$b$} (ADD);
 
-% Addition → activation → y node
+% Addition -> activation -> y node
 \draw[arrow] (ADD) -- (ACT);
 \draw[arrow] (ACT) -- (YNODE);
 
@@ -152,7 +147,6 @@ $$
 };
 
 \end{tikzpicture}
-
 
 ---
 
@@ -268,8 +262,6 @@ $$
 - Sin activaciones no lineales, toda la red sería equivalente a una sola transformación lineal.  
 - Diferentes activaciones producen comportamientos distintos en el aprendizaje.
 
-
-
 ---
 
 ## ¿Por qué necesitamos no linealidad?
@@ -287,7 +279,6 @@ $$
 
 **Viendolo del punto de vista Algebraico**
 
-###
 $$
 \begin{aligned}
 z^{(1)} &= W^{(1)} x + b^{(1)} \\
@@ -297,7 +288,6 @@ z^{(2)} &= W^{(2)} z^{(1)} + b^{(2)} \\
 \end{aligned}
 $$
 
-###
 Sigue siendo de la forma:
 $$z^{(2)} = W^{*} x + b^{*}$$
 es decir, **lineal**.
@@ -342,7 +332,6 @@ es decir, **lineal**.
 \small
 Una recta no puede separar las clases,  
 pero una frontera curva (no lineal) sí.
-
 
 ---
 
@@ -408,7 +397,7 @@ $$
 
 ## Sigmoid / logística
 
-- Comprime cualquier valor real al intervalo $((0, 1))$.
+- Comprime cualquier valor real al intervalo $(0, 1)$.
 - Interpretación probabilística: salida como “probabilidad”.
 - Problema: gradientes muy pequeños para valores grandes en magnitud (saturación).
 
@@ -438,7 +427,7 @@ $$
 ## Tangente hiperbólica
 
 - Similar a la sigmoide pero centrada en 0.
-- Rango en $((-1, 1))$.
+- Rango en $(-1, 1)$.
 - Útil cuando queremos activaciones con media cercana a cero.
 
 $$
@@ -476,27 +465,21 @@ $$
 
 donde $\Phi(x)$ es la CDF de la normal estándar.
 
-
-## Aproximación práctica usada en la mayoría de implementaciones:
+Aproximación práctica usada en la mayoría de implementaciones:
 
 $$
 \text{GELU}(x) \approx 0.5\,x\Bigl(1 + \tanh\bigl(\sqrt{2/\pi}\,(x + 0.044715\,x^{3})\bigr)\Bigr)
 $$
-
----
-
-# Función de activación: GELU
 
 ## Visualización
 \centering
 \begin{tikzpicture}[scale=0.7]
   % Ejes
   \draw[->] (-4,0) -- (4,0) node[right] {$x$};
-  \draw[->] (0,-1) -- (0,3) node[above] {$\text{GELU}(x)$};
-  % Curva “tipo” GELU (suavizada a mano)
-  \draw[thick,domain=-4:4,samples=80]
-    plot (\x,{0.5*\x*(1+tanh(0.5*\x))});
-  % Comentario: curva suave parecida a ReLU
+  \draw[->] (0,-0.8) -- (0,4) node[above] {$\text{GELU}(x)$};
+  % Aproximación más precisa de GELU (usando la fórmula práctica)
+  \draw[thick,domain=-4:4,samples=150]
+    plot (\x,{0.5*\x*(1 + tanh(sqrt(2/3.14159)*(\x + 0.044715*\x*\x*\x)))});
 \end{tikzpicture}
 
 ---
@@ -514,6 +497,12 @@ Para una salida de dimensión $K$:
 $$
 \text{softmax}(z)_i = \frac{e^{z_i}}{\sum_{j=1}^{K} e^{z_j}}, \quad i = 1,\dots,K
 $$
+
+**Ejemplo numérico**  
+Entrada $z = [2.0, 1.0, 0.1]$  
+$e^z \approx [7.389, 2.718, 1.105]$  
+Suma $= 11.212$  
+$\text{softmax}(z) \approx [0.66, 0.24, 0.10]$
 
 ## Visualización
 \centering
@@ -533,12 +522,12 @@ $$
   \node[draw,minimum width=12mm,minimum height=6mm,right=18mm of soft]        (p2) {$p_2$};
   \node[draw,minimum width=12mm,minimum height=6mm,right=18mm of soft.south]  (p3) {$p_3$};
 
-  % Flechas entrada → softmax
+  % Flechas entrada -> softmax
   \draw[->] (z1.east) -- (soft.west|-z1.east);
   \draw[->] (z2.east) -- (soft.west);
   \draw[->] (z3.east) -- (soft.west|-z3.east);
 
-  % Flechas softmax → salida
+  % Flechas softmax -> salida
   \draw[->] (soft.east|-p1.west) -- (p1.west);
   \draw[->] (soft.east)          -- (p2.west);
   \draw[->] (soft.east|-p3.west) -- (p3.west);
@@ -553,33 +542,34 @@ $$
 \begin{tikzpicture}[scale=0.8, >=latex]
 
   % Ejes
-  \draw[->] (-3,0) -- (3,0) node[right] {$z$};
-  \draw[->] (0,-1.5) -- (0,3) node[above] {$f(z)$};
+  \draw[->] (-4,0) -- (4,0) node[right] {$z$};
+  \draw[->] (0,-1.5) -- (0,4) node[above] {$f(z)$};
 
-  % ReLU
-  \draw[thick, blue] (-3,0) -- (0,0);
-  \draw[thick, blue] (0,0) -- (3,3) node[right] {\small ReLU};
+  % ReLU (azul)
+  \draw[thick, blue] (-4,0) -- (0,0) -- (4,4) node[right] {\small ReLU};
 
-  % Sigmoid
-  \draw[thick, red, domain=-3:3,samples=80]
-    plot (\x,{1/(1+exp(-\x))}) node[right] {\small Sigmoide};
+  % Sigmoid (rojo)
+  \draw[thick, red, domain=-4:4,samples=100]
+    plot (\x,{1/(1+exp(-\x))}) node[below right] {\small Sigmoide};
 
-  % Tanh
-  \draw[thick, green!60!black, domain=-3:3,samples=80]
-    plot (\x,{tanh(\x)}) node[above] {\small Tanh};
+  % Tanh (verde)
+  \draw[thick, green!60!black, domain=-4:4,samples=100]
+    plot (\x,{tanh(\x)}) node[above right] {\small Tanh};
+
+  % GELU (morado) - aproximación
+  \draw[thick, purple, domain=-4:4,samples=150]
+    plot (\x,{0.5*\x*(1 + tanh(sqrt(2/3.14159)*(\x + 0.044715*\x*\x*\x)))}) node[below left] {\small GELU};
 
 \end{tikzpicture}
 
 ---
-
-
 
 # Función de activación: Leaky ReLU
 
 ## Leaky Rectified Linear Unit
 
 - Variante de ReLU que permite un pequeño gradiente cuando $x < 0$.
-- Evita el problema de “neuronas muertas” (pesos que nunca se actualizan).
+- Evita el problema de “neuronas muertas”.
 - Parámetro $\alpha$ controla la pendiente en la parte negativa (típicamente $\alpha = 0.01$).
 
 $$
@@ -590,23 +580,17 @@ x, & x \ge 0 \\
 \end{cases}
 $$
 
-con $\alpha > 0$ pequeño.
-
----
-
-# Función de activación: Leaky ReLU
-
 ## Visualización
 
 \centering
 \begin{tikzpicture}[scale=0.7]
   % Ejes
-  \draw[->] (-3,0) -- (3,0) node[right] {$x$};
-  \draw[->] (0,-1.5) -- (0,3) node[above] {$f(x)$};
+  \draw[->] (-4,0) -- (4,0) node[right] {$x$};
+  \draw[->] (0,-1.5) -- (0,4) node[above] {$f(x)$};
 
-  % Leaky ReLU con alpha = 0.2
-  \draw[thick,domain=-3:0] plot (\x,{0.2*\x});
-  \draw[thick,domain=0:3]  plot (\x,{\x});
+  % Leaky ReLU con alpha = 0.1 (para mayor visibilidad)
+  \draw[thick,domain=-4:0] plot (\x,{0.1*\x});
+  \draw[thick,domain=0:4]  plot (\x,{\x});
 \end{tikzpicture}
 
 ---
@@ -617,7 +601,6 @@ con $\alpha > 0$ pequeño.
 
 - Similar a ReLU para $x \ge 0$, pero suave en la parte negativa.
 - Produce activaciones negativas que ayudan a centrar la salida alrededor de 0.
-- Reduce la “dead zone” de ReLU, manteniendo gradientes en $x < 0$.
 
 $$
 \text{ELU}(x) =
@@ -629,41 +612,32 @@ $$
 
 Típicamente $\alpha = 1$.
 
----
-
-# Función de activación: ELU
-
 ## Visualización
 
 \centering
 \begin{tikzpicture}[scale=0.7]
   % Ejes
-  \draw[->] (-3,0) -- (3,0) node[right] {$x$};
-  \draw[->] (0,-2) -- (0,3) node[above] {$f(x)$};
+  \draw[->] (-4,0) -- (4,0) node[right] {$x$};
+  \draw[->] (0,-2) -- (0,4) node[above] {$f(x)$};
 
   % ELU con alpha = 1
-  \draw[thick,domain=-3:0,samples=100]
+  \draw[thick,domain=-4:0,samples=100]
     plot (\x,{exp(\x)-1});
-  \draw[thick,domain=0:3] plot (\x,{\x});
+  \draw[thick,domain=0:4] plot (\x,{\x});
 \end{tikzpicture}
 
 ---
 
 # Función de activación: Swish (SiLU)
 
-## Swish - Imagen / SiLU - Sigmoid Linear Unit
+## Swish / SiLU - Sigmoid Linear Unit
 
-- Activación moderna usada en redes eficientes (por ejemplo, EfficientNet).
-- Suaviza la ReLU y la hace “auto-puerta”: la propia entrada decide cuánto se deja pasar.
-- Similar a GELU en comportamiento: valores positivos grandes pasan casi linealmente, los negativos se atenúan suavemente.
+- Activación moderna usada en redes eficientes (EfficientNet, etc.).
+- Similar a GELU en comportamiento.
 
 $$
-\text{Swish}(x) = x \,\sigma(x)
-\quad\text{donde}\quad
-\sigma(x) = \frac{1}{1 + e^{-x}}
+\text{Swish}(x) = x \,\sigma(x) = \frac{x}{1 + e^{-x}}
 $$
-
-# Función de activación: Swish (SiLU)
 
 ## Visualización
 
@@ -671,10 +645,10 @@ $$
 \begin{tikzpicture}[scale=0.7]
   % Ejes
   \draw[->] (-5,0) -- (5,0) node[right] {$x$};
-  \draw[->] (0,-2) -- (0,3) node[above] {$f(x)$};
+  \draw[->] (0,-0.5) -- (0,5) node[above] {$f(x)$};
 
   % Swish: x * sigmoid(x)
-  \draw[thick,domain=-5:5,samples=120]
+  \draw[thick,domain=-5:5,samples=150]
     plot (\x,{\x/(1 + exp(-\x))});
 \end{tikzpicture}
 
@@ -684,6 +658,4 @@ $$
 
 [![Playground](../images/Playground-Tensorflow.png)](https://playground.tensorflow.org/)
 
-
 ---
-

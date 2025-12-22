@@ -1,6 +1,13 @@
-% Sesión 4: Generalización, Sobreajuste y Conceptos Modernos en Redes Neuronales
-% Curso: Fundamentos de Machine Learning con Redes Neuronales
-% Sesión 4 (1 hora)
+---
+title: Generalización, Sobreajuste y Conceptos Modernos en Redes Neuronales"
+author: "Cesar Garcia"
+date: "2025"
+lang: es
+theme: "Madrid"
+header-includes:
+  - \usepackage{tikz}
+  - \usetikzlibrary{arrows.meta}
+---
 
 # Introducción
 ## Objetivos de la sesión
@@ -117,10 +124,3 @@ Reflexionar sobre un ejemplo real e identificar:
 - ¿Dónde podría ocurrir sobreajuste?
 - ¿Qué arquitectura moderna sería útil?
 
----
-
-# Notas del Presentador
-- Enfatizar que las arquitecturas modernas siguen los mismos principios básicos vistos en sesiones anteriores.
-- Explicar la importancia crítica de los datos y su preparación.
-- Relacionar el contenido con aplicaciones como visión, lenguaje y audio.
-- Conectar con el próximo curso: implementación con Python y librerías (TensorFlow/PyTorch).

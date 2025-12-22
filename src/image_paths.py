@@ -17,7 +17,7 @@ def fix_images(file: str) -> None:
     patternx = r'!\[.*\]\((.*)\)'
     pattern = r'!\[.*?\]\((.*?)\)'
     
-    with open(file, 'r') as f:
+    with open(file, 'r',encoding='utf-8') as f:
         content = f.read()
     image_refs = re.findall( pattern, content)
     for image_ref in image_refs:
