@@ -19,35 +19,6 @@ header-includes:
 
 ---
 
-# ¿Qué es una Red Neuronal?
-
-\small
-
-Una red neuronal es una función compuesta por varias transformaciones simples:
-
-### 1. **Capas**
-
-- **Capa de entrada:** recibe las características del problema.
-- **Capas ocultas:** combinan pesos, sesgos y activaciones para aprender patrones.
-- **Capa de salida:** produce la predicción final.
-
-### 2. **Neuronas**
-
-Cada neurona realiza:
-
-$$
-z = W x + b
-\qquad\Rightarrow\qquad
-a = f(z)
-$$
-
-### 3. **Conexiones y aprendizaje**
-
-- Pesos que conectan una capa con la siguiente.
-- La red ajusta estos pesos durante el entrenamiento para minimizar el error.
-
----
-
 # Red Neural
 
 \centering
@@ -95,6 +66,35 @@ connection/.style={-latex}
 \node at (7,0) {salida};
 
 \end{tikzpicture}
+
+---
+
+# ¿Qué es una Red Neuronal?
+
+\small
+
+Una red neuronal es una función compuesta por varias transformaciones simples:
+
+### 1. **Capas**
+
+- **Capa de entrada:** recibe las características del problema.
+- **Capas ocultas:** combinan pesos, sesgos y activaciones para aprender patrones.
+- **Capa de salida:** produce la predicción final.
+
+### 2. **Neuronas**
+
+Cada neurona realiza:
+
+$$
+z = W x + b
+\qquad\Rightarrow\qquad
+a = f(z)
+$$
+
+### 3. **Conexiones y aprendizaje**
+
+- Pesos que conectan una capa con la siguiente.
+- La red ajusta estos pesos durante el entrenamiento para minimizar el error.
 
 ---
 
