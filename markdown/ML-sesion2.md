@@ -482,6 +482,8 @@ $$
 \text{GELU}(x) \approx 0.5\,x\Bigl(1 + \tanh\bigl(\sqrt{2/\pi}\,(x + 0.044715\,x^{3})\bigr)\Bigr)
 $$
 
+---
+
 ## Visualización
 
 \centering
@@ -515,6 +517,8 @@ Entrada $z = [2.0, 1.0, 0.1]$
 $e^z \approx [7.389, 2.718, 1.105]$  
 Suma $= 11.212$  
 $\text{softmax}(z) \approx [0.66, 0.24, 0.10]$
+
+---
 
 ## Visualización
 
