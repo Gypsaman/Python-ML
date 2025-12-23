@@ -1,5 +1,5 @@
 ---
-title: "Introducción a ML – Sesión 2"
+title: "Introduccion a ML – Sesion 2"
 author: "Cesar Garcia"
 date: "2025"
 lang: es
@@ -26,12 +26,15 @@ header-includes:
 Una red neuronal es una función compuesta por varias transformaciones simples:
 
 ### 1. **Capas**
+
 - **Capa de entrada:** recibe las características del problema.
 - **Capas ocultas:** combinan pesos, sesgos y activaciones para aprender patrones.
 - **Capa de salida:** produce la predicción final.
 
 ### 2. **Neuronas**
+
 Cada neurona realiza:
+
 $$
 z = W x + b
 \qquad\Rightarrow\qquad
@@ -39,6 +42,7 @@ a = f(z)
 $$
 
 ### 3. **Conexiones y aprendizaje**
+
 - Pesos que conectan una capa con la siguiente.
 - La red ajusta estos pesos durante el entrenamiento para minimizar el error.
 
@@ -48,11 +52,11 @@ $$
 
 \centering
 \begin{tikzpicture}[
-    x=1.0cm, y=1.0cm,
-    scale=0.7,
-    every node/.style={transform shape},
-    neuron/.style={circle, draw, minimum size=6mm},
-    connection/.style={-latex}
+x=1.0cm, y=1.0cm,
+scale=0.7,
+every node/.style={transform shape},
+neuron/.style={circle, draw, minimum size=6mm},
+connection/.style={-latex}
 ]
 
 % Input layer
@@ -73,16 +77,16 @@ $$
 
 % Connections: Input -> Hidden
 \foreach \i in {I1,I2,I3}{
-  \foreach \h in {H1,H2,H3,H4,H5}{
-    \draw[connection] (\i) -- (\h);
-  }
+\foreach \h in {H1,H2,H3,H4,H5}{
+\draw[connection] (\i) -- (\h);
+}
 }
 
 % Connections: Hidden -> Output
 \foreach \h in {H1,H2,H3,H4,H5}{
-  \foreach \o in {O1,O2}{
-    \draw[connection] (\h) -- (\o);
-  }
+\foreach \o in {O1,O2}{
+\draw[connection] (\h) -- (\o);
+}
 }
 
 % Labels
@@ -98,23 +102,23 @@ $$
 
 \centering
 \begin{tikzpicture}[
-    scale=0.9,
-    neuron/.style={circle, draw, minimum size=12mm, thick},
-    smallnode/.style={circle, draw, minimum size=8mm, thick},
-    arrow/.style={-latex, thick},
-    font=\large
+scale=0.9,
+neuron/.style={circle, draw, minimum size=12mm, thick},
+smallnode/.style={circle, draw, minimum size=8mm, thick},
+arrow/.style={-latex, thick},
+font=\large
 ]
 
 % Inputs
 \node (X1) at (0,1.5) {$x_1$};
-\node (X2) at (0,0)   {$x_2$};
+\node (X2) at (0,0) {$x_2$};
 \node (X3) at (0,-1.5){$x_3$};
 
 % Summation node
 \node[neuron] (SUM) at (4,0) {$\Sigma$};
 
 % Bias value (no arrow from above)
-\node (B) at (4,2.2) {};  % empty placeholder (keeps geometry)
+\node (B) at (4,2.2) {}; % empty placeholder (keeps geometry)
 
 % Addition node
 \node[smallnode] (ADD) at (6,0) {$+$};
@@ -143,7 +147,7 @@ $$
 % Bottom centered formula
 \node[below=2.2cm of ACT, align=center]
 {
-    $y = f\!\left(\sum_{i=1}^{n} w_i x_i + b\right)$
+$y = f\!\left(\sum_{i=1}^{n} w_i x_i + b\right)$
 };
 
 \end{tikzpicture}
@@ -154,8 +158,8 @@ $$
 
 \centering
 \begin{tikzpicture}[
-    node distance=10mm,
-    every node/.style={font=\large}
+node distance=10mm,
+every node/.style={font=\large}
 ]
 
 % Title for the operation
@@ -164,29 +168,29 @@ $$
 % Weight matrix W (5x3)
 \node (W) at (-4,0)
 {
-  $\displaystyle
-  W =
-  \begin{bmatrix}
-    w_{11} & w_{12} & w_{13} \\
-    w_{21} & w_{22} & w_{23} \\
-    w_{31} & w_{32} & w_{33} \\
-    w_{41} & w_{42} & w_{43} \\
-    w_{51} & w_{52} & w_{53}
-  \end{bmatrix}_{5\times 3}
-  $
+$\displaystyle
+W =
+\begin{bmatrix}
+w*{11} & w*{12} & w*{13} \\
+w*{21} & w*{22} & w*{23} \\
+w*{31} & w*{32} & w*{33} \\
+w*{41} & w*{42} & w*{43} \\
+w*{51} & w*{52} & w*{53}
+\end{bmatrix}*{5\times 3}
+$
 };
 
 % Input vector x (3x1)
 \node[right=12mm of W] (x)
 {
-  $\displaystyle
-  x =
-  \begin{bmatrix}
-    x_1 \\
-    x_2 \\
-    x_3
-  \end{bmatrix}_{3\times 1}
-  $
+$\displaystyle
+x =
+\begin{bmatrix}
+x*1 \\
+x_2 \\
+x_3
+\end{bmatrix}*{3\times 1}
+$
 };
 
 % Plus sign
@@ -195,16 +199,16 @@ $$
 % Bias vector b (5x1)
 \node[right=8mm of plus] (b)
 {
-  $\displaystyle
-  b =
-  \begin{bmatrix}
-    b_1 \\
-    b_2 \\
-    b_3 \\
-    b_4 \\
-    b_5
-  \end{bmatrix}_{5\times 1}
-  $
+$\displaystyle
+b =
+\begin{bmatrix}
+b*1 \\
+b_2 \\
+b_3 \\
+b_4 \\
+b_5
+\end{bmatrix}*{5\times 1}
+$
 };
 
 % Equals sign
@@ -213,16 +217,16 @@ $$
 % Output vector z (5x1)
 \node[right=8mm of equals] (z)
 {
-  $\displaystyle
-  z =
-  \begin{bmatrix}
-    z_1 \\
-    z_2 \\
-    z_3 \\
-    z_4 \\
-    z_5
-  \end{bmatrix}_{5\times 1}
-  $
+$\displaystyle
+z =
+\begin{bmatrix}
+z*1 \\
+z_2 \\
+z_3 \\
+z_4 \\
+z_5
+\end{bmatrix}*{5\times 1}
+$
 };
 
 \end{tikzpicture}
@@ -233,9 +237,9 @@ $$
 
 ## Propagación hacia adelante (Forward Propagation)
 
-- Tomamos las entradas $(x)$ del modelo.  
-- En cada capa calculamos una combinación lineal: $(z = W x + b)$.  
-- Aplicamos una función de activación: $(a = f(z))$.  
+- Tomamos las entradas $(x)$ del modelo.
+- En cada capa calculamos una combinación lineal: $(z = W x + b)$.
+- Aplicamos una función de activación: $(a = f(z))$.
 - Repetimos capa por capa hasta obtener la salida $(\hat{y})$.
 
 \vspace{0.5cm}
@@ -257,9 +261,9 @@ $$
 
 **¿Qué es una función de activación?**
 
-- Es una transformación no lineal aplicada después de la combinación lineal $z = Wx + b$.  
-- Permite que la red neuronal aprenda funciones complejas, no sólo líneas rectas.  
-- Sin activaciones no lineales, toda la red sería equivalente a una sola transformación lineal.  
+- Es una transformación no lineal aplicada después de la combinación lineal $z = Wx + b$.
+- Permite que la red neuronal aprenda funciones complejas, no sólo líneas rectas.
+- Sin activaciones no lineales, toda la red sería equivalente a una sola transformación lineal.
 - Diferentes activaciones producen comportamientos distintos en el aprendizaje.
 
 ---
@@ -301,28 +305,28 @@ es decir, **lineal**.
 \centering
 \begin{tikzpicture}[scale=0.9,>=latex]
 
-  % Ejes
-  \draw[->] (-3,0) -- (3,0) node[right] {$x_1$};
-  \draw[->] (0,-3) -- (0,3) node[above] {$x_2$};
+% Ejes
+\draw[->] (-3,0) -- (3,0) node[right] {$x_1$};
+\draw[->] (0,-3) -- (0,3) node[above] {$x_2$};
 
-  % Clase roja (centro)
-  \fill[red] (0,0) circle (3pt);
-  \fill[red] (0.3,0.2) circle (3pt);
-  \fill[red] (-0.2,-0.3) circle (3pt);
-  \fill[red] (0.1,-0.2) circle (3pt);
+% Clase roja (centro)
+\fill[red] (0,0) circle (3pt);
+\fill[red] (0.3,0.2) circle (3pt);
+\fill[red] (-0.2,-0.3) circle (3pt);
+\fill[red] (0.1,-0.2) circle (3pt);
 
-  % Clase azul (anillo alrededor)
-  \foreach \ang in {0,30,...,330} {
-    \fill[blue] ({2*cos(\ang)},{2*sin(\ang)}) circle (3pt);
-  }
+% Clase azul (anillo alrededor)
+\foreach \ang in {0,30,...,330} {
+\fill[blue] ({2*cos(\ang)},{2*sin(\ang)}) circle (3pt);
+}
 
-  % Frontera lineal (no sirve)
-  \draw[thick] (-2.8,-2.2) -- (2.8,2.2)
-    node[above right] {\small frontera lineal};
+% Frontera lineal (no sirve)
+\draw[thick] (-2.8,-2.2) -- (2.8,2.2)
+node[above right] {\small frontera lineal};
 
-  % Frontera no lineal (círculo)
-  \draw[thick,dashed] (0,0) circle (1.3)
-    node[below right] {\small frontera no lineal};
+% Frontera no lineal (círculo)
+\draw[thick,dashed] (0,0) circle (1.3)
+node[below right] {\small frontera no lineal};
 
 \end{tikzpicture}
 
@@ -340,7 +344,8 @@ pero una frontera curva (no lineal) sí.
 Un perceptrón multicapa (MLP) con **una sola capa oculta**, pero con suficientes neuronas, puede aproximar **cualquier función continua** en un conjunto compacto. Esto requiere una función de activación **no lineal** (ReLU, Sigmoid, Tanh, etc.).
 
 ## Enunciado formal
-> Para toda función continua $f: \mathbb{R}^n \to \mathbb{R}$;  y para todo $\varepsilon > 0$,  
+
+> Para toda función continua $f: \mathbb{R}^n \to \mathbb{R}$; y para todo $\varepsilon > 0$,  
 > existe una red neuronal con **una capa oculta** y una activación no lineal $f(\cdot)$ tal que la red aproxima a $f$ con un error menor que $\varepsilon$. en todo el dominio compacto.
 
 ##
@@ -353,17 +358,20 @@ Un perceptrón multicapa (MLP) con **una sola capa oculta**, pero con suficiente
 # Funciones de Activación
 
 ## Funciones de activación comunes
-- ReLU  
-- Sigmoid  
-- Tanh  
-- GELU  
+
+- ReLU
+- Sigmoid
+- Tanh
+- GELU
 
 ## Otras populares (includidas para referencia)
+
 - Leaky ReLU
-- ELU  
+- ELU
 - Swish (SiLU)
 
 ## Popular para salidas
+
 - Softmax
 
 ---
@@ -381,14 +389,15 @@ $$
 $$
 
 ## Visualización
+
 \centering
 \begin{tikzpicture}[scale=0.7]
-  % Ejes
-  \draw[->] (-3,0) -- (3,0) node[right] {$x$};
-  \draw[->] (0,-0.2) -- (0,3) node[above] {$f(x)$};
-  % ReLU
-  \draw[thick] (-3,0) -- (0,0);
-  \draw[thick] (0,0) -- (3,3);
+% Ejes
+\draw[->] (-3,0) -- (3,0) node[right] {$x$};
+\draw[->] (0,-0.2) -- (0,3) node[above] {$f(x)$};
+% ReLU
+\draw[thick] (-3,0) -- (0,0);
+\draw[thick] (0,0) -- (3,3);
 \end{tikzpicture}
 
 ---
@@ -409,15 +418,15 @@ $$
 
 \centering
 \begin{tikzpicture}[scale=0.7]
-  % Ejes
-  \draw[->] (-6,0) -- (6,0) node[right] {$x$};
-  \draw[->] (0,-0.1) -- (0,1.2) node[above] {$\sigma(x)$};
-  % Sigmoide
-  \draw[thick,domain=-6:6,samples=100]
-    plot (\x,{1/(1+exp(-\x))});
-  % Líneas guía
-  \draw[dashed] (-6,1) -- (6,1);
-  \draw[dashed] (-6,0) -- (6,0);
+% Ejes
+\draw[->] (-6,0) -- (6,0) node[right] {$x$};
+\draw[->] (0,-0.1) -- (0,1.2) node[above] {$\sigma(x)$};
+% Sigmoide
+\draw[thick,domain=-6:6,samples=100]
+plot (\x,{1/(1+exp(-\x))});
+% Líneas guía
+\draw[dashed] (-6,1) -- (6,1);
+\draw[dashed] (-6,0) -- (6,0);
 \end{tikzpicture}
 
 ---
@@ -435,17 +444,18 @@ $$
 $$
 
 ## Visualización
+
 \centering
 \begin{tikzpicture}[scale=0.7]
-  % Ejes
-  \draw[->] (-6,0) -- (6,0) node[right] {$x$};
-  \draw[->] (0,-1.5) -- (0,1.5) node[above] {$\tanh(x)$};
-  % Tanh
-  \draw[thick,domain=-6:6,samples=100]
-    plot (\x,{tanh(\x)});
-  % Líneas guía
-  \draw[dashed] (-6,1) -- (6,1);
-  \draw[dashed] (-6,-1) -- (6,-1);
+% Ejes
+\draw[->] (-6,0) -- (6,0) node[right] {$x$};
+\draw[->] (0,-1.5) -- (0,1.5) node[above] {$\tanh(x)$};
+% Tanh
+\draw[thick,domain=-6:6,samples=100]
+plot (\x,{tanh(\x)});
+% Líneas guía
+\draw[dashed] (-6,1) -- (6,1);
+\draw[dashed] (-6,-1) -- (6,-1);
 \end{tikzpicture}
 
 ---
@@ -453,6 +463,7 @@ $$
 # Función de activación: GELU
 
 ## Gaussian Error Linear Unit (GELU)
+
 - Suaviza la ReLU usando una distribución normal.
 - Muy popular en modelos modernos (por ejemplo, Transformers).
 - Activa más fuertemente valores positivos grandes, pero de forma suave.
@@ -472,14 +483,15 @@ $$
 $$
 
 ## Visualización
+
 \centering
 \begin{tikzpicture}[scale=0.7]
-  % Ejes
-  \draw[->] (-4,0) -- (4,0) node[right] {$x$};
-  \draw[->] (0,-0.8) -- (0,4) node[above] {$\text{GELU}(x)$};
-  % Aproximación más precisa de GELU (usando la fórmula práctica)
-  \draw[thick,domain=-4:4,samples=150]
-    plot (\x,{0.5*\x*(1 + tanh(sqrt(2/3.14159)*(\x + 0.044715*\x*\x*\x)))});
+% Ejes
+\draw[->] (-4,0) -- (4,0) node[right] {$x$};
+\draw[->] (0,-0.8) -- (0,4) node[above] {$\text{GELU}(x)$};
+% Aproximación más precisa de GELU (usando la fórmula práctica)
+\draw[thick,domain=-4:4,samples=150]
+plot (\x,{0.5*\x*(1 + tanh(sqrt(2/3.14159)_(\x + 0.044715_\x*\x*\x)))});
 \end{tikzpicture}
 
 ---
@@ -505,60 +517,62 @@ Suma $= 11.212$
 $\text{softmax}(z) \approx [0.66, 0.24, 0.10]$
 
 ## Visualización
+
 \centering
 \begin{tikzpicture}[node distance=12mm, font=\large]
-  % Vector de entrada z
-  \node (zlabel) at (0,1.5) {$z$};
-  \node[draw,minimum width=10mm,minimum height=6mm] (z1) at (0,0.7) {$z_1$};
-  \node[draw,minimum width=10mm,minimum height=6mm] (z2) at (0,0)   {$z_2$};
-  \node[draw,minimum width=10mm,minimum height=6mm] (z3) at (0,-0.7) {$z_3$};
+% Vector de entrada z
+\node (zlabel) at (0,1.5) {$z$};
+\node[draw,minimum width=10mm,minimum height=6mm] (z1) at (0,0.7) {$z_1$};
+\node[draw,minimum width=10mm,minimum height=6mm] (z2) at (0,0) {$z_2$};
+\node[draw,minimum width=10mm,minimum height=6mm] (z3) at (0,-0.7) {$z_3$};
 
-  % Caja softmax
-  \node[draw,rounded corners,minimum width=20mm,minimum height=18mm,right=18mm of z2] (soft) {softmax};
+% Caja softmax
+\node[draw,rounded corners,minimum width=20mm,minimum height=18mm,right=18mm of z2] (soft) {softmax};
 
-  % Vector de salida p
-  \node (plabel) at (5,1.5) {$p$};
-  \node[draw,minimum width=12mm,minimum height=6mm,right=18mm of soft.north] (p1) {$p_1$};
-  \node[draw,minimum width=12mm,minimum height=6mm,right=18mm of soft]        (p2) {$p_2$};
-  \node[draw,minimum width=12mm,minimum height=6mm,right=18mm of soft.south]  (p3) {$p_3$};
+% Vector de salida p
+\node (plabel) at (5,1.5) {$p$};
+\node[draw,minimum width=12mm,minimum height=6mm,right=18mm of soft.north] (p1) {$p_1$};
+\node[draw,minimum width=12mm,minimum height=6mm,right=18mm of soft] (p2) {$p_2$};
+\node[draw,minimum width=12mm,minimum height=6mm,right=18mm of soft.south] (p3) {$p_3$};
 
-  % Flechas entrada -> softmax
-  \draw[->] (z1.east) -- (soft.west|-z1.east);
-  \draw[->] (z2.east) -- (soft.west);
-  \draw[->] (z3.east) -- (soft.west|-z3.east);
+% Flechas entrada -> softmax
+\draw[->] (z1.east) -- (soft.west|-z1.east);
+\draw[->] (z2.east) -- (soft.west);
+\draw[->] (z3.east) -- (soft.west|-z3.east);
 
-  % Flechas softmax -> salida
-  \draw[->] (soft.east|-p1.west) -- (p1.west);
-  \draw[->] (soft.east)          -- (p2.west);
-  \draw[->] (soft.east|-p3.west) -- (p3.west);
+% Flechas softmax -> salida
+\draw[->] (soft.east|-p1.west) -- (p1.west);
+\draw[->] (soft.east) -- (p2.west);
+\draw[->] (soft.east|-p3.west) -- (p3.west);
 \end{tikzpicture}
 
 ---
 
 # Funciones de Activación – Comparación
+
 ## Visualización
 
 \centering
 \begin{tikzpicture}[scale=0.8, >=latex]
 
-  % Ejes
-  \draw[->] (-4,0) -- (4,0) node[right] {$z$};
-  \draw[->] (0,-1.5) -- (0,4) node[above] {$f(z)$};
+% Ejes
+\draw[->] (-4,0) -- (4,0) node[right] {$z$};
+\draw[->] (0,-1.5) -- (0,4) node[above] {$f(z)$};
 
-  % ReLU (azul)
-  \draw[thick, blue] (-4,0) -- (0,0) -- (4,4) node[right] {\small ReLU};
+% ReLU (azul)
+\draw[thick, blue] (-4,0) -- (0,0) -- (4,4) node[right] {\small ReLU};
 
-  % Sigmoid (rojo)
-  \draw[thick, red, domain=-4:4,samples=100]
-    plot (\x,{1/(1+exp(-\x))}) node[below right] {\small Sigmoide};
+% Sigmoid (rojo)
+\draw[thick, red, domain=-4:4,samples=100]
+plot (\x,{1/(1+exp(-\x))}) node[below right] {\small Sigmoide};
 
-  % Tanh (verde)
-  \draw[thick, green!60!black, domain=-4:4,samples=100]
-    plot (\x,{tanh(\x)}) node[above right] {\small Tanh};
+% Tanh (verde)
+\draw[thick, green!60!black, domain=-4:4,samples=100]
+plot (\x,{tanh(\x)}) node[above right] {\small Tanh};
 
-  % GELU (morado) - aproximación
-  \draw[thick, purple, domain=-4:4,samples=150]
-    plot (\x,{0.5*\x*(1 + tanh(sqrt(2/3.14159)*(\x + 0.044715*\x*\x*\x)))}) node[below left] {\small GELU};
+% GELU (morado) - aproximación
+\draw[thick, purple, domain=-4:4,samples=150]
+plot (\x,{0.5*\x*(1 + tanh(sqrt(2/3.14159)_(\x + 0.044715_\x*\x*\x)))}) node[below left] {\small GELU};
 
 \end{tikzpicture}
 
@@ -584,13 +598,13 @@ $$
 
 \centering
 \begin{tikzpicture}[scale=0.7]
-  % Ejes
-  \draw[->] (-4,0) -- (4,0) node[right] {$x$};
-  \draw[->] (0,-1.5) -- (0,4) node[above] {$f(x)$};
+% Ejes
+\draw[->] (-4,0) -- (4,0) node[right] {$x$};
+\draw[->] (0,-1.5) -- (0,4) node[above] {$f(x)$};
 
-  % Leaky ReLU con alpha = 0.1 (para mayor visibilidad)
-  \draw[thick,domain=-4:0] plot (\x,{0.1*\x});
-  \draw[thick,domain=0:4]  plot (\x,{\x});
+% Leaky ReLU con alpha = 0.1 (para mayor visibilidad)
+\draw[thick,domain=-4:0] plot (\x,{0.1\*\x});
+\draw[thick,domain=0:4] plot (\x,{\x});
 \end{tikzpicture}
 
 ---
@@ -616,14 +630,14 @@ Típicamente $\alpha = 1$.
 
 \centering
 \begin{tikzpicture}[scale=0.7]
-  % Ejes
-  \draw[->] (-4,0) -- (4,0) node[right] {$x$};
-  \draw[->] (0,-2) -- (0,4) node[above] {$f(x)$};
+% Ejes
+\draw[->] (-4,0) -- (4,0) node[right] {$x$};
+\draw[->] (0,-2) -- (0,4) node[above] {$f(x)$};
 
-  % ELU con alpha = 1
-  \draw[thick,domain=-4:0,samples=100]
-    plot (\x,{exp(\x)-1});
-  \draw[thick,domain=0:4] plot (\x,{\x});
+% ELU con alpha = 1
+\draw[thick,domain=-4:0,samples=100]
+plot (\x,{exp(\x)-1});
+\draw[thick,domain=0:4] plot (\x,{\x});
 \end{tikzpicture}
 
 ---
@@ -643,13 +657,13 @@ $$
 
 \centering
 \begin{tikzpicture}[scale=0.7]
-  % Ejes
-  \draw[->] (-5,0) -- (5,0) node[right] {$x$};
-  \draw[->] (0,-0.5) -- (0,5) node[above] {$f(x)$};
+% Ejes
+\draw[->] (-5,0) -- (5,0) node[right] {$x$};
+\draw[->] (0,-0.5) -- (0,5) node[above] {$f(x)$};
 
-  % Swish: x * sigmoid(x)
-  \draw[thick,domain=-5:5,samples=150]
-    plot (\x,{\x/(1 + exp(-\x))});
+% Swish: x \* sigmoid(x)
+\draw[thick,domain=-5:5,samples=150]
+plot (\x,{\x/(1 + exp(-\x))});
 \end{tikzpicture}
 
 ---
