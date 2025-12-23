@@ -488,7 +488,7 @@ $$
   % Ejes
   \draw[->] (-4,0) -- (4,0) node[right] {$x$};
   \draw[->] (0,-0.8) -- (0,4) node[above] {$\text{GELU}(x)$};
-  % Aproximación precisa de GELU (sin usar pi)
+  % Aproximación precisa de GELU (con constante numérica)
   \draw[thick,domain=-4:4,samples=200,smooth]
     plot (\x,{0.5*\x*(1 + tanh(0.7978845608*(\x + 0.044715*\x*\x*\x)))});
 \end{tikzpicture}
@@ -571,7 +571,7 @@ $\text{softmax}(z) \approx [0.66, 0.24, 0.10]$
 \draw[thick, green!60!black, domain=-4:4,samples=100]
   plot (\x,{tanh(\x)}) node[above right] {\small Tanh};
 
-% GELU (morado) - sin usar pi
+% GELU (morado) - con constante numérica
 \draw[thick, purple, domain=-4:4,samples=150,smooth]
   plot (\x,{0.5*\x*(1 + tanh(0.7978845608*(\x + 0.044715*\x*\x*\x)))}) node[below left] {\small GELU};
 
