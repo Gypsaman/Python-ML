@@ -488,12 +488,13 @@ $$
 
 \centering
 \begin{tikzpicture}[scale=0.7]
-% Ejes
-\draw[->] (-4,0) -- (4,0) node[right] {$x$};
-\draw[->] (0,-0.8) -- (0,4) node[above] {$\text{GELU}(x)$};
-% Aproximación más precisa de GELU (usando la fórmula práctica)
-\draw[thick,domain=-4:4,samples=150]
-plot (\x,{0.5*\x*(1 + tanh(sqrt(2/3.14159)_(\x + 0.044715_\x*\x*\x)))});
+  % Ejes
+  \draw[->] (-4,0) -- (4,0) node[right] {$x$};
+  \draw[->] (0,-0.8) -- (0,4) node[above] {$\text{GELU}(x)$};
+  % Aproximación más precisa de GELU
+  \def\temp#1{#1}  % macro dummy para "escapar" el _
+  \draw[thick,domain=-4:4,samples=150]
+    plot (\x,{0.5*\x*(1 + tanh(sqrt(2/3.14159)*(\x + 0.044715\temp_\x*\x*\x)))});
 \end{tikzpicture}
 
 ---
