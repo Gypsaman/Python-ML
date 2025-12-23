@@ -604,7 +604,7 @@ $$
 \draw[->] (0,-1.5) -- (0,4) node[above] {$f(x)$};
 
 % Leaky ReLU con alpha = 0.1 (para mayor visibilidad)
-\draw[thick,domain=-4:0] plot (\x,{0.1\*\x});
+\draw[thick,domain=-4:0] plot (\x,{0.1*\x});
 \draw[thick,domain=0:4] plot (\x,{\x});
 \end{tikzpicture}
 
