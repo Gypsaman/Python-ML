@@ -571,9 +571,10 @@ plot (\x,{1/(1+exp(-\x))}) node[below right] {\small Sigmoide};
 \draw[thick, green!60!black, domain=-4:4,samples=100]
 plot (\x,{tanh(\x)}) node[above right] {\small Tanh};
 
-% GELU (morado) - aproximación
-\draw[thick, purple, domain=-4:4,samples=150]
-plot (\x,{0.5*\x*(1 + tanh(sqrt(2/3.14159)_(\x + 0.044715_\x*\x*\x)))}) node[below left] {\small GELU};
+
+% GELU (morado)
+\draw[thick, purple, domain=-4:4,samples=150,smooth]
+  plot (\x,{0.5*\x*(1 + tanh(sqrt(2/pi)*(\x + 0.044715*\x*\x*\x)))}) node[below left] {\small GELU};
 
 \end{tikzpicture}
 
