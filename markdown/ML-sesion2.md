@@ -486,12 +486,13 @@ $$
 \centering
 \begin{tikzpicture}[scale=0.7]
   % Ejes
-  \draw[->] (-4,0) -- (4,0) node[right] {$$ x $$};
-  \draw[->] (0,-0.8) -- (0,4) node[above] {$$ \text{GELU}(x) $$};
+  \draw[->] (-4,0) -- (4,0) node[right] {$x$};
+  \draw[->] (0,-0.8) -- (0,4) node[above] {$\text{GELU}(x)$};
   % Aproximación precisa de GELU
   \draw[thick,domain=-4:4,samples=200,smooth]
     plot (\x,{0.5*\x*(1 + tanh(sqrt(2/pi)*(\x + 0.044715*\x*\x*\x)))});
 \end{tikzpicture}
+
 ---
 
 # Función de activación: Softmax
