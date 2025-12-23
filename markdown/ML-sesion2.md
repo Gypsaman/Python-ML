@@ -171,12 +171,12 @@ every node/.style={font=\large}
 $\displaystyle
 W =
 \begin{bmatrix}
-w*{11} & w*{12} & w*{13} \\
-w*{21} & w*{22} & w*{23} \\
-w*{31} & w*{32} & w*{33} \\
-w*{41} & w*{42} & w*{43} \\
-w*{51} & w*{52} & w*{53}
-\end{bmatrix}*{5\times 3}
+w_{11} & w_{12} & w_{13} \\
+w_{21} & w_{22} & w_{23} \\
+w_{31} & w_{32} & w_{33} \\
+w_{41} & w_{42} & w_{43} \\
+w_{51} & w_{52} & w_{53}
+\end{bmatrix}_{5\times 3}
 $
 };
 
@@ -186,10 +186,10 @@ $
 $\displaystyle
 x =
 \begin{bmatrix}
-x*1 \\
+x_1 \\
 x_2 \\
 x_3
-\end{bmatrix}*{3\times 1}
+\end{bmatrix}_{3\times 1}
 $
 };
 
@@ -202,12 +202,12 @@ $
 $\displaystyle
 b =
 \begin{bmatrix}
-b*1 \\
+b_1 \\
 b_2 \\
 b_3 \\
 b_4 \\
 b_5
-\end{bmatrix}*{5\times 1}
+\end{bmatrix}_{5\times 1}
 $
 };
 
@@ -220,12 +220,12 @@ $
 $\displaystyle
 z =
 \begin{bmatrix}
-z*1 \\
+z_1 \\
 z_2 \\
 z_3 \\
 z_4 \\
 z_5
-\end{bmatrix}*{5\times 1}
+\end{bmatrix}_{5\times 1}
 $
 };
 
