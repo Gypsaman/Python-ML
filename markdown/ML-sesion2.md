@@ -481,6 +481,8 @@ $$
 \text{GELU}(x) \approx 0.5\,x\Bigl(1 + \tanh\bigl(\sqrt{2/\pi}\,(x + 0.044715\,x^{3})\bigr)\Bigr)
   $$
 
+---
+
 ## Visualización {.fragile}
 
 \centering
@@ -595,6 +597,8 @@ x, & x \ge 0 \\
 \end{cases}
 $$
 
+---
+
 ## Visualización
 
 \centering
@@ -626,6 +630,8 @@ x, & x \ge 0 \\
 $$
 
 Típicamente $\alpha = 1$.
+
+---
 
 ## Visualización
 
