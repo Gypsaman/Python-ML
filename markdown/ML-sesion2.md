@@ -460,43 +460,38 @@ plot (\x,{tanh(\x)});
 
 ---
 
-# Función de activación: GELU
+## Función de activación: GELU {.fragile}
 
 ## Gaussian Error Linear Unit (GELU)
-
 - Suaviza la ReLU usando una distribución normal.
 - Muy popular en modelos modernos (por ejemplo, Transformers).
 - Activa más fuertemente valores positivos grandes, pero de forma suave.
 
 Definición conceptual:
 
-$$
+$$  
 \text{GELU}(x) = x \,\Phi(x)
-$$
+  $$
 
-donde $\Phi(x)$ es la CDF de la normal estándar.
+donde $$ \Phi(x) $$ es la CDF de la normal estándar.
 
 Aproximación práctica usada en la mayoría de implementaciones:
 
-$$
+$$  
 \text{GELU}(x) \approx 0.5\,x\Bigl(1 + \tanh\bigl(\sqrt{2/\pi}\,(x + 0.044715\,x^{3})\bigr)\Bigr)
-$$
+  $$
 
----
-
-## Visualización
+## Visualización {.fragile}
 
 \centering
 \begin{tikzpicture}[scale=0.7]
   % Ejes
-  \draw[->] (-4,0) -- (4,0) node[right] {$x$};
-  \draw[->] (0,-0.8) -- (0,4) node[above] {$\text{GELU}(x)$};
-  % Aproximación más precisa de GELU
-  \def\temp#1{#1}  % macro dummy para "escapar" el _
-  \draw[thick,domain=-4:4,samples=150]
-    plot (\x,{0.5*\x*(1 + tanh(sqrt(2/3.14159)*(\x + 0.044715\temp_\x*\x*\x)))});
+  \draw[->] (-4,0) -- (4,0) node[right] {$$ x $$};
+  \draw[->] (0,-0.8) -- (0,4) node[above] {$$ \text{GELU}(x) $$};
+  % Aproximación precisa de GELU
+  \draw[thick,domain=-4:4,samples=200,smooth]
+    plot (\x,{0.5*\x*(1 + tanh(sqrt(2/pi)*(\x + 0.044715*\x*\x*\x)))});
 \end{tikzpicture}
-
 ---
 
 # Función de activación: Softmax
