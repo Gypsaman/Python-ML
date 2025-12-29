@@ -17,6 +17,20 @@ header-includes:
 
 ---
 
+# Mapa mental del entrenamiento
+
+Entrenar una red neuronal es un **proceso cíclico**:
+
+1. Propagación hacia adelante (forward)
+2. Cálculo de la pérdida
+3. Cálculo del gradiente
+4. Actualización de pesos
+5. Repetir durante múltiples épocas
+
+Este ciclo es la base de **todo entrenamiento moderno** de redes neuronales.
+
+---
+
 # ¿Qué significa entrenar una red?
 ## Intuición general
 Entrenar una red neuronal significa **ajustar los pesos** para mejorar las predicciones.
@@ -32,9 +46,22 @@ Entrenar una red neuronal significa **ajustar los pesos** para mejorar las predi
 # Funciones de Pérdida
 ## ¿Qué es una función de pérdida?
 
-- En el entrenamiento de redes neuronales, una *función de pérdida* mide qué tan mal está prediciendo el modelo.  
-- El objetivo del entrenamiento es **minimizar esta pérdida** usando descenso de gradiente.  
+- Mide qué tan mala es una predicción.
+- El entrenamiento busca **minimizar** esta cantidad.
+- No hay aprendizaje sin una función de pérdida.
 - Diferentes tareas requieren diferentes funciones de pérdida.
+
+---
+
+# Relación entre problema, activación y pérdida
+
+| Problema | Activación de salida | Función de pérdida |
+|--------|---------------------|--------------------|
+| Regresión | Lineal | MSE / MAE |
+| Clasificación binaria | Sigmoid | Binary Cross Entropy |
+| Clasificación multiclase | Softmax | Categorical Cross Entropy |
+
+La pérdida **no se elige arbitrariamente**: depende del tipo de salida.
 
 ---
 
@@ -245,24 +272,6 @@ también determinan **cómo se propaga el gradiente hacia atrás**.
 
 ---
 
-### Visualización conceptual
-
-\centering
-\begin{tikzpicture}[scale=0.8,>=latex]
-  % Ejes
-  \draw[->] (-3,0) -- (3,0) node[right] {$z$};
-  \draw[->] (0,-1) -- (0,2.5) node[above] {$f'(z)$};
-
-  % Derivada ReLU
-  \draw[thick, blue] (-3,0) -- (0,0);
-  \draw[thick, blue] (0,1.5) -- (3,1.5) node[right] {\small Derivada de ReLU};
-
-  % Comentarios
-  \node at (0,-1.2) {\small Derivadas grandes → aprendizaje eficiente};
-  \node at (0,-1.8) {\small Derivadas $\approx 0$ → aprendizaje lento};
-\end{tikzpicture}
-
----
 
 ### Qué **no** necesitamos calcular a mano
 
