@@ -1,305 +1,274 @@
-Below is a **proposed 12-session (1 hour each) course outline** for **Machine Learning with Neural Networks in Python**, explicitly designed to **build on your existing introductory ML theory course** and your **separate 4-session Python fundamentals course**.
+---
+title: "Stage 2 — Fundamentos del Deep Learning en la Práctica"
+subtitle: "Del mapa conceptual a la implementación real"
+author: "Cesar Garcia"
+date: "2025"
+lang: es
+theme: "Madrid"
+---
 
-The structure assumes:
+# Stage 2 — Overview
 
-* Students **already understand Python basics** (variables, loops, functions, NumPy).
-* You have **already introduced NN intuition, loss, gradient descent, overfitting**, etc. (as in your current Sessions 1–4).
-* This course is **implementation-focused**, with **PyTorch as the primary framework**.
-* TensorFlow/Keras is included **strategically**, not symmetrically.
+Stage 2 construye los **fundamentos conceptuales y mecánicos** del deep learning moderno.
+El objetivo es pasar de la intuición teórica a una comprensión clara de **cómo y por qué el entrenamiento funciona en la práctica**, preparando al estudiante para implementar redes neuronales reales en PyTorch.
 
 ---
 
-## Framework Strategy (High-Level Recommendation)
+## Session 1 — Generalización y Panorama del Deep Learning
 
-**Primary framework: PyTorch (≈80–85%)**
-
-* Industry + research standard
-* Explicit computation graph → ideal for teaching
-* Matches how gradient descent, backprop, and tensors actually work
-
-**Secondary exposure: TensorFlow/Keras (≈15–20%)**
-
-* Conceptual comparison
-* Minimal hands-on
-* Important for ecosystem awareness and employability
-
-**Recommendation:**
-
-> Teach students to *think in PyTorch*, but *recognize TensorFlow*.
-
----
-
-# 12-Session Course Outline
-
----
-
-## **Session 1 — ML in Practice & Tooling Setup**
-
-**Goal:** Transition from theory → real ML workflows
+**Goal**  
+Establecer el marco mental correcto sobre qué significa *aprender* en machine learning y cuál es el objetivo real del entrenamiento.
 
 **Topics**
-
-* ML project lifecycle (data → model → train → evaluate)
-* CPU vs GPU (what actually changes)
-* Why frameworks exist (vs manual NumPy)
-* PyTorch vs TensorFlow (high-level philosophy)
+- Qué significa que un modelo aprenda
+- Generalización vs memorización
+- Sobreajuste (overfitting)
+- Subajuste (underfitting)
+- Importancia del rendimiento en validación
+- Rol de los datos:
+  - calidad vs cantidad
+  - normalización y estandarización
+  - balanceo de clases
+- Flujo general de un proyecto de ML
+- Panorama de arquitecturas:
+  - redes densas
+  - autoencoders
+  - CNNs
+  - RNNs / LSTM
+  - Transformers
+- Panorama de optimizadores:
+  - SGD
+  - Momentum
+  - RMSProp
+  - Adam
 
 **Hands-On**
+- Discusión guiada de casos de sobreajuste y subajuste
+- Análisis conceptual de proyectos de ML reales
 
-* Environment setup (venv / conda)
-* Install PyTorch
-* First tensor operations
-* Tensor vs NumPy array
-
-**Deliverable**
-
-* Simple tensor math notebook
+**Key Concept**  
+> El objetivo del entrenamiento no es minimizar la pérdida en entrenamiento, sino **generalizar**.
 
 ---
 
-## **Session 2 — Tensors, Autograd, and Computation Graphs**
+## Session 2 — Tensores, Autograd y Grafos Computacionales
 
-**Goal:** Demystify “automatic differentiation”
+**Goal**  
+Desmitificar el cálculo automático de gradientes y explicar cómo PyTorch implementa backpropagation.
 
 **Topics**
-
-* Tensors as mathematical objects
-* `requires_grad`
-* Computational graph intuition
-* Gradients as partial derivatives
+- Tensores como objetos matemáticos (0D → ND)
+- Diferencias entre tensores y arrays de NumPy
+- Gradientes como sensibilidad local
+- Por qué las derivadas manuales no escalan
+- Autograd:
+  - registro de operaciones
+  - construcción dinámica del grafo computacional
+- Regla de la cadena aplicada a grafos
+- Forward pass vs backward pass
+- Interpretación de `.backward()`
 
 **Hands-On**
+- Cálculo de gradientes simples con `requires_grad`
+- Comparación entre gradiente manual y autograd
+- Visualización conceptual de un grafo computacional
 
-* Scalar → vector → matrix gradients
-* Manual gradient vs autograd
-* Visual explanation of graph
-
-**Key Concept**
-
-> Backpropagation is *graph traversal*, not magic.
+**Key Concept**  
+> Backpropagation es **recorrido de un grafo**, no magia.
 
 ---
 
-## **Session 3 — Building a Neural Network from Scratch (Low-Level)**
+## Session 3 — Building a Neural Network from Scratch (Low-Level)
 
-**Goal:** Understand every moving part
+**Goal**  
+Entender cada componente interno de una red neuronal sin abstracciones de alto nivel.
 
 **Topics**
-
-* Linear layers as matrix multiplication
-* Bias terms
-* Activation functions in code
-* Forward pass vs backward pass
+- Capas lineales como multiplicación matricial
+- Bias
+- Funciones de activación
+- Forward pass manual
+- Funciones de pérdida
+- Descenso de gradiente explícito
 
 **Hands-On**
+- Implementación manual de una red de una capa
+- Entrenamiento con bucle explícito
 
-* Implement a 1-layer NN manually
-* Manual loss calculation
-* Manual gradient descent loop
-
-**Constraint**
-
-* **No `nn.Module` yet**
+**Constraint**  
+- No usar `nn.Module` ni optimizadores de PyTorch
 
 ---
 
-## **Session 4 — PyTorch nn.Module & Training Loop**
+## Session 4 — PyTorch `nn.Module` & Training Loop
 
-**Goal:** Transition to idiomatic PyTorch
+**Goal**  
+Transicionar de implementación manual a PyTorch idiomático.
 
 **Topics**
-
-* `nn.Module`
-* `forward()` method
-* Loss functions (`nn.MSELoss`, `nn.CrossEntropyLoss`)
-* Optimizers (`SGD`, `Adam`)
+- `nn.Module`
+- Método `forward`
+- Funciones de pérdida en PyTorch
+- Optimizadores (`SGD`, `Adam`)
+- Ciclo de entrenamiento estándar
 
 **Hands-On**
+- Reescribir el modelo de la sesión 3 usando `nn.Module`
+- Comparar claridad y mantenimiento del código
 
-* Rewrite Session 3 model using `nn.Module`
-* Clean training loop
-* Compare code clarity
+**Key Concept**  
+> PyTorch abstrae, pero no esconde el mecanismo.
 
 ---
 
-## **Session 5 — Classification & Decision Boundaries**
+## Session 5 — Classification & Decision Boundaries
 
-**Goal:** Connect math, visuals, and code
+**Goal**  
+Conectar matemáticas, visualización y comportamiento del modelo.
 
 **Topics**
-
-* Binary vs multiclass classification
-* Sigmoid vs Softmax
-* Cross-entropy intuition (revisited, now in code)
+- Clasificación binaria vs multiclase
+- Sigmoid y Softmax
+- Entropía cruzada
+- Fronteras de decisión
 
 **Hands-On**
-
-* 2D synthetic dataset
-* Visualize decision boundary evolution
-* Train simple classifier
+- Dataset sintético en 2D
+- Visualización de fronteras de decisión durante el entrenamiento
 
 ---
 
-## **Session 6 — Data Pipelines & Datasets**
+## Session 6 — Data Pipelines & Datasets
 
-**Goal:** Teach *real-world data handling*
+**Goal**  
+Introducir el manejo realista de datos en proyectos de ML.
 
 **Topics**
-
-* `Dataset` and `DataLoader`
-* Batching and shuffling
-* Train/validation split
-* Normalization & scaling
+- `Dataset` y `DataLoader`
+- Mini-batches
+- Shuffling
+- División entrenamiento / validación
+- Normalización
 
 **Hands-On**
-
-* Custom Dataset class
-* Mini-batch training
-* Observe effect of batch size
+- Implementación de un `Dataset` personalizado
+- Entrenamiento con distintos tamaños de batch
 
 ---
 
-## **Session 7 — Optimization Deep Dive**
+## Session 7 — Optimization Deep Dive
 
-**Goal:** Make training behavior predictable
+**Goal**  
+Hacer el entrenamiento predecible y diagnosticable.
 
 **Topics**
-
-* Learning rate pathology
-* Momentum
-* Adam vs SGD
-* Weight initialization
+- Learning rate
+- Momentum
+- RMSProp
+- Adam
+- Inicialización de pesos
 
 **Hands-On**
+- Comparación de optimizadores en el mismo modelo
+- Visualización de curvas de pérdida
 
-* Same model, different optimizers
-* Plot loss curves
-* Diagnose divergence vs slow learning
+**Key Concept**  
+> Muchos problemas de entrenamiento son problemas de optimización, no de arquitectura.
 
 ---
 
-## **Session 8 — Regularization & Generalization (in Code)**
+## Session 8 — Regularization & Generalization (in Code)
 
-**Goal:** Translate theory into practice
+**Goal**  
+Traducir la teoría de generalización a código real.
 
 **Topics**
-
-* Overfitting in code
-* L2 regularization
-* Dropout
-* Early stopping
+- Sobreajuste en la práctica
+- Regularización L2
+- Dropout
+- Early stopping
 
 **Hands-On**
-
-* Intentionally overfit a model
-* Apply regularization techniques
-* Compare validation metrics
+- Forzar sobreajuste intencionalmente
+- Aplicar técnicas de regularización
+- Comparar métricas de validación
 
 ---
 
-## **Session 9 — Convolutional Neural Networks (CNNs)**
+## Session 9 — Convolutional Neural Networks (CNNs)
 
-**Goal:** First “real” deep learning architecture
+**Goal**  
+Introducir arquitecturas profundas reales para visión.
 
 **Topics**
-
-* Convolution intuition
-* Filters, kernels, feature maps
-* Pooling
-* Why CNNs work
+- Convoluciones
+- Filtros y mapas de activación
+- Pooling
+- Arquitecturas CNN básicas
 
 **Hands-On**
-
-* Image classification (e.g., MNIST or CIFAR-10)
-* Visualize learned filters
+- Clasificación de imágenes (MNIST o CIFAR-10)
+- Visualización de filtros aprendidos
 
 ---
 
-## **Session 10 — Sequence Models (RNNs → LSTMs → Attention)**
+## Session 10 — Sequence Models (RNNs → LSTMs → Attention)
 
-**Goal:** Temporal and sequential thinking
+**Goal**  
+Introducir el aprendizaje en datos secuenciales.
 
 **Topics**
-
-* Why feedforward fails for sequences
-* RNN limitations
-* LSTM intuition
-* Attention concept (no math overload)
+- Limitaciones de redes feedforward
+- RNNs
+- LSTMs
+- Introducción a atención
 
 **Hands-On**
-
-* Simple sequence prediction
-* Compare RNN vs LSTM behavior
+- Predicción de secuencias simples
+- Comparación RNN vs LSTM
 
 ---
 
-## **Session 11 — Transformers & Modern Deep Learning**
+## Session 11 — Transformers & Modern Deep Learning
 
-**Goal:** Conceptual mastery of modern AI
+**Goal**  
+Comprender el paradigma dominante del deep learning moderno.
 
 **Topics**
-
-* Self-attention
-* Transformers vs RNNs
-* Encoder/Decoder idea
-* Why Transformers dominate NLP
+- Self-attention
+- Arquitectura Transformer
+- Encoder / Decoder
+- Casos de uso en NLP y visión
 
 **Hands-On**
-
-* Use a pretrained transformer
-* No training from scratch
-* Tokenization + inference
+- Uso de un modelo Transformer preentrenado
+- Inferencia y tokenización
 
 ---
 
-## **Session 12 — TensorFlow/Keras Overview + Capstone Integration**
+## Session 12 — TensorFlow / Keras Overview & Course Wrap-Up
 
-**Goal:** Ecosystem literacy and synthesis
+**Goal**  
+Exponer al ecosistema completo y cerrar el curso.
 
 **Topics**
-
-* TensorFlow vs PyTorch comparison
-* Keras API philosophy
-* When TensorFlow is used in industry
-* Deployment considerations
+- PyTorch vs TensorFlow
+- Filosofía de Keras
+- Consideraciones de despliegue
+- Revisión del flujo completo de ML
 
 **Hands-On**
+- Reimplementar un modelo simple en Keras
+- Comparación de APIs
 
-* Rebuild one PyTorch model in Keras
-* Compare verbosity and flexibility
-
-**Capstone Discussion**
-
-* End-to-end ML project review
-* What students *can now build*
-* Where to go next (CV, NLP, RL, deployment)
+**Key Concept**  
+> PyTorch enseña cómo funciona ML; TensorFlow muestra cómo se despliega ML.
 
 ---
 
-# Final Recommendation on Framework Coverage
+# Stage 2 Outcome
 
-**Yes — include TensorFlow, but only deliberately:**
-
-* One **dedicated comparison session**
-* One **side-by-side implementation**
-* No deep debugging or internals
-
-**Reasoning**
-
-* PyTorch teaches *how ML works*
-* TensorFlow teaches *how ML is shipped*
-
-This balance aligns extremely well with:
-
-* Academic rigor
-* Industry relevance
-* Conceptual clarity
-
-If you want, next steps I can:
-
-* Convert this outline into **12 Beamer markdown files**
-* Create **matching Jupyter notebooks per session**
-* Design a **final capstone project**
-* Align each session explicitly to your existing Sessions 1–4
-
-Just tell me how you want to proceed.
+Al finalizar Stage 2, el estudiante:
+- entiende **qué significa generalizar**
+- comprende **cómo se calculan gradientes**
+- puede implementar y entrenar redes neuronales con criterio técnico

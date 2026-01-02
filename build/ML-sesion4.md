@@ -1,6 +1,13 @@
-% Sesión 4: Generalización, Sobreajuste y Conceptos Modernos en Redes Neuronales
-% Curso: Fundamentos de Machine Learning con Redes Neuronales
-% Sesión 4 (1 hora)
+---
+title: Generalización, Sobreajuste y Conceptos Modernos en Redes Neuronales"
+author: "Cesar Garcia"
+date: "2025"
+lang: es
+theme: "Madrid"
+header-includes:
+  - \usepackage{tikz}
+  - \usetikzlibrary{arrows.meta}
+---
 
 # Introducción
 ## Objetivos de la sesión
@@ -83,18 +90,139 @@ Adaptativo, eficiente y el más usado en la práctica moderna.
 
 ---
 
-# Arquitecturas Modernas
-## Redes Convolucionales (CNN)
-- Usadas en visión computacional.
-- Detectan bordes, texturas, objetos.
+# Optimizadores Basados en Gradiente
 
-## Redes Recurrentes (RNN, LSTM)
-- Manejan secuencias: texto, audio, series temporales.
+## Momentum
 
-## Transformers
-- Arquitectura más exitosa actualmente.
-- Usada en modelos como GPT, BERT, Gemini.
-- Manejan dependencias largas mediante atención.
+El optimizador **Momentum** mejora el descenso de gradiente clásico acumulando una *velocidad* que incorpora información de gradientes pasados.
+
+## Intuición
+- Similar a empujar una bola cuesta abajo.
+- Aumenta la velocidad en direcciones consistentes.
+- Reduce oscilaciones en regiones con pendientes pronunciadas.
+
+---
+
+## Formulación
+Sea $L(\theta)$ la función de pérdida:
+
+- Velocidad:
+  $$
+  v_t = \beta v_{t-1} + \eta \nabla L(\theta)
+  $$
+
+- Actualización de parámetros:
+  $$
+  \theta = \theta - v_t
+  $$
+
+Donde: 
+
+- $\beta$ es el coeficiente de momentum (típicamente 0.9)  
+- $\eta$ es la tasa de aprendizaje  
+
+---
+
+## Ventajas
+- Convergencia más rápida que SGD estándar.
+- Menor sensibilidad al ruido.
+- Mejor comportamiento en valles estrechos.
+
+---
+
+---
+
+# RMSProp (Root Mean Square Propagation)
+
+**RMSProp** es un optimizador adaptativo diseñado para resolver los problemas de tasas de aprendizaje inestables en descenso de gradiente estándar.
+
+## Intuición
+- Ajusta automáticamente la tasa de aprendizaje **por parámetro**.
+- Reduce el paso en direcciones con gradientes grandes.
+- Aumenta el paso en direcciones con gradientes pequeños.
+- Evita oscilaciones y pasos demasiado agresivos.
+
+## Idea clave
+En lugar de usar una tasa de aprendizaje fija, RMSProp divide el gradiente por una media móvil de su magnitud.
+
+---
+
+## Formulación
+Sea $g_t = \nabla L(\theta)$:
+
+- Media móvil del gradiente al cuadrado:
+  $$
+  v_t = \beta v_{t-1} + (1 - \beta) g_t^2
+  $$
+
+- Actualización de parámetros:
+  $$
+  \theta = \theta - \frac{\eta}{\sqrt{v_t} + \epsilon} g_t
+  $$
+
+Donde:
+- $\beta$ controla la memoria (típicamente 0.9)
+- $\eta$ es la tasa de aprendizaje
+- $\epsilon$ evita divisiones por cero
+
+---
+
+## Ventajas
+- Entrenamiento más estable que SGD.
+- Buen desempeño en problemas no estacionarios.
+- Menor sensibilidad a la elección de $\eta$.
+
+## Uso práctico
+RMSProp es común en:
+- Redes recurrentes (RNN, LSTM)
+- Problemas con gradientes ruidosos
+- Entrenamientos donde SGD es inestable
+
+
+---
+
+# Adam (Adaptive Moment Estimation)
+
+**Adam** combina las ideas de **Momentum** y **RMSProp**, ajustando automáticamente la tasa de aprendizaje para cada parámetro.
+
+## Intuición
+- Mantiene memoria del **promedio del gradiente** (primer momento).
+- Mantiene memoria de la **varianza del gradiente** (segundo momento).
+- Ajusta el tamaño del paso de manera adaptativa.
+
+---
+
+## Componentes
+- Primer momento (media):
+  $$
+  m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t
+  $$
+
+- Segundo momento (varianza):
+  $$
+  v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2
+  $$
+
+- Corrección de sesgo y actualización de parámetros:
+  $$
+  \theta = \theta - \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t
+  $$
+
+### Valores típicos
+- $\beta_1 = 0.9$
+- $\beta_2 = 0.999$
+- $\epsilon = 10^{-8}$
+
+---
+
+### Ventajas
+- Muy estable numéricamente.
+- Funciona bien con datos ruidosos.
+- Requiere poco ajuste manual.
+
+### Uso práctico
+Es el **optimizador por defecto** en la mayoría de frameworks modernos como **PyTorch** y **TensorFlow**.
+
 
 ---
 
@@ -108,19 +236,4 @@ Adaptativo, eficiente y el más usado en la práctica moderna.
 7. Regularización y ajuste final  
 8. Implementación  
 
----
 
-# Actividad de Cierre
-Reflexionar sobre un ejemplo real e identificar:
-- ¿Qué datos se necesitan?
-- ¿Qué tipo de modelo usar?
-- ¿Dónde podría ocurrir sobreajuste?
-- ¿Qué arquitectura moderna sería útil?
-
----
-
-# Notas del Presentador
-- Enfatizar que las arquitecturas modernas siguen los mismos principios básicos vistos en sesiones anteriores.
-- Explicar la importancia crítica de los datos y su preparación.
-- Relacionar el contenido con aplicaciones como visión, lenguaje y audio.
-- Conectar con el próximo curso: implementación con Python y librerías (TensorFlow/PyTorch).

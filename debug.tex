@@ -1,0 +1,298 @@
+\section{Introducción}\label{introducciuxf3n}
+
+\begin{frame}{Objetivos de la sesión}
+\phantomsection\label{objetivos-de-la-sesiuxf3n}
+\begin{itemize}
+\tightlist
+\item
+  Entender qué significa que un modelo \emph{aprenda}
+\item
+  Diferenciar generalización, sobreajuste y subajuste
+\item
+  Reconocer los principales componentes de un proyecto de ML
+\item
+  Ubicar arquitecturas y optimizadores en el panorama general
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\end{frame}
+
+\section{¿Qué significa aprender?}\label{quuxe9-significa-aprender}
+
+\begin{frame}{Idea central}
+\phantomsection\label{idea-central}
+Un modelo aprende cuando:\\
+- captura \textbf{patrones reales}\\
+- funciona bien en \textbf{datos no vistos}\\
+Aprender \textbf{no es memorizar}.
+\end{frame}
+
+\begin{frame}{}
+\phantomsection\label{section}
+\begin{quote}
+¿Un modelo que tiene 100 \% de accuracy en entrenamiento necesariamente
+aprendió?
+\end{quote}
+\end{frame}
+
+\begin{frame}
+\end{frame}
+
+\section{Generalización}\label{generalizaciuxf3n}
+
+\begin{frame}{Concepto clave}
+\phantomsection\label{concepto-clave}
+\textbf{Generalizar} significa que el modelo: - funciona bien en datos
+nuevos - no depende de ejemplos específicos
+
+La generalización es el objetivo real del entrenamiento.
+\end{frame}
+
+\begin{frame}{}
+\phantomsection\label{section-1}
+\begin{quote}
+¿Por qué nos importa más el rendimiento en validación que en
+entrenamiento?
+\end{quote}
+\end{frame}
+
+\begin{frame}
+\end{frame}
+
+\section{Sobreajuste}\label{sobreajuste}
+
+\begin{frame}{Overfitting}
+\phantomsection\label{overfitting}
+Ocurre cuando el modelo: - aprende detalles irrelevantes (ruido) -
+pierde capacidad de generalizar
+
+\textbf{Señales típicas:} - pérdida muy baja en entrenamiento - pérdida
+alta en validación
+\end{frame}
+
+\begin{frame}{}
+\phantomsection\label{section-2}
+\begin{quote}
+¿Qué tipo de modelo es más propenso al sobreajuste: uno simple o uno muy
+complejo?
+\end{quote}
+\end{frame}
+
+\begin{frame}
+\end{frame}
+
+\section{Subajuste}\label{subajuste}
+
+\begin{frame}{Underfitting}
+\phantomsection\label{underfitting}
+Ocurre cuando el modelo: - no tiene suficiente capacidad - no captura el
+patrón real
+
+\textbf{Señales típicas:} - pérdida alta en entrenamiento - pérdida alta
+en validación
+\end{frame}
+
+\begin{frame}{}
+\phantomsection\label{section-3}
+\begin{quote}
+¿Puede un modelo subajustado mejorar solo entrenando más tiempo?
+\end{quote}
+\end{frame}
+
+\begin{frame}
+\end{frame}
+
+\section{Técnicas para mejorar la
+generalización}\label{tuxe9cnicas-para-mejorar-la-generalizaciuxf3n}
+
+\begin{frame}{Visión general}
+\phantomsection\label{visiuxf3n-general}
+Algunas estrategias comunes: - Regularización - Dropout - Early stopping
+- Más y mejores datos
+
+Todas buscan el mismo objetivo: \textbf{controlar la complejidad
+efectiva del modelo}.
+\end{frame}
+
+\begin{frame}{}
+\phantomsection\label{section-4}
+\begin{quote}
+¿Estas técnicas cambian el modelo o cambian cómo se entrena?
+\end{quote}
+\end{frame}
+
+\begin{frame}
+\end{frame}
+
+\section{Importancia de los datos}\label{importancia-de-los-datos}
+
+\begin{frame}{Antes del modelo}
+\phantomsection\label{antes-del-modelo}
+\begin{itemize}
+\tightlist
+\item
+  Calidad \textgreater{} cantidad
+\item
+  Datos mal preparados → modelos pobres
+\item
+  El modelo solo puede aprender lo que los datos contienen
+\end{itemize}
+
+Procesos comunes: - normalización - estandarización - balanceo
+\end{frame}
+
+\begin{frame}{}
+\phantomsection\label{section-5}
+\begin{quote}
+¿Un modelo muy avanzado puede compensar datos de mala calidad?
+\end{quote}
+\end{frame}
+
+\begin{frame}
+\end{frame}
+
+\section{Flujo general de un proyecto de
+ML}\label{flujo-general-de-un-proyecto-de-ml}
+
+\begin{frame}{Panorama completo}
+\phantomsection\label{panorama-completo}
+\begin{enumerate}
+\tightlist
+\item
+  Recolección de datos\\
+\item
+  Limpieza y procesamiento\\
+\item
+  División entrenamiento / validación\\
+\item
+  Selección del modelo\\
+\item
+  Entrenamiento\\
+\item
+  Evaluación\\
+\item
+  Ajuste y regularización\\
+\item
+  Implementación
+\end{enumerate}
+
+Este flujo se repite iterativamente.
+\end{frame}
+
+\begin{frame}{}
+\phantomsection\label{section-6}
+\begin{quote}
+¿En qué etapa crees que se cometen más errores en la práctica?
+\end{quote}
+\end{frame}
+
+\begin{frame}
+\end{frame}
+
+\section{Arquitecturas modernas}\label{arquitecturas-modernas}
+
+\begin{frame}{Qué tipos de modelos existen}
+\phantomsection\label{quuxe9-tipos-de-modelos-existen}
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Redes densas}: datos tabulares
+\item
+  \textbf{CNNs}: imágenes
+\item
+  \textbf{RNNs / LSTM}: secuencias
+\item
+  \textbf{Transformers}: texto, visión, multimodal
+\end{itemize}
+
+Hoy veremos \emph{qué existen}, no \emph{cómo funcionan}.
+\end{frame}
+
+\begin{frame}{}
+\phantomsection\label{section-7}
+\begin{quote}
+¿Por qué no usamos la misma arquitectura para todos los problemas?
+\end{quote}
+\end{frame}
+
+\begin{frame}
+\end{frame}
+
+\section{Optimizadores modernos}\label{optimizadores-modernos}
+
+\begin{frame}{Visión general (sin entrar en detalles)}
+\phantomsection\label{visiuxf3n-general-sin-entrar-en-detalles}
+Durante el entrenamiento ajustamos parámetros usando optimizadores:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{SGD}: descenso básico
+\item
+  \textbf{Momentum}: acumula dirección
+\item
+  \textbf{RMSProp}: adapta el paso por parámetro
+\item
+  \textbf{Adam}: combina velocidad y estabilidad
+\end{itemize}
+
+Los estudiaremos \textbf{en profundidad más adelante}.
+\end{frame}
+
+\begin{frame}{}
+\phantomsection\label{section-8}
+\begin{quote}
+¿Por qué tendría sentido usar distintos optimizadores para el mismo
+modelo?
+\end{quote}
+\end{frame}
+
+\begin{frame}
+\end{frame}
+
+\section{Idea clave de la sesión}\label{idea-clave-de-la-sesiuxf3n}
+
+\begin{frame}{Todo se conecta}
+\phantomsection\label{todo-se-conecta}
+\begin{itemize}
+\tightlist
+\item
+  Datos influyen en generalización
+\item
+  Arquitectura define capacidad
+\item
+  Optimizadores controlan el aprendizaje
+\item
+  El objetivo final es \textbf{generalizar}
+\end{itemize}
+
+Hoy construimos el mapa; luego veremos el mecanismo.
+\end{frame}
+
+\begin{frame}{}
+\phantomsection\label{section-9}
+\begin{quote}
+¿Qué parte del proceso te genera más curiosidad o incertidumbre ahora?
+\end{quote}
+\end{frame}
+
+\begin{frame}
+\end{frame}
+
+\section{Próxima sesión}\label{pruxf3xima-sesiuxf3n}
+
+\begin{frame}{Cómo ocurre el aprendizaje realmente}
+\phantomsection\label{cuxf3mo-ocurre-el-aprendizaje-realmente}
+En la próxima sesión veremos: - tensores - gradientes - grafos
+computacionales - cómo PyTorch calcula derivadas
+
+Ahí empieza el ``cómo''.
+\end{frame}
+
+\begin{frame}{}
+\phantomsection\label{section-10}
+\begin{quote}
+¿Qué crees que hace posible entrenar redes con millones de parámetros?
+\end{quote}
+\end{frame}
