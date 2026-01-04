@@ -1,274 +1,283 @@
----
-title: "Stage 2 — Fundamentos del Deep Learning en la Práctica"
-subtitle: "Del mapa conceptual a la implementación real"
-author: "Cesar Garcia"
-date: "2025"
-lang: es
-theme: "Madrid"
----
+# Stage 2 — Neural Networks & Deep Learning Foundations
 
-# Stage 2 — Overview
-
-Stage 2 construye los **fundamentos conceptuales y mecánicos** del deep learning moderno.
-El objetivo es pasar de la intuición teórica a una comprensión clara de **cómo y por qué el entrenamiento funciona en la práctica**, preparando al estudiante para implementar redes neuronales reales en PyTorch.
+This stage focuses on **how neural networks are built, trained, and extended into modern deep learning architectures**. Students move from fundamental training mechanics into convolutional, generative, and attention-based models used in real-world systems.
 
 ---
 
-## Session 1 — Generalización y Panorama del Deep Learning
+## Session 1 — Neural Network Architectures Overview
 
-**Goal**  
-Establecer el marco mental correcto sobre qué significa *aprender* en machine learning y cuál es el objetivo real del entrenamiento.
+### Goal
 
-**Topics**
-- Qué significa que un modelo aprenda
-- Generalización vs memorización
-- Sobreajuste (overfitting)
-- Subajuste (underfitting)
-- Importancia del rendimiento en validación
-- Rol de los datos:
-  - calidad vs cantidad
-  - normalización y estandarización
-  - balanceo de clases
-- Flujo general de un proyecto de ML
-- Panorama de arquitecturas:
-  - redes densas
-  - autoencoders
-  - CNNs
-  - RNNs / LSTM
-  - Transformers
-- Panorama de optimizadores:
-  - SGD
-  - Momentum
-  - RMSProp
-  - Adam
+Introduce the landscape of neural network architectures and where each is used.
 
-**Hands-On**
-- Discusión guiada de casos de sobreajuste y subajuste
-- Análisis conceptual de proyectos de ML reales
+### Topics
 
-**Key Concept**  
-> El objetivo del entrenamiento no es minimizar la pérdida en entrenamiento, sino **generalizar**.
+* What is a neural network?
+* Perceptrons vs multilayer networks
+* Feedforward networks
+* Convolutional Neural Networks (CNNs)
+* Autoencoders
+* Recurrent Networks (high-level only)
+* Transformers (high-level intuition)
+
+### Hands-On
+
+* Visualize a simple feedforward network
+* Forward pass with fixed weights
+* Architecture comparison discussion
 
 ---
 
-## Session 2 — Tensores, Autograd y Grafos Computacionales
+## Session 2 — Backpropagation and Autograd
 
-**Goal**  
-Desmitificar el cálculo automático de gradientes y explicar cómo PyTorch implementa backpropagation.
+### Goal
 
-**Topics**
-- Tensores como objetos matemáticos (0D → ND)
-- Diferencias entre tensores y arrays de NumPy
-- Gradientes como sensibilidad local
-- Por qué las derivadas manuales no escalan
-- Autograd:
-  - registro de operaciones
-  - construcción dinámica del grafo computacional
-- Regla de la cadena aplicada a grafos
-- Forward pass vs backward pass
-- Interpretación de `.backward()`
+Understand how neural networks learn using gradients.
 
-**Hands-On**
-- Cálculo de gradientes simples con `requires_grad`
-- Comparación entre gradiente manual y autograd
-- Visualización conceptual de un grafo computacional
+### Topics
 
-**Key Concept**  
-> Backpropagation es **recorrido de un grafo**, no magia.
+* Computational graphs
+* Chain rule intuition
+* Gradients and partial derivatives
+* Backpropagation
+* PyTorch autograd system
+
+### Hands-On
+
+* Manual gradient calculation (1D example)
+* PyTorch autograd inspection
+* Visualizing gradient flow
 
 ---
 
-## Session 3 — Building a Neural Network from Scratch (Low-Level)
+## Session 3 — Loss Functions and Optimization Intuition
 
-**Goal**  
-Entender cada componente interno de una red neuronal sin abstracciones de alto nivel.
+### Goal
 
-**Topics**
-- Capas lineales como multiplicación matricial
-- Bias
-- Funciones de activación
-- Forward pass manual
-- Funciones de pérdida
-- Descenso de gradiente explícito
+Explain how error is quantified and minimized.
 
-**Hands-On**
-- Implementación manual de una red de una capa
-- Entrenamiento con bucle explícito
+### Topics
 
-**Constraint**  
-- No usar `nn.Module` ni optimizadores de PyTorch
+* Regression vs classification loss
+* Mean Squared Error
+* Cross-Entropy Loss
+* Loss surfaces
+* Local vs global minima
 
----
+### Hands-On
 
-## Session 4 — PyTorch `nn.Module` & Training Loop
-
-**Goal**  
-Transicionar de implementación manual a PyTorch idiomático.
-
-**Topics**
-- `nn.Module`
-- Método `forward`
-- Funciones de pérdida en PyTorch
-- Optimizadores (`SGD`, `Adam`)
-- Ciclo de entrenamiento estándar
-
-**Hands-On**
-- Reescribir el modelo de la sesión 3 usando `nn.Module`
-- Comparar claridad y mantenimiento del código
-
-**Key Concept**  
-> PyTorch abstrae, pero no esconde el mecanismo.
+* Plot loss curves
+* Compare losses on simple datasets
+* Observe training instability
 
 ---
 
-## Session 5 — Classification & Decision Boundaries
+## Session 4 — Training Loops and Model Evaluation
 
-**Goal**  
-Conectar matemáticas, visualización y comportamiento del modelo.
+### Goal
 
-**Topics**
-- Clasificación binaria vs multiclase
-- Sigmoid y Softmax
-- Entropía cruzada
-- Fronteras de decisión
+Teach the mechanics of training neural networks.
 
-**Hands-On**
-- Dataset sintético en 2D
-- Visualización de fronteras de decisión durante el entrenamiento
+### Topics
 
----
+* Epochs, batches, iterations
+* Training vs inference
+* Validation sets
+* Overfitting vs underfitting
 
-## Session 6 — Data Pipelines & Datasets
+### Hands-On
 
-**Goal**  
-Introducir el manejo realista de datos en proyectos de ML.
-
-**Topics**
-- `Dataset` y `DataLoader`
-- Mini-batches
-- Shuffling
-- División entrenamiento / validación
-- Normalización
-
-**Hands-On**
-- Implementación de un `Dataset` personalizado
-- Entrenamiento con distintos tamaños de batch
+* Write a full PyTorch training loop
+* Track training/validation loss
+* Introduce accuracy metrics
 
 ---
 
-## Session 7 — Optimization Deep Dive
+## Session 5 — Gradient Descent Variants
 
-**Goal**  
-Hacer el entrenamiento predecible y diagnosticable.
+### Goal
 
-**Topics**
-- Learning rate
-- Momentum
-- RMSProp
-- Adam
-- Inicialización de pesos
+Understand how optimizers affect learning dynamics.
 
-**Hands-On**
-- Comparación de optimizadores en el mismo modelo
-- Visualización de curvas de pérdida
+### Topics
 
-**Key Concept**  
-> Muchos problemas de entrenamiento son problemas de optimización, no de arquitectura.
+* Batch vs stochastic gradient descent
+* Momentum
+* RMSProp
+* Adam optimizer
+* Learning rate scheduling
 
----
+### Hands-On
 
-## Session 8 — Regularization & Generalization (in Code)
-
-**Goal**  
-Traducir la teoría de generalización a código real.
-
-**Topics**
-- Sobreajuste en la práctica
-- Regularización L2
-- Dropout
-- Early stopping
-
-**Hands-On**
-- Forzar sobreajuste intencionalmente
-- Aplicar técnicas de regularización
-- Comparar métricas de validación
+* Compare optimizers on same dataset
+* Visualize convergence speed
+* Learning rate experiments
 
 ---
 
-## Session 9 — Convolutional Neural Networks (CNNs)
+## Session 6 — Weight Initialization and Activation Functions
 
-**Goal**  
-Introducir arquitecturas profundas reales para visión.
+### Goal
 
-**Topics**
-- Convoluciones
-- Filtros y mapas de activación
-- Pooling
-- Arquitecturas CNN básicas
+Explain stability and signal propagation in deep networks.
 
-**Hands-On**
-- Clasificación de imágenes (MNIST o CIFAR-10)
-- Visualización de filtros aprendidos
+### Topics
 
----
+* Vanishing/exploding gradients
+* Xavier and He initialization
+* Sigmoid, Tanh, ReLU, Leaky ReLU
+* Dead neurons
 
-## Session 10 — Sequence Models (RNNs → LSTMs → Attention)
+### Hands-On
 
-**Goal**  
-Introducir el aprendizaje en datos secuenciales.
-
-**Topics**
-- Limitaciones de redes feedforward
-- RNNs
-- LSTMs
-- Introducción a atención
-
-**Hands-On**
-- Predicción de secuencias simples
-- Comparación RNN vs LSTM
+* Activation comparisons
+* Gradient flow visualization
+* Training instability experiments
 
 ---
 
-## Session 11 — Transformers & Modern Deep Learning
+## Session 7 — Regularization Techniques
 
-**Goal**  
-Comprender el paradigma dominante del deep learning moderno.
+### Goal
 
-**Topics**
-- Self-attention
-- Arquitectura Transformer
-- Encoder / Decoder
-- Casos de uso en NLP y visión
+Prevent overfitting and improve generalization.
 
-**Hands-On**
-- Uso de un modelo Transformer preentrenado
-- Inferencia y tokenización
+### Topics
 
----
+* L1 and L2 regularization
+* Dropout
+* Early stopping
+* Data augmentation (conceptual)
 
-## Session 12 — TensorFlow / Keras Overview & Course Wrap-Up
+### Hands-On
 
-**Goal**  
-Exponer al ecosistema completo y cerrar el curso.
-
-**Topics**
-- PyTorch vs TensorFlow
-- Filosofía de Keras
-- Consideraciones de despliegue
-- Revisión del flujo completo de ML
-
-**Hands-On**
-- Reimplementar un modelo simple en Keras
-- Comparación de APIs
-
-**Key Concept**  
-> PyTorch enseña cómo funciona ML; TensorFlow muestra cómo se despliega ML.
+* Overfit a model intentionally
+* Apply regularization techniques
+* Compare generalization performance
 
 ---
 
-# Stage 2 Outcome
+## Session 8 — Generalization and Representation Learning
 
-Al finalizar Stage 2, el estudiante:
-- entiende **qué significa generalizar**
-- comprende **cómo se calculan gradientes**
-- puede implementar y entrenar redes neuronales con criterio técnico
+### Goal
+
+Build intuition about feature learning and abstraction.
+
+### Topics
+
+* Learned representations
+* Bias–variance tradeoff
+* Model capacity
+* Latent spaces (intuition only)
+
+### Hands-On
+
+* Visualize learned feature spaces
+* Compare shallow vs deep models
+* Prepare groundwork for autoencoders
+
+---
+
+## Session 9 — Autoencoders and Variational Autoencoders
+
+### Goal
+
+Introduce latent variable models and generative learning.
+
+### Topics
+
+* Autoencoder architecture
+* Encoder vs decoder
+* Latent space representations
+* Reconstruction loss
+* Variational Autoencoders (VAE)
+* KL divergence intuition
+* Reparameterization trick
+
+### Hands-On
+
+* Train a basic autoencoder on MNIST
+* Visualize latent space embeddings
+* Train a VAE and sample new data
+* Latent space interpolation
+
+---
+
+## Session 10 — Convolutional Neural Networks (CNNs)
+
+### Goal
+
+Teach spatial feature extraction for images.
+
+### Topics
+
+* Why dense layers fail for images
+* Convolution operation
+* Filters and feature maps
+* Pooling layers
+* CNN architectures
+* Translation invariance
+
+### Hands-On
+
+* Build a CNN for MNIST or CIFAR-10
+* Visualize learned filters
+* Compare CNN vs fully connected models
+
+---
+
+## Session 11 — Transformers I: Sequences and Attention
+
+### Goal
+
+Introduce sequence modeling and attention mechanisms.
+
+### Topics
+
+* What is a sequence?
+* Tokens and embeddings
+* Positional encoding intuition
+* Attention as weighted information routing
+* Query, Key, Value concept
+* Self-attention mechanism
+
+### Hands-On
+
+* Visualize attention weights
+* Implement scaled dot-product attention
+* Simple transformer block walkthrough
+
+---
+
+## Session 12 — Transformers II: Architecture and Applications
+
+### Goal
+
+Understand full Transformer architectures and modern use cases.
+
+### Topics
+
+* Multi-head attention
+* Encoder vs decoder stacks
+* Transformer training overview
+* Vision Transformers (ViT)
+* Large Language Models (conceptual)
+* Why Transformers replaced RNNs
+
+### Hands-On
+
+* Build a minimal Transformer in PyTorch
+* Token-level prediction task
+* Inspect attention maps
+* Discuss scaling and real-world deployment
+
+---
+
+## Summary of Stage 2
+
+By the end of Stage 2, students will:
+
+* Understand how neural networks learn and generalize
+* Implement deep networks in PyTorch
+* Build CNNs, VAEs, and Transformers
+* Develop strong intuition for modern deep learning systems

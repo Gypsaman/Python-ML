@@ -7,7 +7,7 @@ OUTPUT_FOLDER = ./slides
 
 slide:
 	cp $(MARKDOWN_FOLDER)/$(md).md $(BUILD_FOLDER)
-	python3 src/utils/image_paths.py $(BUILD_FOLDER)/$(md).md  
+	python3 src/ml/utils/image_paths.py $(BUILD_FOLDER)/$(md).md  
 	pandoc -t beamer $(BUILD_FOLDER)/$(md).md -o $(OUTPUT_FOLDER)/$(md).pdf	
 
 all-slides:
