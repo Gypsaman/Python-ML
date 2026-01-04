@@ -1,5 +1,4 @@
 # Estructura de código ejecutable
-
 def ejecutar_aplicacion():
     print("\n--- La aplicación principal ha sido iniciada ---")
     print(__name__)

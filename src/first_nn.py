@@ -14,7 +14,6 @@ import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader
 
 
-
 @dataclass
 class Config:
     seed: int = 0
