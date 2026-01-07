@@ -4,6 +4,7 @@ def ejecutar_aplicacion():
     print(__name__)
     # Aquí se instancia y usa el código principal.
 
+
 # Este es el punto de inicio del programa
 if __name__ == "__main__":
     ejecutar_aplicacion()
