@@ -1,6 +1,6 @@
-# Stage 2 — Neural Networks & Deep Learning Foundations
+# Stage 2 — Neural Networks & Deep Learning Foundations (15 Sessions)
 
-This stage focuses on **how neural networks are built, trained, and extended into modern deep learning architectures**. Students move from fundamental training mechanics into convolutional, generative, and attention-based models used in real-world systems.
+This stage focuses on **how neural networks are built, trained, and extended into modern deep learning architectures**. Students move from training fundamentals into convolutional, generative, and attention-based models, with additional conceptual depth where abstraction increases.
 
 ---
 
@@ -15,10 +15,9 @@ Introduce the landscape of neural network architectures and where each is used.
 * What is a neural network?
 * Perceptrons vs multilayer networks
 * Feedforward networks
-* Convolutional Neural Networks (CNNs)
-* Autoencoders
-* Recurrent Networks (high-level only)
-* Transformers (high-level intuition)
+* CNNs (high-level motivation only)
+* Autoencoders (high-level motivation only)
+* Transformers (conceptual overview)
 
 ### Hands-On
 
@@ -40,12 +39,12 @@ Understand how neural networks learn using gradients.
 * Chain rule intuition
 * Gradients and partial derivatives
 * Backpropagation
-* PyTorch autograd system
+* PyTorch autograd mechanics
 
 ### Hands-On
 
 * Manual gradient calculation (1D example)
-* PyTorch autograd inspection
+* Autograd graph inspection
 * Visualizing gradient flow
 
 ---
@@ -68,7 +67,7 @@ Explain how error is quantified and minimized.
 
 * Plot loss curves
 * Compare losses on simple datasets
-* Observe training instability
+* Observe unstable training
 
 ---
 
@@ -87,9 +86,9 @@ Teach the mechanics of training neural networks.
 
 ### Hands-On
 
-* Write a full PyTorch training loop
+* Full PyTorch training loop
 * Track training/validation loss
-* Introduce accuracy metrics
+* Accuracy vs loss discussion
 
 ---
 
@@ -104,13 +103,13 @@ Understand how optimizers affect learning dynamics.
 * Batch vs stochastic gradient descent
 * Momentum
 * RMSProp
-* Adam optimizer
-* Learning rate scheduling
+* Adam
+* Learning rate schedules
 
 ### Hands-On
 
-* Compare optimizers on same dataset
-* Visualize convergence speed
+* Optimizer comparison
+* Convergence visualization
 * Learning rate experiments
 
 ---
@@ -131,8 +130,8 @@ Explain stability and signal propagation in deep networks.
 ### Hands-On
 
 * Activation comparisons
-* Gradient flow visualization
-* Training instability experiments
+* Gradient magnitude tracking
+* Failure mode demonstrations
 
 ---
 
@@ -144,89 +143,128 @@ Prevent overfitting and improve generalization.
 
 ### Topics
 
-* L1 and L2 regularization
+* L1 vs L2 regularization
 * Dropout
 * Early stopping
 * Data augmentation (conceptual)
 
 ### Hands-On
 
-* Overfit a model intentionally
-* Apply regularization techniques
-* Compare generalization performance
+* Intentional overfitting
+* Apply regularization
+* Compare validation performance
 
 ---
 
-## Session 8 — Generalization and Representation Learning
+## Session 8 — Representation Learning & Latent Spaces
 
 ### Goal
 
-Build intuition about feature learning and abstraction.
+Prepare students conceptually for autoencoders and VAEs.
 
 ### Topics
 
-* Learned representations
-* Bias–variance tradeoff
-* Model capacity
-* Latent spaces (intuition only)
+* What is a representation?
+* Feature compression vs information loss
+* Bottleneck layers
+* Geometry of learned spaces
+* Latent variables (intuitive, non-probabilistic)
 
 ### Hands-On
 
-* Visualize learned feature spaces
-* Compare shallow vs deep models
-* Prepare groundwork for autoencoders
+* Visualize embeddings
+* Compare shallow vs deep representations
+* Dimensionality reduction intuition
 
 ---
 
-## Session 9 — Autoencoders and Variational Autoencoders
+## Session 9 — Autoencoders: Deterministic Representation Learning
 
 ### Goal
 
-Introduce latent variable models and generative learning.
+Understand how autoencoders learn compact representations.
 
 ### Topics
 
-* Autoencoder architecture
-* Encoder vs decoder
-* Latent space representations
+* Encoder–decoder structure
 * Reconstruction loss
-* Variational Autoencoders (VAE)
-* KL divergence intuition
-* Reparameterization trick
+* Undercomplete vs overcomplete autoencoders
+* Failure cases (identity learning)
 
 ### Hands-On
 
-* Train a basic autoencoder on MNIST
-* Visualize latent space embeddings
-* Train a VAE and sample new data
-* Latent space interpolation
+* Train autoencoder on MNIST
+* Visualize reconstructions
+* Inspect latent embeddings
 
 ---
 
-## Session 10 — Convolutional Neural Networks (CNNs)
+## Session 10 — Variational Autoencoders (VAEs)
 
 ### Goal
 
-Teach spatial feature extraction for images.
+Introduce probabilistic generative modeling.
 
 ### Topics
 
-* Why dense layers fail for images
+* Why deterministic autoencoders fail as generators
+* Latent distributions
+* KL divergence (intuitive)
+* Reparameterization trick
+* ELBO intuition
+
+### Hands-On
+
+* Train a VAE
+* Sample from latent space
+* Latent interpolation
+
+---
+
+## Session 11 — CNN Fundamentals: Convolutions & Feature Maps
+
+### Goal
+
+Build intuition for spatial feature extraction before full CNNs.
+
+### Topics
+
+* Why dense layers fail on images
+* Local connectivity
 * Convolution operation
 * Filters and feature maps
-* Pooling layers
-* CNN architectures
-* Translation invariance
+* Stride and padding
 
 ### Hands-On
 
-* Build a CNN for MNIST or CIFAR-10
-* Visualize learned filters
-* Compare CNN vs fully connected models
+* Manual convolution visualization
+* Apply custom filters
+* Feature map inspection
 
 ---
 
-## Session 11 — Transformers I: Sequences and Attention
+## Session 12 — Convolutional Neural Networks (CNNs)
+
+### Goal
+
+Assemble full CNN architectures and understand invariance.
+
+### Topics
+
+* Pooling layers
+* Hierarchical feature learning
+* Translation invariance
+* Classic CNN architectures
+
+### Hands-On
+
+* CNN for MNIST or CIFAR-10
+* Visualize learned filters
+* CNN vs MLP comparison
+
+---
+
+## Session 13 — Transformers I: Sequences and Attention
 
 ### Goal
 
@@ -234,42 +272,57 @@ Introduce sequence modeling and attention mechanisms.
 
 ### Topics
 
-* What is a sequence?
 * Tokens and embeddings
 * Positional encoding intuition
-* Attention as weighted information routing
-* Query, Key, Value concept
-* Self-attention mechanism
+* Attention as information routing
+* Query, Key, Value
 
 ### Hands-On
 
-* Visualize attention weights
-* Implement scaled dot-product attention
-* Simple transformer block walkthrough
+* Attention weight visualization
+* Scaled dot-product attention
+* Transformer block walkthrough
 
 ---
 
-## Session 12 — Transformers II: Architecture and Applications
+## Session 14 — Transformers II: Architecture and Scaling
 
 ### Goal
 
-Understand full Transformer architectures and modern use cases.
+Understand full Transformer architectures.
 
 ### Topics
 
 * Multi-head attention
 * Encoder vs decoder stacks
-* Transformer training overview
-* Vision Transformers (ViT)
-* Large Language Models (conceptual)
-* Why Transformers replaced RNNs
+* Training transformers
+* Why transformers replaced RNNs
 
 ### Hands-On
 
-* Build a minimal Transformer in PyTorch
-* Token-level prediction task
-* Inspect attention maps
-* Discuss scaling and real-world deployment
+* Minimal Transformer implementation
+* Token-level prediction
+* Attention map inspection
+
+---
+
+## Session 15 — Modern Deep Learning Systems & Integration
+
+### Goal
+
+Tie architectures together and discuss real-world systems.
+
+### Topics
+
+* CNNs vs Transformers
+* VAEs vs diffusion models (conceptual)
+* Model scaling laws
+* Deployment considerations
+
+### Hands-On
+
+* Architecture comparison discussion
+* Capstone-style model selection exercise
 
 ---
 
@@ -277,7 +330,7 @@ Understand full Transformer architectures and modern use cases.
 
 By the end of Stage 2, students will:
 
-* Understand how neural networks learn and generalize
-* Implement deep networks in PyTorch
-* Build CNNs, VAEs, and Transformers
-* Develop strong intuition for modern deep learning systems
+* Understand how and why deep networks learn representations
+* Build CNNs, VAEs, and Transformers in PyTorch
+* Develop strong intuition for latent spaces, attention, and spatial structure
+* Be prepared for advanced topics such as diffusion models, LLMs, and multimodal systems
