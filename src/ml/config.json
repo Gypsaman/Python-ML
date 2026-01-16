@@ -1,0 +1,9 @@
+{
+    "learning_rate": 0.01,
+    "epochs": 200,
+    "batch_size": 16,
+    "optimizer": "ADAM",
+    "optimizer_params": {
+        "weight_decay": 0.0001
+    }
+}
