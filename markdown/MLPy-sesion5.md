@@ -187,6 +187,24 @@ Mantiene:
 
 ---
 
+## Adam Optimizer (Update Rule)
+
+Given gradient $g_t = \nabla_\theta L(\theta_t)$:
+
+First moment (momentum):
+$m_t = \beta_1 m_{t-1} + (1-\beta_1) g_t$
+
+Second moment (RMS):
+$v_t = \beta_2 v_{t-1} + (1-\beta_2) g_t^2$
+
+Bias correction:
+$\hat m_t = \dfrac{m_t}{1-\beta_1^t}, \quad \hat v_t = \dfrac{v_t}{1-\beta_2^t}$
+
+Parameter update:
+$\theta_{t+1} = \theta_t - \alpha \dfrac{\hat m_t}{\sqrt{\hat v_t} + \varepsilon}$
+
+---
+
 # Por qué Adam funciona tan bien
 
 ## Práctica moderna
