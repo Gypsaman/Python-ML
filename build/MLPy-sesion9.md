@@ -85,6 +85,9 @@ sino **cómo se ve el espacio latente**.
 
 ---
 
+![Autoencoder](/mnt/c/Users/gypsa/Python-ML/images/AutoEncoder.jpg)
+
+---
 # El encoder como extractor
 
 ## Intuición

@@ -85,6 +85,9 @@ sino **cómo se ve el espacio latente**.
 
 ---
 
+![Autoencoder](../images/AutoEncoder.jpg)
+
+---
 # El encoder como extractor
 
 ## Intuición
