@@ -1,0 +1,929 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>3×3 Convolution Animation (Padding / Stride / Feature Map)</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#121a33;
+      --panel2:#0f1630;
+      --text:#e9ecff;
+      --muted:#a9b1d6;
+      --grid:#2a3566;
+      --accent:#7aa2f7;
+      --good:#9ece6a;
+      --warn:#e0af68;
+      --bad:#f7768e;
+      --cell:25px;
+      --gap:4px;
+      --radius:14px;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background: radial-gradient(1200px 600px at 20% 0%, #19214a, var(--bg));
+      color:var(--text);
+      font-family:var(--sans);
+      line-height:1.25;
+    }
+    header{
+      padding:22px 18px 10px;
+      max-width:1200px;
+      margin:0 auto;
+    }
+    header h1{
+      margin:0 0 6px 0;
+      font-size:20px;
+      font-weight:800;
+      letter-spacing:.2px;
+    }
+    header p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+.wrap{
+  max-width:1400px;                 /* give the whole page more room */
+  margin:0 auto;
+  padding:12px 18px 26px;
+  display:grid;
+  grid-template-columns: 280px 1fr;  /* controls narrower, viz wider */
+  gap:16px;
+}
+
+
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .controls{
+      padding:14px;
+    }
+    .controls h2{
+      margin:0 0 10px;
+      font-size:14px;
+      color:var(--text);
+      font-weight:800;
+    }
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .field{
+      background:rgba(0,0,0,.15);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px;
+      padding:10px;
+    }
+    .field label{
+      display:flex;
+      justify-content:space-between;
+      align-items:baseline;
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:7px;
+    }
+    .field label span.value{
+      font-family:var(--mono);
+      color:var(--text);
+      font-size:12px;
+    }
+    input[type="range"]{
+      width:100%;
+    }
+
+    .btnrow{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+    button{
+      appearance:none;
+      border:none;
+      border-radius:12px;
+      padding:9px 10px;
+      font-weight:700;
+      font-size:12px;
+      cursor:pointer;
+      color:var(--text);
+      background:rgba(122,162,247,.18);
+      border:1px solid rgba(122,162,247,.35);
+    }
+    button.secondary{
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      color:var(--text);
+    }
+    button.danger{
+      background:rgba(247,118,142,.14);
+      border:1px solid rgba(247,118,142,.35);
+    }
+    button:active{transform: translateY(1px);}
+
+    .toggle{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      padding:10px;
+      background:rgba(0,0,0,.15);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px;
+      margin-bottom:10px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .toggle input{transform:scale(1.1);}
+
+    .sub{
+      color:var(--muted);
+      font-size:12px;
+      margin:10px 0 6px;
+      font-weight:800;
+      letter-spacing:.2px;
+    }
+
+    .grid3{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:6px;
+    }
+    .grid3 input[type="number"]{
+      width:100%;
+      padding:8px 6px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.18);
+      color:var(--text);
+      font-family:var(--mono);
+      font-size:12px;
+      text-align:center;
+      outline:none;
+    }
+
+    .viz{
+      padding:14px;
+      display:grid;
+      grid-template-rows:auto auto 1fr;
+      gap:12px;
+    }
+
+    .topline{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .pill{
+      font-family:var(--mono);
+      font-size:12px;
+      color:var(--text);
+      background:rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      padding:8px 10px;
+      border-radius:999px;
+      display:inline-flex;
+      gap:10px;
+      align-items:center;
+      white-space:nowrap;
+    }
+    .pill .k{color:var(--muted)}
+    .pill .v{color:var(--text); font-weight:800}
+
+    .boards{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 1050px){
+      .wrap{grid-template-columns:1fr}
+      .boards{grid-template-columns:1fr}
+    }
+
+    .board{
+        padding:14px;
+        background:rgba(0,0,0,.14);
+        border:1px solid rgba(255,255,255,.08);
+        border-radius:14px;
+        overflow:auto;
+        min-height:300px;   /* more vertical room */
+    }
+
+    .board h3{
+      margin:0 0 8px;
+      font-size:13px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .board p{
+      margin:0 0 10px;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .grid{
+    display:grid;
+    gap:var(--gap);
+    width:max-content;
+    padding:8px;
+    background:rgba(255,255,255,.03);
+    border-radius:14px;
+    border:1px dashed rgba(255,255,255,.10);
+    }
+
+    .cell{
+      width:var(--cell);
+      height:var(--cell);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:10px;
+      font-family:var(--mono);
+      font-size:12px;
+      position:relative;
+      user-select:none;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+    }
+    .cell.small{ width:38px; height:38px; font-size:11px; }
+    .cell.muted{
+      color:rgba(233,236,255,.55);
+      background:rgba(255,255,255,.02);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    /* Highlight styles */
+    .cell.rf{ outline:2px solid rgba(122,162,247,.9); box-shadow:0 0 0 3px rgba(122,162,247,.18) inset; }
+    .cell.rf::after{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      border-radius:10px;
+      background:linear-gradient(135deg, rgba(122,162,247,.22), rgba(0,0,0,0));
+      pointer-events:none;
+    }
+    .cell.outsel{ outline:2px solid rgba(158,206,106,.9); box-shadow:0 0 0 3px rgba(158,206,106,.18) inset; }
+
+    .mathbox{
+      padding:12px;
+      border-radius:14px;
+      background:rgba(0,0,0,.14);
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .mathbox h3{
+      margin:0 0 8px;
+      font-size:13px;
+      font-weight:900;
+    }
+    .mono{
+      font-family:var(--mono);
+      font-size:12px;
+      color:var(--text);
+      white-space:pre-wrap;
+    }
+    .mono .muted{ color:var(--muted); }
+    .mono .good{ color:var(--good); font-weight:800; }
+    .mono .warn{ color:var(--warn); font-weight:800; }
+    .mono .bad{ color:var(--bad); font-weight:800; }
+
+    footer{
+      max-width:1200px;
+      margin:0 auto;
+      padding:0 18px 20px;
+      color:var(--muted);
+      font-size:12px;
+    }
+    a{ color:var(--accent); text-decoration:none; }
+    a:hover{text-decoration:underline;}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Convolution (3×3) → Feature Map (animated)</h1>
+    <p>Shows how a 3×3 filter slides over an input (with optional padding), using stride to generate a feature map. Includes receptive field, elementwise products, sum, and optional ReLU.</p>
+  </header>
+
+  <div class="wrap">
+    <section class="card controls" aria-label="controls">
+      <h2>Controls</h2>
+
+      <div class="row">
+        <div class="field">
+          <label>Padding <span class="value" id="padVal">1</span></label>
+          <input id="padding" type="range" min="0" max="2" step="1" value="1" />
+        </div>
+        <div class="field">
+          <label>Stride <span class="value" id="strideVal">1</span></label>
+          <input id="stride" type="range" min="1" max="3" step="1" value="1" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Input size (N×N) <span class="value" id="nVal">7</span></label>
+          <input id="n" type="range" min="4" max="10" step="1" value="7" />
+        </div>
+        <div class="field">
+          <label>Speed (ms/step) <span class="value" id="speedVal">550</span></label>
+          <input id="speed" type="range" min="120" max="1200" step="10" value="550" />
+        </div>
+      </div>
+
+      <div class="toggle">
+        <input id="relu" type="checkbox" />
+        <label for="relu">Apply ReLU to output (max(0, x))</label>
+      </div>
+
+      <div class="toggle">
+        <input id="showProducts" type="checkbox" checked />
+        <label for="showProducts">Show elementwise products grid (3×3)</label>
+      </div>
+
+      <div class="sub">3×3 Filter weights</div>
+      <div class="field">
+        <div class="grid3" id="kernelGrid"></div>
+        <div class="btnrow">
+          <button id="presetEdge">Preset: Edge</button>
+          <button id="presetBlur" class="secondary">Preset: Blur</button>
+          <button id="presetSharpen" class="secondary">Preset: Sharpen</button>
+          <button id="presetRandom" class="secondary">Preset: Random</button>
+          <button id="zeroOut" class="danger">Zero output map</button>
+        </div>
+      </div>
+
+      <div class="sub">Pedagogical notes</div>
+      <div class="field">
+        <div class="mono">
+          <span class="muted">Output spatial size formula:</span>
+          <br/>
+          H_out = ⌊(H + 2P − K) / S⌋ + 1
+          <br/>
+          (here K=3, square input/output)
+          <br/><br/>
+          <span class="muted">At each step:</span> take the 3×3 receptive field, multiply elementwise by weights, sum, then optionally apply ReLU.
+        </div>
+      </div>
+    </section>
+
+    <section class="card viz" aria-label="visualization">
+      <div class="topline">
+        <div class="pill">
+          <span class="k">K</span><span class="v">3</span>
+          <span class="k">P</span><span class="v" id="pillP">1</span>
+          <span class="k">S</span><span class="v" id="pillS">1</span>
+          <span class="k">N</span><span class="v" id="pillN">7</span>
+        </div>
+        <div class="pill">
+          <span class="k">Output size</span>
+          <span class="v" id="outSizePill">7×7</span>
+        </div>
+        <div class="btnrow">
+          <button id="playPause">Play</button>
+          <button id="step" class="secondary">Step</button>
+          <button id="reset" class="secondary">Reset scan</button>
+        </div>
+      </div>
+
+      <div class="boards">
+        <div class="board">
+          <h3>Input (padded view)</h3>
+          <p>Blue outline = current 3×3 receptive field.</p>
+          <div id="inputGrid" class="grid"></div>
+        </div>
+
+        <div class="board">
+          <h3>3×3 Products</h3>
+          <p>Each cell shows x · w (input × weight) for the current receptive field.</p>
+          <div id="prodGrid" class="grid"></div>
+        </div>
+
+        <div class="board">
+          <h3>Feature map (output)</h3>
+          <p>Green outline = the output cell being written.</p>
+          <div id="outGrid" class="grid"></div>
+        </div>
+      </div>
+
+      <div class="mathbox">
+        <h3>Current computation</h3>
+        <div class="mono" id="mathText"></div>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    Tip: set <b>padding=1</b> and <b>stride=1</b> to keep output size equal to input size (for K=3).
+  </footer>
+
+<script>
+(() => {
+  // --------- State ----------
+  const state = {
+    N: 7,
+    P: 1,
+    S: 1,
+    K: 3,
+    relu: false,
+    showProducts: true,
+    speedMs: 550,
+    // Base (unpadded) input values, NxN
+    baseInput: [],
+    // 3x3 kernel weights
+    kernel: [
+      [ -1, 0, 1 ],
+      [ -2, 0, 2 ],
+      [ -1, 0, 1 ]
+    ],
+    // Scan position in output coords (oy, ox)
+    oy: 0,
+    ox: 0,
+    running: false,
+    timer: null,
+    // Output values (Hout x Wout)
+    out: []
+  };
+
+  // --------- DOM ----------
+  const els = {
+    padding: document.getElementById('padding'),
+    stride: document.getElementById('stride'),
+    n: document.getElementById('n'),
+    speed: document.getElementById('speed'),
+    relu: document.getElementById('relu'),
+    showProducts: document.getElementById('showProducts'),
+
+    padVal: document.getElementById('padVal'),
+    strideVal: document.getElementById('strideVal'),
+    nVal: document.getElementById('nVal'),
+    speedVal: document.getElementById('speedVal'),
+
+    pillP: document.getElementById('pillP'),
+    pillS: document.getElementById('pillS'),
+    pillN: document.getElementById('pillN'),
+    outSizePill: document.getElementById('outSizePill'),
+
+    kernelGrid: document.getElementById('kernelGrid'),
+    inputGrid: document.getElementById('inputGrid'),
+    prodGrid: document.getElementById('prodGrid'),
+    outGrid: document.getElementById('outGrid'),
+    mathText: document.getElementById('mathText'),
+
+    playPause: document.getElementById('playPause'),
+    step: document.getElementById('step'),
+    reset: document.getElementById('reset'),
+
+    presetEdge: document.getElementById('presetEdge'),
+    presetBlur: document.getElementById('presetBlur'),
+    presetSharpen: document.getElementById('presetSharpen'),
+    presetRandom: document.getElementById('presetRandom'),
+    zeroOut: document.getElementById('zeroOut')
+  };
+
+  // --------- Helpers ----------
+  function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+  function outSize(N, P, K, S){
+    // H_out = floor((H + 2P - K)/S) + 1
+    return Math.floor((N + 2*P - K)/S) + 1;
+  }
+
+  function makeDefaultInput(N){
+    // Simple patterned input: smooth-ish gradient + a few peaks for interest
+    const arr = [];
+    for(let y=0;y<N;y++){
+      const row = [];
+      for(let x=0;x<N;x++){
+        const v = Math.round( ( (x + y) / (2*(N-1)) ) * 9 ); // 0..9
+        row.push(v);
+      }
+      arr.push(row);
+    }
+    // Add a couple peaks if large enough
+    if(N >= 6){
+      arr[1][Math.floor(N*0.7)] = 9;
+      arr[Math.floor(N*0.65)][2] = 8;
+    }
+    return arr;
+  }
+
+  function paddedInput(base, P){
+    const N = base.length;
+    const M = N + 2*P;
+    const pad = Array.from({length:M}, () => Array.from({length:M}, () => 0));
+    for(let y=0;y<N;y++){
+      for(let x=0;x<N;x++){
+        pad[y+P][x+P] = base[y][x];
+      }
+    }
+    return pad;
+  }
+
+  function resetOutput(){
+    const Hout = outSize(state.N, state.P, state.K, state.S);
+    state.out = Array.from({length:Hout}, () => Array.from({length:Hout}, () => null));
+  }
+
+  function resetScan(){
+    state.oy = 0;
+    state.ox = 0;
+  }
+
+  function stop(){
+    state.running = false;
+    els.playPause.textContent = "Play";
+    if(state.timer) clearInterval(state.timer);
+    state.timer = null;
+  }
+
+  function start(){
+    state.running = true;
+    els.playPause.textContent = "Pause";
+    if(state.timer) clearInterval(state.timer);
+    state.timer = setInterval(() => {
+      stepOnce();
+    }, state.speedMs);
+  }
+
+  function formatNum(n){
+    if(n === null || n === undefined) return "·";
+    // keep small decimals readable
+    const s = (Math.abs(n) < 1000) ? n.toFixed(2) : n.toFixed(0);
+    // strip trailing zeros
+    return s.replace(/\.00$/, '').replace(/(\.\d)0$/, '$1');
+  }
+
+  // --------- Rendering ----------
+  function renderKernelInputs(){
+    els.kernelGrid.innerHTML = "";
+    for(let y=0;y<3;y++){
+      for(let x=0;x<3;x++){
+        const inp = document.createElement('input');
+        inp.type = "number";
+        inp.step = "0.25";
+        inp.value = state.kernel[y][x];
+        inp.addEventListener('change', () => {
+          const v = parseFloat(inp.value);
+          state.kernel[y][x] = Number.isFinite(v) ? v : 0;
+          // don't wipe output; just re-render current step
+          renderAll();
+        });
+        els.kernelGrid.appendChild(inp);
+      }
+    }
+  }
+
+  function renderGrid(container, matrix, opts = {}){
+    const { highlightCells = new Set(), highlightClass = "rf", mutedMask = null, cellSize = "normal", selectedCells = new Set(), selectedClass="outsel" } = opts;
+
+    const H = matrix.length;
+    const W = matrix[0].length;
+
+    container.style.gridTemplateColumns = `repeat(${W}, var(--cell))`;
+    container.innerHTML = "";
+
+    for(let y=0;y<H;y++){
+      for(let x=0;x<W;x++){
+        const cell = document.createElement('div');
+        cell.className = "cell" + (cellSize==="small" ? " small" : "");
+        const key = `${y},${x}`;
+
+        const isMuted = mutedMask ? mutedMask.has(key) : false;
+        if(isMuted) cell.classList.add("muted");
+
+        if(highlightCells.has(key)) cell.classList.add(highlightClass);
+        if(selectedCells.has(key)) cell.classList.add(selectedClass);
+
+        const v = matrix[y][x];
+        cell.textContent = (typeof v === "number") ? (Number.isInteger(v) ? v : formatNum(v)) : "·";
+
+        container.appendChild(cell);
+      }
+    }
+  }
+
+  function buildMutedMaskForPadded(M, P){
+    // everything in padding border is muted
+    const mask = new Set();
+    for(let y=0;y<M;y++){
+      for(let x=0;x<M;x++){
+        if(y < P || x < P || y >= (M-P) || x >= (M-P)){
+          mask.add(`${y},${x}`);
+        }
+      }
+    }
+    return mask;
+  }
+
+  function currentReceptiveFieldCoords(){
+    // In padded input coordinates:
+    // top-left = (oy*S, ox*S)
+    const y0 = state.oy * state.S;
+    const x0 = state.ox * state.S;
+    const coords = [];
+    for(let dy=0;dy<3;dy++){
+      for(let dx=0;dx<3;dx++){
+        coords.push([y0+dy, x0+dx]);
+      }
+    }
+    return coords;
+  }
+
+  function renderAll(){
+    // update labels
+    els.padVal.textContent = state.P;
+    els.strideVal.textContent = state.S;
+    els.nVal.textContent = state.N;
+    els.speedVal.textContent = state.speedMs;
+
+    els.pillP.textContent = state.P;
+    els.pillS.textContent = state.S;
+    els.pillN.textContent = state.N;
+
+    const Hout = outSize(state.N, state.P, state.K, state.S);
+    els.outSizePill.textContent = `${Hout}×${Hout}`;
+
+    // compute padded input
+    const pin = paddedInput(state.baseInput, state.P);
+    const M = pin.length;
+
+    // receptive field highlights
+    const rf = new Set(currentReceptiveFieldCoords().map(([y,x]) => `${y},${x}`));
+    const muted = buildMutedMaskForPadded(M, state.P);
+
+    // render padded input
+    renderGrid(els.inputGrid, pin, { highlightCells: rf, highlightClass:"rf", mutedMask: muted });
+
+    // products grid
+    if(state.showProducts){
+      els.prodGrid.style.display = "";
+      const prods = Array.from({length:3}, () => Array.from({length:3}, () => 0));
+      let idx = 0;
+      for(let dy=0;dy<3;dy++){
+        for(let dx=0;dx<3;dx++){
+          const y = state.oy*state.S + dy;
+          const x = state.ox*state.S + dx;
+          const xv = pin[y]?.[x] ?? 0;
+          const wv = state.kernel[dy][dx];
+          prods[dy][dx] = xv * wv;
+          idx++;
+        }
+      }
+      // Make products grid use small cells
+      els.prodGrid.style.gridTemplateColumns = `repeat(3, 38px)`;
+      els.prodGrid.innerHTML = "";
+      for(let dy=0;dy<3;dy++){
+        for(let dx=0;dx<3;dx++){
+          const cell = document.createElement('div');
+          cell.className = "cell small";
+          cell.textContent = formatNum(prods[dy][dx]);
+          els.prodGrid.appendChild(cell);
+        }
+      }
+    } else {
+      els.prodGrid.style.display = "none";
+    }
+
+    // render output grid
+    const outSel = new Set([`${state.oy},${state.ox}`]);
+    renderGrid(els.outGrid, state.out, { selectedCells: outSel, selectedClass:"outsel" });
+
+    // math text
+    const lines = [];
+    lines.push(`Output cell (oy, ox) = (${state.oy}, ${state.ox})`);
+    lines.push(`Top-left in padded input = (y0, x0) = (${state.oy}*S, ${state.ox}*S) = (${state.oy*state.S}, ${state.ox*state.S})`);
+    lines.push("");
+
+    // Build sum expression
+    let sum = 0;
+    const terms = [];
+    for(let dy=0;dy<3;dy++){
+      for(let dx=0;dx<3;dx++){
+        const y = state.oy*state.S + dy;
+        const x = state.ox*state.S + dx;
+        const xv = pin[y]?.[x] ?? 0;
+        const wv = state.kernel[dy][dx];
+        const prod = xv * wv;
+        sum += prod;
+        terms.push({xv, wv, prod, dy, dx});
+      }
+    }
+
+    // Pretty print
+    for(const t of terms){
+      lines.push(`x[${t.dy},${t.dx}]=${t.xv}  ·  w[${t.dy},${t.dx}]=${t.wv}   =>  ${formatNum(t.prod)}`);
+    }
+    lines.push("");
+    lines.push(`sum = ${formatNum(sum)}`);
+
+    const outv = state.out[state.oy]?.[state.ox];
+    if(outv !== null && outv !== undefined){
+      lines.push(`stored output = ${formatNum(outv)} ${state.relu ? "(after ReLU if enabled)" : ""}`);
+    } else {
+      lines.push(`stored output = · (not written yet)`);
+    }
+
+    els.mathText.textContent = lines.join("\n");
+  }
+
+  // --------- Convolution step ----------
+  function computeCurrentOutputValue(){
+    const pin = paddedInput(state.baseInput, state.P);
+    let sum = 0;
+    for(let dy=0;dy<3;dy++){
+      for(let dx=0;dx<3;dx++){
+        const y = state.oy*state.S + dy;
+        const x = state.ox*state.S + dx;
+        const xv = pin[y]?.[x] ?? 0;
+        const wv = state.kernel[dy][dx];
+        sum += xv * wv;
+      }
+    }
+    if(state.relu) sum = Math.max(0, sum);
+    return sum;
+  }
+
+  function stepOnce(){
+    const Hout = outSize(state.N, state.P, state.K, state.S);
+    if(Hout <= 0){
+      stop();
+      return;
+    }
+
+    // Write current output
+    const v = computeCurrentOutputValue();
+    state.out[state.oy][state.ox] = v;
+
+    // Advance scan (row-major)
+    state.ox += 1;
+    if(state.ox >= Hout){
+      state.ox = 0;
+      state.oy += 1;
+    }
+
+    // If done, stop at end and clamp to last valid cell for highlighting
+    if(state.oy >= Hout){
+      stop();
+      state.oy = Hout - 1;
+      state.ox = Hout - 1;
+    }
+
+    renderAll();
+  }
+
+  // --------- Wiring controls ----------
+  function rebuildAll(){
+    // stop animation for safe rebuild
+    stop();
+
+    state.N = parseInt(els.n.value, 10);
+    state.P = parseInt(els.padding.value, 10);
+    state.S = parseInt(els.stride.value, 10);
+    state.speedMs = parseInt(els.speed.value, 10);
+    state.relu = !!els.relu.checked;
+    state.showProducts = !!els.showProducts.checked;
+
+    // rebuild input and output
+    state.baseInput = makeDefaultInput(state.N);
+    resetOutput();
+    resetScan();
+
+    renderKernelInputs();
+    renderAll();
+  }
+
+  function refreshSettingsOnly(){
+    state.P = parseInt(els.padding.value, 10);
+    state.S = parseInt(els.stride.value, 10);
+    state.speedMs = parseInt(els.speed.value, 10);
+    state.relu = !!els.relu.checked;
+    state.showProducts = !!els.showProducts.checked;
+
+    // output size may change with P/S, rebuild out but keep what we can
+    const Hout = outSize(state.N, state.P, state.K, state.S);
+    const prev = state.out;
+    const next = Array.from({length:Hout}, () => Array.from({length:Hout}, () => null));
+    for(let y=0;y<Math.min(prev.length, Hout);y++){
+      for(let x=0;x<Math.min(prev[0].length, Hout);x++){
+        next[y][x] = prev[y][x];
+      }
+    }
+    state.out = next;
+
+    // clamp scan position to new bounds
+    state.oy = clamp(state.oy, 0, Math.max(0, Hout-1));
+    state.ox = clamp(state.ox, 0, Math.max(0, Hout-1));
+
+    // update timer if running
+    if(state.running){
+      start();
+    }
+    renderAll();
+  }
+
+  // Buttons
+  els.playPause.addEventListener('click', () => {
+    if(state.running) stop();
+    else start();
+  });
+
+  els.step.addEventListener('click', () => {
+    stop();
+    stepOnce();
+  });
+
+  els.reset.addEventListener('click', () => {
+    stop();
+    resetScan();
+    renderAll();
+  });
+
+  els.zeroOut.addEventListener('click', () => {
+    stop();
+    resetOutput();
+    renderAll();
+  });
+
+  // Presets
+  els.presetEdge.addEventListener('click', () => {
+    state.kernel = [
+      [ -1, 0, 1 ],
+      [ -2, 0, 2 ],
+      [ -1, 0, 1 ]
+    ];
+    renderKernelInputs();
+    renderAll();
+  });
+
+  els.presetBlur.addEventListener('click', () => {
+    const v = 1/9;
+    state.kernel = [
+      [ v, v, v ],
+      [ v, v, v ],
+      [ v, v, v ]
+    ];
+    renderKernelInputs();
+    renderAll();
+  });
+
+  els.presetSharpen.addEventListener('click', () => {
+    state.kernel = [
+      [ 0, -1, 0 ],
+      [ -1, 5, -1 ],
+      [ 0, -1, 0 ]
+    ];
+    renderKernelInputs();
+    renderAll();
+  });
+
+  els.presetRandom.addEventListener('click', () => {
+    state.kernel = Array.from({length:3}, () =>
+      Array.from({length:3}, () => {
+        // small random values
+        const r = (Math.random()*2 - 1) * 2;
+        return Math.round(r*4)/4; // step 0.25
+      })
+    );
+    renderKernelInputs();
+    renderAll();
+  });
+
+  // Sliders / toggles
+  els.padding.addEventListener('input', refreshSettingsOnly);
+  els.stride.addEventListener('input', refreshSettingsOnly);
+  els.speed.addEventListener('input', () => {
+    state.speedMs = parseInt(els.speed.value, 10);
+    els.speedVal.textContent = state.speedMs;
+    if(state.running) start();
+  });
+  els.relu.addEventListener('change', refreshSettingsOnly);
+  els.showProducts.addEventListener('change', refreshSettingsOnly);
+
+  els.n.addEventListener('input', () => {
+    // rebuild everything when N changes
+    rebuildAll();
+  });
+
+  // --------- Init ----------
+  state.baseInput = makeDefaultInput(state.N);
+  resetOutput();
+  renderKernelInputs();
+  renderAll();
+
+})();
+</script>
+</body>
+</html>
