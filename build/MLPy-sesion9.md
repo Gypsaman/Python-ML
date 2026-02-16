@@ -8,7 +8,7 @@ theme: "Madrid"
 header-includes:
   - \usepackage{tikz}
   - \usetikzlibrary{arrows.meta,positioning}
----
+...
 
 # Introducción
 
@@ -21,7 +21,6 @@ header-includes:
 
 > ¿Puede una red aprender algo útil sin etiquetas?
 
----
 
 # ¿Qué es un autoencoder?
 
@@ -38,7 +37,6 @@ Entrada = Salida (idealmente)
 
 > Si la salida es igual a la entrada, ¿qué está aprendiendo realmente?
 
----
 
 # Arquitectura general
 
@@ -83,11 +81,9 @@ sino **cómo se ve el espacio latente**.
 
 > ¿Dónde ocurre realmente el aprendizaje importante?
 
----
 
-![Autoencoder](/mnt/c/Users/gypsa/Python-ML/images/AutoEncoder.jpg)
+![Autoencoder](/home/cesar/teaching/Python-ML/images/AutoEncoder.jpg)
 
----
 # El encoder como extractor
 
 ## Intuición
@@ -104,7 +100,6 @@ No proyecta al azar: **aprende una geometría útil**.
 
 > ¿Qué información decide conservar el encoder?
 
----
 
 # El cuello de botella
 
@@ -121,7 +116,6 @@ Esto evita la solución trivial de copiar la entrada.
 
 > ¿Qué pasaría si el espacio latente fuera muy grande?
 
----
 
 # Función de pérdida
 
@@ -138,7 +132,6 @@ No hay etiquetas externas.
 
 > ¿Qué tipo de errores penaliza esta pérdida?
 
----
 
 # Autoencoders vs PCA
 
@@ -155,7 +148,6 @@ Un autoencoder puede verse como:
 
 > ¿Qué ventaja aporta la no linealidad?
 
----
 
 # Visualizando el espacio latente
 
@@ -172,7 +164,6 @@ Esto conecta con la sesión anterior.
 
 > ¿Cómo sabrías si el espacio latente es bueno?
 
----
 
 # Del encoder al generador (preview)
 
@@ -189,7 +180,6 @@ No sabemos cómo muestrear su espacio latente.
 
 > ¿Qué falta para poder generar nuevos datos?
 
----
 
 # Idea clave de la sesión
 
