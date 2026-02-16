@@ -23,6 +23,12 @@ header-includes:
 
 ---
 
+# [Attention is all you need](https://arxiv.org/abs/1706.03762)
+
+![Transformer](/home/cesar/teaching/Python-ML/images/Transformer.png){height=300px}
+
+---
+
 # Qué es una secuencia
 
 ## Definición
