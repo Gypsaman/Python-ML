@@ -2,7 +2,13 @@
 
 ## ✅ COMPLETADO
 
-### **Sesión 14: Transformers II - Arquitectura Completa**
+### **Sesión 13: Transformers I - Atención** ✅
+Se ha mejorado el notebook original (`MLPy-sesion13.ipynb`) con:
+- Multi-head attention (conceptual + código)
+- Positional encoding (implementación completa + visualización)
+- Máscaras causales (expandido con comparaciones visuales)
+
+### **Sesión 14: Transformers II - Arquitectura Completa** ✅
 Se ha creado un notebook completamente nuevo (`MLPy-sesion14.ipynb`) con:
 
 1. **Revisión rápida de atención** (scaled dot-product)
@@ -183,4 +189,4 @@ Estado: ⚠️ Demasiado densos
 
 ---
 
-**Estado actual**: ✅ Sesión 14 completada | ⏳ Sesión 13 requiere mejoras menores
+**Estado actual**: ✅ Sesión 13 & 14 COMPLETADAS | 📚 Listas para usar en clase
