@@ -1,6 +1,33 @@
 [
-  {
-    "concepto": "Pago nomina",
-    "monto": 1250.0
-  }
+  {"concepto": "Supermercado",   "monto": 280.50, "categoria": "Alimentación", "mes": "enero"},
+  {"concepto": "Restaurante",    "monto":  45.00, "categoria": "Alimentación", "mes": "enero"},
+  {"concepto": "Cafetería",      "monto":  18.50, "categoria": "Alimentación", "mes": "enero"},
+  {"concepto": "Metro/Bus",      "monto":  30.00, "categoria": "Transporte",   "mes": "enero"},
+  {"concepto": "Gasolina",       "monto": 120.00, "categoria": "Transporte",   "mes": "enero"},
+  {"concepto": "Estacionamiento","monto":  15.00, "categoria": "Transporte",   "mes": "enero"},
+  {"concepto": "Luz",            "monto":  85.50, "categoria": "Servicios",    "mes": "enero"},
+  {"concepto": "Internet",       "monto":  60.00, "categoria": "Servicios",    "mes": "enero"},
+  {"concepto": "Cine",           "monto":  25.00, "categoria": "Ocio",         "mes": "enero"},
+  {"concepto": "Spotify",        "monto":   9.99, "categoria": "Ocio",         "mes": "enero"},
+  {"concepto": "Supermercado",   "monto": 310.00, "categoria": "Alimentación", "mes": "febrero"},
+  {"concepto": "Taxi",           "monto":  22.50, "categoria": "Transporte",   "mes": "febrero"},
+  {"concepto": "Restaurante",    "monto":  38.00, "categoria": "Alimentación", "mes": "febrero"},
+  {"concepto": "Cafetería",      "monto":  21.00, "categoria": "Alimentación", "mes": "febrero"},
+  {"concepto": "Agua",           "monto":  40.00, "categoria": "Servicios",    "mes": "febrero"},
+  {"concepto": "Gimnasio",       "monto":  50.00, "categoria": "Salud",        "mes": "febrero"},
+  {"concepto": "Farmacia",       "monto":  35.00, "categoria": "Salud",        "mes": "febrero"},
+  {"concepto": "Gasolina",       "monto": 115.00, "categoria": "Transporte",   "mes": "febrero"},
+  {"concepto": "Netflix",        "monto":  15.99, "categoria": "Ocio",         "mes": "febrero"},
+  {"concepto": "Videojuego",     "monto":  59.99, "categoria": "Ocio",         "mes": "febrero"},
+  {"concepto": "Supermercado",   "monto": 295.00, "categoria": "Alimentación", "mes": "marzo"},
+  {"concepto": "Metro/Bus",      "monto":  30.00, "categoria": "Transporte",   "mes": "marzo"},
+  {"concepto": "Dentista",       "monto": 120.00, "categoria": "Salud",        "mes": "marzo"},
+  {"concepto": "Luz",            "monto":  92.00, "categoria": "Servicios",    "mes": "marzo"},
+  {"concepto": "Internet",       "monto":  60.00, "categoria": "Servicios",    "mes": "marzo"},
+  {"concepto": "Restaurante",    "monto":  65.00, "categoria": "Alimentación", "mes": "marzo"},
+  {"concepto": "Cafetería",      "monto":  14.50, "categoria": "Alimentación", "mes": "marzo"},
+  {"concepto": "Gasolina",       "monto": 130.00, "categoria": "Transporte",   "mes": "marzo"},
+  {"concepto": "Concierto",      "monto":  85.00, "categoria": "Ocio",         "mes": "marzo"},
+  {"concepto": "Spotify",        "monto":   9.99, "categoria": "Ocio",         "mes": "marzo"},
+  {"concepto": "Farmacia",       "monto":  28.00, "categoria": "Salud",        "mes": "marzo"}
 ]
