@@ -44,7 +44,7 @@ Un **agente** es un sistema que:
 
 ## Ciclo fundamental
 
-![El Loop del Agente](../images/agent_loop.png){height=180px}
+![El Loop del Agente](/home/cesar/teaching/Python-ML/images/agent_loop.png){height=180px}
 
 **El loop continúa hasta:**
 
