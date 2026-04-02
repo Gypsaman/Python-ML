@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Machine Learning con Python — Cesar Garcia</title>
+<style>
+/* ── Palette ───────────────────────────────── */
+:root {
+  --bg:       #0e0e0e;
+  --surface:  #181818;
+  --surface2: #222;
+  --border:   #333;
+  --teal:     #4ecdc4;
+  --yellow:   #ffd93d;
+  --red:      #ff6b6b;
+  --green:    #a8e6cf;
+  --dim:      #888;
+  --text:     #e0e0e0;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── Top bar ──────────────────────────────── */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo {
+  font-size: 0.85em;
+  color: var(--teal);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.header-links a {
+  color: var(--dim);
+  text-decoration: none;
+  margin-left: 24px;
+  font-size: 0.82em;
+  transition: color .2s;
+}
+.header-links a:hover { color: var(--teal); }
+
+/* ── Hero ─────────────────────────────────── */
+.hero {
+  padding: 80px 40px 60px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.hero-tag {
+  display: inline-block;
+  background: var(--teal);
+  color: #111;
+  font-size: 0.7em;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 3px 12px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+.hero h1 {
+  font-size: 2.8em;
+  color: var(--yellow);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+.hero p {
+  color: var(--dim);
+  font-size: 1.05em;
+  max-width: 600px;
+  margin-bottom: 28px;
+}
+.hero-meta {
+  display: flex;
+  gap: 32px;
+  font-size: 0.8em;
+  color: var(--dim);
+}
+.hero-meta span::before {
+  content: '▸ ';
+  color: var(--teal);
+}
+
+/* ── Stages container ─────────────────────── */
+.content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 40px 80px;
+}
+
+/* ── Stage section ────────────────────────── */
+.stage {
+  margin-bottom: 60px;
+}
+.stage-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.stage-badge {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--teal);
+  font-size: 0.65em;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.stage-title {
+  color: var(--text);
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+/* ── Session grid ─────────────────────────── */
+.sessions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+/* ── Session card ─────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color .2s, transform .15s;
+  position: relative;
+  overflow: hidden;
+}
+.card:hover {
+  border-color: var(--teal);
+  transform: translateY(-2px);
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--teal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .2s;
+}
+.card:hover::before { transform: scaleX(1); }
+
+.card-num {
+  font-size: 0.7em;
+  color: var(--teal);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  font-family: monospace;
+}
+.card-title {
+  font-size: 0.95em;
+  font-weight: 600;
+  color: var(--yellow);
+  line-height: 1.3;
+}
+.card-subtitle {
+  font-size: 0.78em;
+  color: var(--dim);
+  line-height: 1.4;
+}
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  flex-wrap: wrap;
+}
+
+/* ── Buttons ──────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border-radius: 5px;
+  font-size: 0.78em;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity .15s, transform .1s;
+  border: none;
+  cursor: pointer;
+}
+.btn:hover { opacity: 0.85; transform: scale(1.02); }
+.btn-slides {
+  background: var(--teal);
+  color: #111;
+}
+.btn-notebook {
+  background: transparent;
+  border: 1px solid var(--teal);
+  color: var(--teal);
+}
+.btn-disabled {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--dim);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.btn-disabled:hover { opacity: 0.5; transform: none; }
+
+/* ── Footer ───────────────────────────────── */
+footer {
+  text-align: center;
+  padding: 32px;
+  color: var(--dim);
+  font-size: 0.78em;
+  border-top: 1px solid var(--border);
+}
+footer a { color: var(--teal); text-decoration: none; }
+
+/* ── Responsive ───────────────────────────── */
+@media (max-width: 600px) {
+  header { padding: 0 20px; }
+  .hero { padding: 40px 20px 32px; }
+  .content { padding: 0 20px 40px; }
+  .hero h1 { font-size: 2em; }
+  .sessions { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ML con Python</div>
+  <div class="header-links">
+    <a href="https://github.com/gypsaman/Python-ML" target="_blank">GitHub ↗</a>
+    <a href="https://colab.research.google.com/github/gypsaman/Python-ML" target="_blank">Colab ↗</a>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-tag">Curso</div>
+  <h1>Machine Learning<br>con Python</h1>
+  <p>Desde los fundamentos de Python hasta sistemas de IA con agentes. Un recorrido profundo por el deep learning moderno.</p>
+  <div class="hero-meta">
+    <span>Cesar Garcia · 2025</span>
+    <span>16 sesiones de Deep Learning</span>
+    <span>Notebooks en Google Colab</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ── STAGE 0: INTRODUCCIÓN ─────────────────── -->
+  <div class="stage">
+    <div class="stage-header">
+      <div class="stage-badge">Etapa 0</div>
+      <div class="stage-title">Introducción al Curso</div>
+    </div>
+    <div class="sessions">
+
+      <div class="card">
+        <div class="card-num">INTRO</div>
+        <div class="card-title">Bienvenida al Curso</div>
+        <div class="card-subtitle">Flujo del curso · Instalación · Herramientas (VSCode, Colab)</div>
+        <div class="card-actions">
+          <a class="btn btn-slides" href="Introduccion.html">▶ Slides</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── STAGE 1: PYTHON ───────────────────────── -->
+  <div class="stage">
+    <div class="stage-header">
+      <div class="stage-badge">Etapa 1</div>
+      <div class="stage-title">Introducción a Python</div>
+    </div>
+    <div class="sessions">
+
+      <div class="card">
+        <div class="card-num">PY — 01</div>
+        <div class="card-title">Variables, Tipos y Operadores</div>
+        <div class="card-subtitle">Variables · Tipos de datos · Operadores · Input/Output · Mini-app propinas</div>
+        <div class="card-actions">
+          <a class="btn btn-slides" href="Py-sesion1.html">▶ Slides</a>
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/Py-sesion1.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">PY — 02</div>
+        <div class="card-title">Control de Flujo y Colecciones</div>
+        <div class="card-subtitle">if/elif/else · Listas · Bucles for y while · Verificador de contraseñas</div>
+        <div class="card-actions">
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/Py-sesion2.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">PY — 03</div>
+        <div class="card-title">Funciones y Diccionarios</div>
+        <div class="card-subtitle">Funciones · Diccionarios · Modularidad · Programas estructurados</div>
+        <div class="card-actions">
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/Py-sesion3.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">PY — 04</div>
+        <div class="card-title">Programación Orientada a Objetos</div>
+        <div class="card-subtitle">Clases · self · __init__ · Encapsulación · Dunder methods · Módulos</div>
+        <div class="card-actions">
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/Py-sesion4.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">PY — 05</div>
+        <div class="card-title">Archivos y Manejo de Errores</div>
+        <div class="card-subtitle">Lectura/escritura de archivos · Excepciones · try/except/finally</div>
+        <div class="card-actions">
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/Py-sesion5.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── STAGE 2: CLASSIC ML ───────────────────── -->
+  <div class="stage">
+    <div class="stage-header">
+      <div class="stage-badge">Etapa 2</div>
+      <div class="stage-title">Machine Learning Clásico</div>
+    </div>
+    <div class="sessions">
+
+      <div class="card">
+        <div class="card-num">ML — 01</div>
+        <div class="card-title">Introducción al Machine Learning</div>
+        <div class="card-subtitle">Regresión · KNN · Árboles de Decisión · Random Forests · SVM</div>
+        <div class="card-actions">
+          <a class="btn btn-slides" href="ML-sesion1.html">▶ Slides</a>
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/modelos_clasicos_ml_demo.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">ML — 02</div>
+        <div class="card-title">Redes Neuronales: Fundamentos</div>
+        <div class="card-subtitle">Perceptrón · Forward Propagation · Funciones de Activación</div>
+        <div class="card-actions">
+          <a class="btn btn-slides" href="ML-sesion2.html">▶ Slides</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">ML — 03</div>
+        <div class="card-title">Entrenamiento de Redes Neuronales</div>
+        <div class="card-subtitle">Funciones de Pérdida · Descenso de Gradiente · Backpropagation</div>
+        <div class="card-actions">
+          <a class="btn btn-slides" href="ML-sesion3.html">▶ Slides</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── STAGE 3: DEEP LEARNING ────────────────── -->
+  <div class="stage">
+    <div class="stage-header">
+      <div class="stage-badge">Etapa 3</div>
+      <div class="stage-title">Deep Learning con Python (PyTorch)</div>
+    </div>
+    <div class="sessions">
+
+      <div class="card">
+        <div class="card-num">DL — 01</div>
+        <div class="card-title">Generalización y el Panorama del Deep Learning</div>
+        <div class="card-subtitle">Overfitting · Underfitting · Arquitecturas modernas · Optimizadores</div>
+        <div class="card-actions">
+          <a class="btn btn-slides" href="MLPy-sesion1.html">▶ Slides</a>
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion1.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">DL — 02</div>
+        <div class="card-title">Tensores, Autograd y Grafos Computacionales</div>
+        <div class="card-subtitle">PyTorch Tensors · Gradientes · Regla de la cadena · .backward()</div>
+        <div class="card-actions">
+          <a class="btn btn-slides" href="MLPy-sesion2.html">▶ Slides</a>
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion2.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">DL — 03</div>
+        <div class="card-title">Construyendo una Red Neuronal desde Cero</div>
+        <div class="card-subtitle">Forward pass · Pérdida · Gradientes · Actualización manual (SGD)</div>
+        <div class="card-actions">
+          <a class="btn btn-slides" href="MLPy-sesion3.html">▶ Slides</a>
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion3.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">DL — 04</div>
+        <div class="card-title">Bucles de Entrenamiento y Evaluación</div>
+        <div class="card-subtitle">Épocas · Batches · Validación · Curvas de aprendizaje · Overfitting/Underfitting</div>
+        <div class="card-actions">
+          <a class="btn btn-slides" href="MLPy-sesion4.html">▶ Slides</a>
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion4.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">DL — 05</div>
+        <div class="card-title">Optimizadores y Dinámica del Aprendizaje</div>
+        <div class="card-subtitle">SGD · Momentum · RMSProp · Adam · Comparación de dinámicas</div>
+        <div class="card-actions">
+          <a class="btn btn-slides" href="MLPy-sesion5.html">▶ Slides</a>
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion5.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">DL — 06</div>
+        <div class="card-title">Inicialización de Pesos y Funciones de Activación</div>
+        <div class="card-subtitle">Vanishing/Exploding gradients · Xavier · He · ReLU · Sigmoid · Tanh</div>
+        <div class="card-actions">
+          <a class="btn btn-slides" href="MLPy-sesion6.html">▶ Slides</a>
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion6.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">DL — 07</div>
+        <div class="card-title">Técnicas de Regularización</div>
+        <div class="card-subtitle">L1 · L2 · Dropout · Early Stopping · Data Augmentation</div>
+        <div class="card-actions">
+          <a class="btn btn-slides" href="MLPy-sesion7.html">▶ Slides</a>
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion7.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">DL — 08</div>
+        <div class="card-title">Generalización y Aprendizaje de Representaciones</div>
+        <div class="card-subtitle">Bias-Variance · Capas ocultas como extractores · Espacios latentes</div>
+        <div class="card-actions">
+          <a class="btn btn-slides" href="MLPy-sesion8.html">▶ Slides</a>
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion8.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">DL — 09</div>
+        <div class="card-title">Autoencoders</div>
+        <div class="card-subtitle">Encoder · Decoder · Espacio latente · Cuello de botella · PCA no lineal</div>
+        <div class="card-actions">
+          <a class="btn btn-slides" href="MLPy-sesion9.html">▶ Slides</a>
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion9.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">DL — 10</div>
+        <div class="card-title">Variational Autoencoders (VAEs)</div>
+        <div class="card-subtitle">Representaciones probabilísticas · KL Divergence · ELBO · Generación</div>
+        <div class="card-actions">
+          <a class="btn btn-slides" href="MLPy-sesion10.html">▶ Slides</a>
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion10.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">DL — 11</div>
+        <div class="card-title">CNN Fundamentals</div>
+        <div class="card-subtitle">Convoluciones · Feature Maps · Stride · Padding · Pooling</div>
+        <div class="card-actions">
+          <a class="btn btn-slides" href="MLPy-sesion11.html">▶ Slides</a>
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion11.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">DL — 12</div>
+        <div class="card-title">Convolutional Neural Networks</div>
+        <div class="card-subtitle">Bloques convolucionales · Flatten · Clasificación · CNN vs MLP</div>
+        <div class="card-actions">
+          <a class="btn btn-slides" href="MLPy-sesion12.html">▶ Slides</a>
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion12.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">DL — 13</div>
+        <div class="card-title">Transformers I: Secuencias y Atención</div>
+        <div class="card-subtitle">Tokens · Embeddings · Query/Key/Value · Self-Attention · Multi-Head</div>
+        <div class="card-actions">
+          <a class="btn btn-slides" href="MLPy-sesion13.html">▶ Slides</a>
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion13.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">DL — 14</div>
+        <div class="card-title">Transformers II: Construyendo el Modelo</div>
+        <div class="card-subtitle">Layer Norm · Residuals · Feedforward · Encoder completo · Entrenamiento</div>
+        <div class="card-actions">
+          <a class="btn btn-slides" href="MLPy-sesion14.html">▶ Slides</a>
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion14.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">DL — 15</div>
+        <div class="card-title">Agentes de IA I: Fundamentos</div>
+        <div class="card-subtitle">Loop del agente · Prompts · Tool Use · stop_reason · Seguridad</div>
+        <div class="card-actions">
+          <a class="btn btn-slides" href="MLPy-sesion15.html">▶ Slides</a>
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion15.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">DL — 16</div>
+        <div class="card-title">Agentes de IA II: Coordinación y Sistemas</div>
+        <div class="card-subtitle">ReAct · CoT · Plan-Execute · Multi-agente · Orquestador · Guardrails</div>
+        <div class="card-actions">
+          <a class="btn btn-slides" href="MLPy-sesion16.html">▶ Slides</a>
+          <a class="btn btn-notebook" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion16.ipynb" target="_blank">📓 Notebook</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<footer>
+  <p>Cesar Garcia · <a href="https://github.com/gypsaman/Python-ML" target="_blank">github.com/gypsaman/Python-ML</a> · 2025</p>
+</footer>
+
+</body>
+</html>

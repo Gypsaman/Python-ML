@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Optimizadores y Dinámica del Aprendizaje</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/theme/black.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/monokai.css">
+<style>
+:root {
+  --teal:    #4ecdc4;
+  --red:     #ff6b6b;
+  --yellow:  #ffd93d;
+  --green:   #a8e6cf;
+  --dimgray: #888;
+}
+.reveal            { font-size: 28px; }
+.reveal h1         { color: var(--yellow); font-size: 1.6em; }
+.reveal h2         { color: var(--yellow); font-size: 1.2em; }
+.reveal h3         { color: var(--teal);   font-size: 1.0em; }
+.reveal pre        { font-size: 0.55em; }
+.reveal section    { height: 100%; }
+.h0  { color: var(--teal);   font-weight: bold; }
+.h1c { color: var(--red);    font-weight: bold; }
+.h2c { color: var(--green);  font-weight: bold; }
+.hi  { color: var(--yellow); }
+.dim { color: var(--dimgray); }
+.small { font-size: 0.65em; }
+.tiny  { font-size: 0.55em; }
+.box {
+  border: 1px solid var(--teal);
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin: 6px 0;
+  background: rgba(78, 205, 196, 0.07);
+}
+.box-red { border-color: var(--red); background: rgba(255, 107, 107, 0.07); }
+.box-yellow { border-color: var(--yellow); background: rgba(255, 217, 61, 0.07); }
+.two-col        { display: flex; gap: 20px; align-items: flex-start; }
+.two-col > *    { flex: 1; }
+.part-label {
+  display: inline-block;
+  background: var(--teal);
+  color: #111;
+  padding: 2px 12px;
+  border-radius: 4px;
+  font-size: 0.55em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.reveal table { font-size: 0.7em; border-collapse: collapse; }
+.reveal table td, .reveal table th { padding: 6px 12px; border: 1px solid #444; }
+.reveal table th { background: rgba(78,205,196,0.15); color: var(--teal); }
+.colab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--teal);
+  color: #111;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.75em;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+  <!-- TITLE SLIDE -->
+  <section>
+    <p class="tiny" style="position:absolute;top:8px;right:10px;z-index:10"><a href="index.html" style="color:var(--teal)">← Inicio</a></p>
+    <br>
+    <h1>Optimizadores y Dinámica del Aprendizaje</h1>
+    <h3 style="color:#aaa;font-size:0.85em;">Cómo y por qué cambian los pasos del descenso de gradiente</h3>
+    <br>
+    <p class="small">Machine Learning con Python</p>
+    <p class="tiny dim">Cesar Garcia · 2025</p>
+    <p style="margin-top:16px"><a class="colab-btn" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion5.ipynb" target="_blank">📓 Abrir en Colab</a></p>
+    <aside class="notes">Introducción a la sesión.</aside>
+  </section>
+
+  <!-- Introducción -->
+  <section>
+    <h1>Introducción</h1>
+    <ul>
+      <li>Entender <strong>qué hace realmente un optimizador</strong></li>
+      <li>Ver por qué SGD puro puede ser lento o inestable</li>
+      <li>Introducir Momentum, RMSProp y Adam</li>
+      <li>Comparar <strong>dinámica de aprendizaje</strong>, no solo resultados finales</li>
+      <li>Preparar experimentos controlados en el notebook</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 Si dos modelos tienen la misma arquitectura, ¿por qué pueden aprender de forma tan distinta?</div>
+  </section>
+
+  <!-- Recordatorio: SGD -->
+  <section>
+    <h1>Recordatorio: SGD</h1>
+    <h2>El punto de partida</h2>
+    <p>SGD actualiza los parámetros como:</p>
+    <p>$$\theta \leftarrow \theta - \eta \, \nabla_\theta L$$</p>
+    <p>Propiedades:</p>
+    <ul>
+      <li>simple</li>
+      <li>transparente</li>
+      <li>sensible al learning rate</li>
+    </ul>
+    <p>SGD define la <strong>referencia base</strong>.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué problemas aparecen cuando el gradiente es muy ruidoso o cambia de dirección?</div>
+  </section>
+
+  <!-- El problema de los valles -->
+  <section>
+    <h1>El problema de los valles</h1>
+    <h2>Geometría de la pérdida</h2>
+    <p>Las superficies de pérdida reales:</p>
+    <ul>
+      <li>no son esféricas</li>
+      <li>tienen valles alargados</li>
+      <li>presentan direcciones con distinta curvatura</li>
+    </ul>
+    <p>SGD puede:</p>
+    <ul>
+      <li>oscilar</li>
+      <li>avanzar lentamente</li>
+      <li>desperdiciar iteraciones</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué ocurre si avanzamos demasiado en una dirección y muy poco en otra?</div>
+  </section>
+
+  <!-- Idea central de los optimizadores -->
+  <section>
+    <h1>Idea central de los optimizadores</h1>
+    <h2>Más que un paso fijo</h2>
+    <p>Un optimizador decide:</p>
+    <ul>
+      <li><strong>dirección</strong> del paso</li>
+      <li><strong>tamaño</strong> del paso</li>
+      <li>cómo usar información del pasado</li>
+    </ul>
+    <p>Todos parten del mismo gradiente, pero <strong>lo interpretan distinto</strong>.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué podría ser útil "recordar" gradientes anteriores?</div>
+  </section>
+
+  <!-- Momentum -->
+  <section>
+    <h1>Momentum</h1>
+    <div class="two-col">
+      <div>
+        <h2>Acumular dirección</h2>
+        <p>Momentum introduce una variable de velocidad:</p>
+        <p>$$v_t = \beta v_{t-1} + \nabla_\theta L$$</p>
+        <p>$$\theta \leftarrow \theta - \eta v_t$$</p>
+        <p>Efecto:</p>
+        <ul>
+          <li>suaviza oscilaciones</li>
+          <li>acelera en direcciones consistentes</li>
+        </ul>
+        <div class="fragment box box-yellow small" style="margin-top:8px">💭 ¿Por qué esto ayuda especialmente en valles alargados?</div>
+      </div>
+      <div>
+        <h2>Analogía física</h2>
+        <p>Momentum se parece a:</p>
+        <ul>
+          <li>una bola rodando cuesta abajo</li>
+          <li>que acumula inercia</li>
+        </ul>
+        <p>Gradientes ruidosos: se cancelan</p>
+        <p>Gradientes consistentes: se refuerzan</p>
+        <div class="fragment box box-yellow small" style="margin-top:8px">💭 ¿Qué pasaría si el momentum fuera demasiado grande?</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RMSProp -->
+  <section>
+    <h1>RMSProp</h1>
+    <div class="two-col">
+      <div>
+        <h2>Escalas adaptativas</h2>
+        <p>RMSProp mantiene un promedio de gradientes al cuadrado:</p>
+        <p>$$s_t = \beta s_{t-1} + (1-\beta)(\nabla_\theta L)^2$$</p>
+        <p>Actualización:</p>
+        <p>$$\theta \leftarrow \theta - \frac{\eta}{\sqrt{s_t}+\epsilon} \nabla_\theta L$$</p>
+        <div class="fragment box box-yellow small" style="margin-top:8px">💭 ¿Por qué tendría sentido reducir el paso en direcciones con gradientes grandes?</div>
+      </div>
+      <div>
+        <h2>Normalizar el aprendizaje</h2>
+        <p>RMSProp:</p>
+        <ul>
+          <li>reduce pasos donde el gradiente es grande</li>
+          <li>aumenta pasos donde el gradiente es pequeño</li>
+        </ul>
+        <p>Resultado:</p>
+        <ul>
+          <li>entrenamiento más estable</li>
+          <li>menos sensibilidad a la escala</li>
+        </ul>
+        <div class="fragment box box-yellow small" style="margin-top:8px">💭 ¿Qué tipo de problemas se benefician de este comportamiento?</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Adam (combinado) -->
+  <section>
+    <h1>Adam</h1>
+    <h2>Combinando Momentum y RMSProp</h2>
+    <div class="two-col">
+      <div>
+        <p>Adam combina:</p>
+        <ul>
+          <li>Momentum (promedio del gradiente)</li>
+          <li>RMSProp (promedio del gradiente al cuadrado)</li>
+        </ul>
+        <p>Mantiene:</p>
+        <ul>
+          <li>primer momento (media)</li>
+          <li>segundo momento (varianza)</li>
+        </ul>
+      </div>
+      <div>
+        <p class="small">Dado $g_t = \nabla_\theta L(\theta_t)$:</p>
+        <p class="small">$m_t = \beta_1 m_{t-1} + (1-\beta_1) g_t$</p>
+        <p class="small">$v_t = \beta_2 v_{t-1} + (1-\beta_2) g_t^2$</p>
+        <p class="small">$\hat{m}_t = \dfrac{m_t}{1-\beta_1^t}, \quad \hat{v}_t = \dfrac{v_t}{1-\beta_2^t}$</p>
+        <p class="small">$\theta_{t+1} = \theta_t - \alpha \dfrac{\hat{m}_t}{\sqrt{\hat{v}_t} + \varepsilon}$</p>
+      </div>
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué combinar velocidad y escala puede ser ventajoso?</div>
+  </section>
+
+  <!-- Por qué Adam funciona tan bien -->
+  <section>
+    <h1>Por qué Adam funciona tan bien</h1>
+    <h2>Práctica moderna</h2>
+    <div class="two-col">
+      <div>
+        <p>Adam suele:</p>
+        <ul>
+          <li>converger rápido</li>
+          <li>requerir menos ajuste fino</li>
+          <li>funcionar bien "out of the box"</li>
+        </ul>
+      </div>
+      <div>
+        <p>Pero:</p>
+        <ul>
+          <li>no siempre generaliza mejor</li>
+          <li>puede ocultar problemas de entrenamiento</li>
+        </ul>
+      </div>
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Es siempre buena idea usar el optimizador "más avanzado"?</div>
+  </section>
+
+  <!-- Comparación conceptual -->
+  <section>
+    <h1>Comparación conceptual</h1>
+    <h2>Qué cambia realmente</h2>
+    <table>
+      <thead>
+        <tr><th>Optimizador</th><th>Idea clave</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>SGD</td><td>Paso fijo con gradiente actual</td></tr>
+        <tr><td>Momentum</td><td>Acumula dirección</td></tr>
+        <tr><td>RMSProp</td><td>Ajusta escala</td></tr>
+        <tr><td>Adam</td><td>Dirección + escala</td></tr>
+      </tbody>
+    </table>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Cuál de estas ideas te parece más importante para aprender mejor?</div>
+  </section>
+
+  <!-- Optimización vs generalización -->
+  <section>
+    <h1>Optimización vs generalización</h1>
+    <h2>No son lo mismo</h2>
+    <p>Un optimizador puede:</p>
+    <ul>
+      <li>minimizar la pérdida rápido</li>
+      <li>pero no generalizar mejor</li>
+    </ul>
+    <p>La velocidad de convergencia $\neq$ calidad de la solución.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué un entrenamiento "más rápido" no garantiza mejor modelo?</div>
+  </section>
+
+  <!-- Qué no cambia -->
+  <section>
+    <h1>Qué no cambia</h1>
+    <h2>Disciplina constante</h2>
+    <p>Independientemente del optimizador:</p>
+    <ul>
+      <li>el bucle de entrenamiento es el mismo</li>
+      <li>la validación sigue siendo diagnóstico</li>
+      <li>las curvas siguen siendo la herramienta</li>
+    </ul>
+    <p>Cambiar optimizador <strong>no cambia el método</strong>.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué errores del entrenamiento no se arreglan cambiando de optimizador?</div>
+  </section>
+
+  <!-- Puente a la práctica -->
+  <section>
+    <h1>Puente a la práctica</h1>
+    <h2>Qué haremos en el notebook</h2>
+    <p>En el notebook:</p>
+    <ul>
+      <li>usaremos el <strong>mismo modelo</strong></li>
+      <li>el <strong>mismo dataset</strong></li>
+      <li>el <strong>mismo training loop</strong></li>
+    </ul>
+    <p>Solo cambiaremos el optimizador para observar la dinámica.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué diferencias esperas ver en las curvas?</div>
+  </section>
+
+  <!-- Idea clave de la sesión -->
+  <section>
+    <h1>Idea clave de la sesión</h1>
+    <h2>Elegir con criterio</h2>
+    <p>Los optimizadores:</p>
+    <ul>
+      <li>no son magia</li>
+      <li>no corrigen errores conceptuales</li>
+      <li>modifican <strong>cómo</strong> se aprende</li>
+    </ul>
+    <p>Primero entiende el proceso, luego optimiza la dinámica.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿En qué situación preferirías SGD sobre Adam?</div>
+  </section>
+
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/math/math.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    plugins: [ RevealHighlight, RevealNotes, RevealMath.MathJax3 ]
+  });
+</script>
+</body>
+</html>

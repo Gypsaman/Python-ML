@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Entrenamiento de Redes Neuronales – Sesión 3</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/theme/black.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/monokai.css">
+<style>
+:root {
+  --teal:    #4ecdc4;
+  --red:     #ff6b6b;
+  --yellow:  #ffd93d;
+  --green:   #a8e6cf;
+  --dimgray: #888;
+}
+.reveal            { font-size: 28px; }
+.reveal h1         { color: var(--yellow); font-size: 1.6em; }
+.reveal h2         { color: var(--yellow); font-size: 1.2em; }
+.reveal h3         { color: var(--teal);   font-size: 1.0em; }
+.reveal pre        { font-size: 0.55em; }
+.reveal section    { height: 100%; }
+.h0  { color: var(--teal);   font-weight: bold; }
+.h1c { color: var(--red);    font-weight: bold; }
+.h2c { color: var(--green);  font-weight: bold; }
+.hi  { color: var(--yellow); }
+.dim { color: var(--dimgray); }
+.small { font-size: 0.65em; }
+.tiny  { font-size: 0.55em; }
+.box {
+  border: 1px solid var(--teal);
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin: 6px 0;
+  background: rgba(78, 205, 196, 0.07);
+}
+.box-red { border-color: var(--red); background: rgba(255, 107, 107, 0.07); }
+.box-yellow { border-color: var(--yellow); background: rgba(255, 217, 61, 0.07); }
+.two-col        { display: flex; gap: 20px; align-items: flex-start; }
+.two-col > *    { flex: 1; }
+.part-label {
+  display: inline-block;
+  background: var(--teal);
+  color: #111;
+  padding: 2px 12px;
+  border-radius: 4px;
+  font-size: 0.55em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.reveal table { font-size: 0.7em; border-collapse: collapse; }
+.reveal table td, .reveal table th { padding: 6px 12px; border: 1px solid #444; }
+.reveal table th { background: rgba(78,205,196,0.15); color: var(--teal); }
+.colab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--teal);
+  color: #111;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.75em;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+  <!-- TITLE SLIDE -->
+  <section>
+    <br>
+    <h1>Entrenamiento de<br>Redes Neuronales</h1>
+    <br>
+    <p class="small">Machine Learning con Python – Sesión 3</p>
+    <p class="tiny dim">Cesar Garcia · 2025</p>
+    <aside class="notes">Sesión 3: Entrenamiento de redes neuronales. Funciones de pérdida, descenso de gradiente, épocas y batches.</aside>
+  </section>
+
+  <!-- OBJETIVOS -->
+  <section>
+    <p class="tiny" style="position:absolute;top:10px;right:10px"><a href="index.html" style="color:var(--teal)">← Inicio</a></p>
+    <h1>Objetivos de la sesión</h1>
+    <ul>
+      <li>Comprender qué significa entrenar una red neuronal.</li>
+      <li>Entender el rol de las funciones de pérdida.</li>
+      <li>Explicar el concepto de descenso de gradiente de forma intuitiva.</li>
+      <li>Introducir épocas, iteraciones y procesamiento por lotes (batches).</li>
+    </ul>
+  </section>
+
+  <!-- MAPA MENTAL -->
+  <section>
+    <h1>Mapa mental del entrenamiento</h1>
+    <p>Entrenar una red neuronal es un <strong>proceso cíclico</strong>:</p>
+    <ol>
+      <li>Propagación hacia adelante (forward)</li>
+      <li>Cálculo de la pérdida</li>
+      <li>Cálculo del gradiente</li>
+      <li>Actualización de pesos</li>
+      <li>Repetir durante múltiples épocas</li>
+    </ol>
+    <div class="box" style="margin-top:14px">
+      Este ciclo es la base de <strong>todo entrenamiento moderno</strong> de redes neuronales.
+    </div>
+  </section>
+
+  <!-- QUÉ SIGNIFICA ENTRENAR -->
+  <section>
+    <h1>¿Qué significa entrenar una red?</h1>
+    <h2>Intuición general</h2>
+    <p>Entrenar una red neuronal significa <strong>ajustar los pesos</strong> para mejorar las predicciones.</p>
+    <h2>Proceso</h2>
+    <ol>
+      <li>La red hace una predicción con pesos iniciales aleatorios.</li>
+      <li>Se compara la predicción con el valor real.</li>
+      <li>Se calcula un error (pérdida).</li>
+      <li>Se ajustan los pesos para reducir ese error.</li>
+    </ol>
+  </section>
+
+  <!-- SECCIÓN: FUNCIONES DE PÉRDIDA -->
+  <section>
+    <div class="part-label">SECCIÓN — FUNCIONES DE PÉRDIDA</div>
+    <h2>Funciones de Pérdida</h2>
+    <aside class="notes">Introducción a las funciones de pérdida y su relación con el tipo de problema.</aside>
+  </section>
+
+  <!-- QUÉ ES UNA FUNCIÓN DE PÉRDIDA -->
+  <section>
+    <h1>Funciones de Pérdida</h1>
+    <h2>¿Qué es una función de pérdida?</h2>
+    <ul>
+      <li>Mide qué tan mala es una predicción.</li>
+      <li>El entrenamiento busca <strong>minimizar</strong> esta cantidad.</li>
+      <li>No hay aprendizaje sin una función de pérdida.</li>
+      <li>Diferentes tareas requieren diferentes funciones de pérdida.</li>
+    </ul>
+  </section>
+
+  <!-- RELACIÓN PROBLEMA-ACTIVACIÓN-PÉRDIDA -->
+  <section>
+    <h1>Relación entre problema, activación y pérdida</h1>
+    <table>
+      <thead>
+        <tr><th>Problema</th><th>Activación de salida</th><th>Función de pérdida</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Regresión</td><td>Lineal</td><td>MSE / MAE</td></tr>
+        <tr><td>Clasificación binaria</td><td>Sigmoid</td><td>Binary Cross Entropy</td></tr>
+        <tr><td>Clasificación multiclase</td><td>Softmax</td><td>Categorical Cross Entropy</td></tr>
+      </tbody>
+    </table>
+    <div class="box-yellow box small" style="margin-top:14px">
+      La pérdida <strong>no se elige arbitrariamente</strong>: depende del tipo de salida.
+    </div>
+  </section>
+
+  <!-- MSE -->
+  <section>
+    <h1>Funciones de pérdida para Regresión</h1>
+    <h2>Error Cuadrático Medio — MSE</h2>
+    <div class="two-col">
+      <div>
+        <p><strong>Definición:</strong> Mide la distancia cuadrática entre predicciones y valores reales. Penaliza fuertemente errores grandes.</p>
+        $$\text{MSE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2$$
+        <p><strong>Intuición:</strong></p>
+        <ul class="small">
+          <li>La curva es suave y diferenciable.</li>
+          <li>Los errores grandes pesan más → puede ser sensible a outliers.</li>
+        </ul>
+      </div>
+      <div>
+        <p class="small dim">Visualización (curva MSE en función del error):</p>
+        <svg width="200" height="140" viewBox="-3 -0.3 6 4.5" style="display:block;margin:0 auto">
+          <line x1="-3" y1="0" x2="3" y2="0" stroke="#555" stroke-width="0.08"/>
+          <line x1="0" y1="-0.2" x2="0" y2="4" stroke="#555" stroke-width="0.08"/>
+          <polyline points="-2,4 -1.5,2.25 -1,1 -0.5,0.25 0,0 0.5,0.25 1,1 1.5,2.25 2,4"
+            fill="none" stroke="#4ecdc4" stroke-width="0.12"/>
+          <text x="2.5" y="-0.1" fill="#888" font-size="0.4">ŷ</text>
+          <text x="0.1" y="3.8" fill="#888" font-size="0.4">L</text>
+          <text x="1.5" y="3.8" fill="#4ecdc4" font-size="0.4">MSE</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAE -->
+  <section>
+    <h2>Error Absoluto Medio — MAE</h2>
+    <div class="two-col">
+      <div>
+        <p><strong>Definición:</strong> Suma las diferencias absolutas entre predicción y realidad.</p>
+        $$\text{MAE} = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|$$
+        <p><strong>Intuición:</strong></p>
+        <ul class="small">
+          <li>Penaliza todos los errores de manera proporcional.</li>
+          <li>Más robusto frente a <em>outliers</em>.</li>
+          <li>No es diferenciable en 0 (pero frameworks lo manejan bien).</li>
+        </ul>
+      </div>
+      <div>
+        <p class="small dim">Visualización (curva MAE):</p>
+        <svg width="200" height="140" viewBox="-3 -0.3 6 4.5" style="display:block;margin:0 auto">
+          <line x1="-3" y1="0" x2="3" y2="0" stroke="#555" stroke-width="0.08"/>
+          <line x1="0" y1="-0.2" x2="0" y2="4" stroke="#555" stroke-width="0.08"/>
+          <polyline points="-2,2 0,0 2,2" fill="none" stroke="#ff6b6b" stroke-width="0.12"/>
+          <text x="2.5" y="-0.1" fill="#888" font-size="0.4">ŷ</text>
+          <text x="0.1" y="3.8" fill="#888" font-size="0.4">L</text>
+          <text x="1.5" y="3.8" fill="#ff6b6b" font-size="0.4">MAE</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- BCE -->
+  <section>
+    <h1>Funciones de pérdida para Clasificación</h1>
+    <h2>Entropía Cruzada — Binary Cross Entropy (BCE)</h2>
+    <div class="two-col">
+      <div>
+        <p><strong>Usada en:</strong> Clasificación binaria, redes con salida sigmoide.</p>
+        $$\text{BCE} = -\left[ y \log(\hat{y}) + (1 - y)\log(1 - \hat{y}) \right]$$
+        <p><strong>Intuición:</strong></p>
+        <ul class="small">
+          <li>Si la predicción es incorrecta y con mucha confianza, la pérdida es <em>muy grande</em>.</li>
+          <li>Esto acelera el aprendizaje.</li>
+          <li>Equivalente a maximizar la verosimilitud de una distribución Bernoulli.</li>
+        </ul>
+      </div>
+      <div>
+        <p class="small dim">Visualización: pérdida para y = 1 (curva $-\log(\hat{y})$)</p>
+        <svg width="200" height="140" viewBox="0 -0.3 6 4.5" style="display:block;margin:0 auto">
+          <line x1="0" y1="0" x2="6" y2="0" stroke="#555" stroke-width="0.08"/>
+          <line x1="0" y1="-0.2" x2="0" y2="4" stroke="#555" stroke-width="0.08"/>
+          <!-- -log(x) for x in (0.05, 0.99): approx points -->
+          <polyline points="0.25,3.69 0.5,3.0 1.0,1.61 1.5,0.99 2.5,0.47 3.5,0.15 4.5,0.04 5.0,0.01"
+            fill="none" stroke="#4ecdc4" stroke-width="0.12"/>
+          <text x="5.5" y="-0.1" fill="#888" font-size="0.4">ŷ</text>
+          <text x="0.1" y="3.8" fill="#888" font-size="0.4">L</text>
+          <text x="3" y="3.5" fill="#4ecdc4" font-size="0.4">-log(ŷ)</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- CCE -->
+  <section>
+    <h2>Entropía Cruzada Categórica — CCE</h2>
+    <p><strong>Para:</strong> Problemas multiclase (Softmax)</p>
+    $$\text{CCE} = -\sum_{c=1}^C y_c \log(\hat{y}_c)$$
+    <ul>
+      <li>$y_c$ es 1 si la clase verdadera es $c$, 0 en otro caso (one-hot encoding).</li>
+      <li>$\hat{y}_c$ es la probabilidad softmax de la clase $c$.</li>
+    </ul>
+    <p><strong>Intuición:</strong></p>
+    <ul>
+      <li>Obliga al modelo a asignar alta probabilidad a la clase correcta.</li>
+      <li>Muy usada en visión por computadora y NLP.</li>
+    </ul>
+  </section>
+
+  <!-- SECCIÓN: DESCENSO DE GRADIENTE -->
+  <section>
+    <div class="part-label">SECCIÓN — DESCENSO DE GRADIENTE</div>
+    <h2>Gradient Descent y Derivadas</h2>
+    <aside class="notes">Explicar la intuición del descenso de gradiente antes de los detalles matemáticos.</aside>
+  </section>
+
+  <!-- DESCENSO DE GRADIENTE -->
+  <section>
+    <h1>Descenso de Gradiente (Gradient Descent)</h1>
+    <div class="two-col">
+      <div>
+        <h2>Intuición</h2>
+        <ul>
+          <li>Imagina una montaña donde el objetivo es llegar al punto más bajo.</li>
+          <li>El gradiente indica en qué dirección <strong>sube</strong> más rápido la montaña.</li>
+          <li>Para minimizar el error, tomamos pasos hacia la dirección opuesta.</li>
+        </ul>
+        <h2>Idea central</h2>
+        <p>Actualizar los pesos con pequeños pasos que reduzcan la pérdida.</p>
+      </div>
+      <div>
+        <div class="box">
+          <p class="small">Visualización interactiva:</p>
+          <p><a href="../html/gradient_descent.html" style="color:var(--teal)">→ gradient descent</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPORTANCIA DE LAS DERIVADAS -->
+  <section>
+    <h1>Importancia de las derivadas en redes neuronales</h1>
+    <h3>Idea clave</h3>
+    <p>Las derivadas nos indican <strong>qué tan sensible es el error del modelo</strong> a pequeños cambios en sus parámetros (pesos y sesgos).</p>
+    <div class="box">
+      <em>"Si cambio un peso un poco, ¿el error mejora o empeora, y cuánto?"</em>
+    </div>
+    <p style="margin-top:10px">Sin derivadas no hay forma sistemática de saber <strong>cómo ajustar los pesos</strong>, por lo tanto <strong>no hay aprendizaje</strong>.</p>
+  </section>
+
+  <!-- DÓNDE APARECEN LAS DERIVADAS -->
+  <section>
+    <h3>¿Dónde aparecen las derivadas?</h3>
+    <p>En cada neurona ocurren dos pasos fundamentales:</p>
+    <div class="two-col">
+      <div>
+        <p>1. <strong>Combinación lineal</strong></p>
+        $$z = W x + b$$
+        <p>2. <strong>Función de activación</strong></p>
+        $$a = f(z)$$
+        <p class="small">Para entrenar la red necesitamos saber cómo cambia cada cantidad respecto a la anterior.</p>
+      </div>
+      <div>
+        <p>Esto se expresa mediante derivadas locales:</p>
+        $$\frac{\partial a}{\partial z} = f'(z) \qquad\text{(derivada de la activación)}$$
+        $$\frac{\partial z}{\partial W} = x \qquad\text{(cómo el peso afecta al valor interno)}$$
+        <p class="small">Estas derivadas son los bloques básicos que permiten calcular el gradiente del error.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DERIVADAS Y APRENDIZAJE -->
+  <section>
+    <h3>Derivadas y aprendizaje</h3>
+    <p>El entrenamiento de una red neuronal funciona porque:</p>
+    <ul>
+      <li>La función de pérdida mide el error.</li>
+      <li>Las derivadas indican <strong>en qué dirección cambia ese error</strong>.</li>
+      <li>El descenso de gradiente ajusta los pesos en la dirección que <strong>reduce la pérdida</strong>.</li>
+    </ul>
+    <div class="box" style="margin-top:14px">
+      <p><strong>Derivadas grandes</strong> → el aprendizaje avanza rápido</p>
+      <p><strong>Derivadas cercanas a cero</strong> → el aprendizaje se vuelve lento o se detiene</p>
+    </div>
+  </section>
+
+  <!-- IMPORTANCIA DE LAS FUNCIONES DE ACTIVACIÓN PARA GRADIENTES -->
+  <section>
+    <h3>Importancia de las funciones de activación</h3>
+    <p>Las funciones de activación no solo introducen no linealidad, también determinan <strong>cómo se propaga el gradiente hacia atrás</strong>.</p>
+    <div class="two-col">
+      <div>
+        <div class="box-red box small">
+          <strong>Sigmoid y Tanh</strong>
+          <ul>
+            <li>Se "aplanan" para valores grandes o pequeños.</li>
+            <li>Sus derivadas se vuelven muy pequeñas.</li>
+            <li>Pueden causar el problema de <strong>vanishing gradient</strong>.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="box small">
+          <strong>ReLU, GELU, ELU, Swish</strong>
+          <ul>
+            <li>Mantienen derivadas útiles en gran parte del dominio.</li>
+            <li>Permiten entrenar redes profundas de forma estable.</li>
+            <li>Son preferidas en arquitecturas modernas.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUÉ NO NECESITAMOS CALCULAR A MANO -->
+  <section>
+    <h3>Qué no necesitamos calcular a mano</h3>
+    <ul>
+      <li>No calculamos derivadas completas de la función de pérdida a mano.</li>
+      <li>Frameworks modernos (TensorFlow, PyTorch) lo hacen automáticamente.</li>
+      <li>Lo importante es entender:
+        <ul>
+          <li><strong>Qué papel juegan las derivadas</strong></li>
+          <li><strong>Por qué ciertas activaciones funcionan mejor que otras</strong></li>
+        </ul>
+      </li>
+    </ul>
+    <p style="margin-top:12px">Más adelante veremos cómo estas ideas se organizan en el algoritmo de <strong>propagación hacia atrás (backpropagation)</strong>.</p>
+    <div class="box-yellow box small" style="margin-top:10px">
+      Las derivadas son el <strong>mecanismo interno del aprendizaje</strong> en redes neuronales: convierten el error en información útil para mejorar el modelo.
+    </div>
+  </section>
+
+  <!-- SECCIÓN: VARIANTES Y PRÁCTICA -->
+  <section>
+    <div class="part-label">SECCIÓN — OPTIMIZACIÓN PRÁCTICA</div>
+    <h2>Variantes, Learning Rate, Épocas y Batches</h2>
+  </section>
+
+  <!-- VARIANTES DEL DESCENSO DE GRADIENTE -->
+  <section>
+    <h1>Variantes del Descenso de Gradiente</h1>
+    <div class="two-col">
+      <div>
+        <h2>Batch Gradient Descent</h2>
+        <p>Usa <strong>todos los datos</strong> en cada actualización.</p>
+        <h2>Stochastic Gradient Descent (SGD)</h2>
+        <p>Usa <strong>un solo dato</strong> por actualización.</p>
+      </div>
+      <div>
+        <h2>Mini-Batch Gradient Descent</h2>
+        <p>Usa pequeños grupos de datos:</p>
+        <ul>
+          <li>Más estable que SGD.</li>
+          <li>Más rápido que batch completo.</li>
+          <li class="hi">El método más utilizado.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEARNING RATE -->
+  <section>
+    <h1>Learning Rate</h1>
+    <h2>Concepto</h2>
+    <p>El learning rate define el tamaño del paso durante el descenso de gradiente.</p>
+    <h2>Comportamiento</h2>
+    <div class="two-col">
+      <div>
+        <div class="box-red box">
+          <strong>Muy grande</strong><br>
+          → el modelo salta el mínimo.
+        </div>
+      </div>
+      <div>
+        <div class="box">
+          <strong>Muy pequeño</strong><br>
+          → entrenamiento lento.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ÉPOCAS, ITERACIONES Y BATCHES -->
+  <section>
+    <h1>Épocas, Iteraciones y Batches</h1>
+    <div class="two-col">
+      <div>
+        <h3>Época</h3>
+        <p>Una pasada completa por todos los datos.</p>
+        <h3>Batch</h3>
+        <p>Un subconjunto de los datos.</p>
+        <h3>Iteración</h3>
+        <p>Una actualización de pesos por cada batch.</p>
+      </div>
+      <div>
+        <h2>Importancia</h2>
+        <ul>
+          <li>Controlan la estabilidad y velocidad del aprendizaje.</li>
+          <li>Permiten generalizar mejor sin sobreajustar.</li>
+        </ul>
+        <h2>Procesamiento por Lotes – Beneficios</h2>
+        <ul>
+          <li>Estabiliza el cálculo del gradiente.</li>
+          <li>Reduce ruido en la actualización.</li>
+          <li>Optimiza el uso del hardware (GPU/CPU).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/math/math.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    plugins: [ RevealHighlight, RevealNotes, RevealMath.MathJax3 ]
+  });
+</script>
+</body>
+</html>

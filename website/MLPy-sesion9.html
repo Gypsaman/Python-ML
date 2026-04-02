@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Autoencoders: Aprendizaje de Representaciones Latentes</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/theme/black.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/monokai.css">
+<style>
+:root {
+  --teal:    #4ecdc4;
+  --red:     #ff6b6b;
+  --yellow:  #ffd93d;
+  --green:   #a8e6cf;
+  --dimgray: #888;
+}
+.reveal            { font-size: 28px; }
+.reveal h1         { color: var(--yellow); font-size: 1.6em; }
+.reveal h2         { color: var(--yellow); font-size: 1.2em; }
+.reveal h3         { color: var(--teal);   font-size: 1.0em; }
+.reveal pre        { font-size: 0.55em; }
+.reveal section    { height: 100%; }
+.h0  { color: var(--teal);   font-weight: bold; }
+.h1c { color: var(--red);    font-weight: bold; }
+.h2c { color: var(--green);  font-weight: bold; }
+.hi  { color: var(--yellow); }
+.dim { color: var(--dimgray); }
+.small { font-size: 0.65em; }
+.tiny  { font-size: 0.55em; }
+.box {
+  border: 1px solid var(--teal);
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin: 6px 0;
+  background: rgba(78, 205, 196, 0.07);
+}
+.box-red { border-color: var(--red); background: rgba(255, 107, 107, 0.07); }
+.box-yellow { border-color: var(--yellow); background: rgba(255, 217, 61, 0.07); }
+.two-col        { display: flex; gap: 20px; align-items: flex-start; }
+.two-col > *    { flex: 1; }
+.part-label {
+  display: inline-block;
+  background: var(--teal);
+  color: #111;
+  padding: 2px 12px;
+  border-radius: 4px;
+  font-size: 0.55em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.reveal table { font-size: 0.7em; border-collapse: collapse; }
+.reveal table td, .reveal table th { padding: 6px 12px; border: 1px solid #444; }
+.reveal table th { background: rgba(78,205,196,0.15); color: var(--teal); }
+.colab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--teal);
+  color: #111;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.75em;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+  <section>
+    <br>
+    <h1>Autoencoders</h1>
+    <h3 style="color:#aaa;font-size:0.85em;">Aprendizaje de Representaciones Latentes</h3>
+    <br>
+    <p class="small">Deep Learning con Python</p>
+    <p class="tiny dim">Cesar Garcia · 2025</p>
+    <p style="margin-top:16px"><a class="colab-btn" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion9.ipynb" target="_blank">📓 Abrir en Colab</a></p>
+    <p class="tiny" style="margin-top:8px"><a href="index.html" style="color:var(--teal)">← Inicio</a></p>
+    <aside class="notes">Bienvenidos a esta sesión.</aside>
+  </section>
+
+  <section>
+    <h1>Introducción</h1>
+    <h2>Objetivos</h2>
+    <ul>
+      <li>Retomar la idea de <strong>representaciones internas</strong></li>
+      <li>Introducir autoencoders como modelos <strong>no supervisados</strong></li>
+      <li>Entender el rol del <strong>cuello de botella</strong></li>
+      <li>Preparar el terreno para VAEs</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Puede una red aprender algo útil sin etiquetas?</div>
+  </section>
+
+  <section>
+    <h1>¿Qué es un autoencoder?</h1>
+    <h2>Definición y arquitectura general</h2>
+    <p>Un autoencoder es una red neuronal que aprende a:</p>
+    <ul>
+      <li><strong>comprimir</strong> los datos de entrada</li>
+      <li><strong>reconstruirlos</strong> a partir de una representación interna</li>
+    </ul>
+    <p style="margin-top:8px"><em>Entrada = Salida (idealmente)</em></p>
+    <div class="box" style="margin-top:14px">
+      <p class="small"><strong>Encoder → Latent Space → Decoder</strong></p>
+      <p class="small">
+        <span class="h0">Encoder</span>: reduce dimensionalidad &nbsp;|&nbsp;
+        <span class="hi">Latente</span>: representación comprimida &nbsp;|&nbsp;
+        <span class="h2c">Decoder</span>: reconstruye la entrada
+      </p>
+    </div>
+    <!-- SVG diagram replacing TikZ -->
+    <svg width="580" height="70" viewBox="0 0 580 70" style="display:block;margin:10px auto;font-size:11px;font-family:sans-serif">
+      <!-- Entrada -->
+      <rect x="5" y="10" width="90" height="44" rx="6" fill="none" stroke="#4ecdc4" stroke-width="1.5"/>
+      <text x="50" y="30" text-anchor="middle" fill="#ffd93d" font-size="11">Entrada</text>
+      <text x="50" y="46" text-anchor="middle" fill="#aaa" font-size="10">x</text>
+      <!-- arrow -->
+      <line x1="95" y1="32" x2="120" y2="32" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- Encoder -->
+      <rect x="120" y="10" width="90" height="44" rx="6" fill="none" stroke="#4ecdc4" stroke-width="1.5"/>
+      <text x="165" y="30" text-anchor="middle" fill="#ffd93d" font-size="11">Encoder</text>
+      <text x="165" y="46" text-anchor="middle" fill="#aaa" font-size="10">f_θ</text>
+      <text x="165" y="8" text-anchor="middle" fill="#888" font-size="9">compresión</text>
+      <!-- arrow -->
+      <line x1="210" y1="32" x2="235" y2="32" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- Latente -->
+      <rect x="235" y="14" width="80" height="36" rx="6" fill="rgba(78,205,196,0.1)" stroke="#4ecdc4" stroke-width="2"/>
+      <text x="275" y="30" text-anchor="middle" fill="#ffd93d" font-size="11">Latente</text>
+      <text x="275" y="44" text-anchor="middle" fill="#aaa" font-size="10">z</text>
+      <text x="275" y="62" text-anchor="middle" fill="#888" font-size="9">cuello de botella</text>
+      <!-- arrow -->
+      <line x1="315" y1="32" x2="340" y2="32" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- Decoder -->
+      <rect x="340" y="10" width="90" height="44" rx="6" fill="none" stroke="#4ecdc4" stroke-width="1.5"/>
+      <text x="385" y="30" text-anchor="middle" fill="#ffd93d" font-size="11">Decoder</text>
+      <text x="385" y="46" text-anchor="middle" fill="#aaa" font-size="10">g_φ</text>
+      <text x="385" y="8" text-anchor="middle" fill="#888" font-size="9">reconstrucción</text>
+      <!-- arrow -->
+      <line x1="430" y1="32" x2="455" y2="32" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- Salida -->
+      <rect x="455" y="10" width="110" height="44" rx="6" fill="none" stroke="#4ecdc4" stroke-width="1.5"/>
+      <text x="510" y="30" text-anchor="middle" fill="#ffd93d" font-size="11">Reconstrucción</text>
+      <text x="510" y="46" text-anchor="middle" fill="#aaa" font-size="10">x̂</text>
+      <defs>
+        <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#555"/>
+        </marker>
+      </defs>
+    </svg>
+    <div class="fragment box box-yellow small" style="margin-top:8px">💭 Si la salida es igual a la entrada, ¿qué está aprendiendo realmente?</div>
+  </section>
+
+  <section>
+    <h1>Autoencoder en acción</h1>
+    <h2>Imagen de referencia</h2>
+    <img src="../images/AutoEncoder.jpg" alt="Autoencoder diagram" style="max-height:220px;display:block;margin:8px auto;">
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Dónde ocurre realmente el aprendizaje importante?</div>
+  </section>
+
+  <section>
+    <h1>El encoder como extractor</h1>
+    <h2>Intuición</h2>
+    <p>El encoder actúa como:</p>
+    <ul>
+      <li>extractor de características</li>
+      <li>organizador del espacio</li>
+      <li>función de compresión aprendida</li>
+    </ul>
+    <div class="box" style="margin-top:16px">
+      No proyecta al azar: <strong>aprende una geometría útil</strong>.
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué información decide conservar el encoder?</div>
+  </section>
+
+  <section>
+    <h1>El cuello de botella</h1>
+    <h2>Bottleneck</h2>
+    <p>Forzamos al modelo a:</p>
+    <ul>
+      <li>perder información irrelevante</li>
+      <li>conservar estructura esencial</li>
+    </ul>
+    <div class="box" style="margin-top:16px">
+      Esto evita la solución trivial de copiar la entrada.
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué pasaría si el espacio latente fuera muy grande?</div>
+  </section>
+
+  <section>
+    <h1>Función de pérdida</h1>
+    <h2>Reconstrucción</h2>
+    <p>La pérdida mide qué tan bien el decoder reconstruye:</p>
+    <div class="two-col" style="margin-top:12px">
+      <div class="box">
+        <strong>MSE</strong><br>
+        <span class="small">datos continuos</span>
+      </div>
+      <div class="box">
+        <strong>Binary Cross-Entropy</strong><br>
+        <span class="small">imágenes normalizadas</span>
+      </div>
+    </div>
+    <div class="box" style="margin-top:12px">
+      No hay etiquetas externas — la supervisión viene de la propia entrada.
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué tipo de errores penaliza esta pérdida?</div>
+  </section>
+
+  <section>
+    <h1>Autoencoders vs PCA</h1>
+    <h2>Comparación conceptual</h2>
+    <table>
+      <thead>
+        <tr><th></th><th>PCA</th><th>Autoencoder</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Tipo</td><td>Lineal</td><td>No lineal</td></tr>
+        <tr><td>Solución</td><td>Cerrada, analítica</td><td>Aprendida por gradiente</td></tr>
+        <tr><td>Flexibilidad</td><td>Limitada</td><td>Alta</td></tr>
+      </tbody>
+    </table>
+    <div class="box" style="margin-top:12px">
+      Un autoencoder puede verse como <strong>PCA no lineal entrenado por gradiente</strong>.
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué ventaja aporta la no linealidad?</div>
+  </section>
+
+  <section>
+    <h1>Visualizando el espacio latente</h1>
+    <h2>Por qué importa</h2>
+    <p>Si el modelo aprendió bien:</p>
+    <ul>
+      <li>puntos similares → cercanos</li>
+      <li>clases se organizan espontáneamente</li>
+    </ul>
+    <p>Esto conecta con la sesión anterior.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Cómo sabrías si el espacio latente es bueno?</div>
+  </section>
+
+  <section>
+    <h1>Del encoder al generador (preview)</h1>
+    <h2>Limitación clave</h2>
+    <p>Un autoencoder estándar:</p>
+    <ul>
+      <li>aprende representaciones</li>
+      <li><strong>no es generativo</strong></li>
+    </ul>
+    <div class="box box-red" style="margin-top:16px">
+      No sabemos cómo muestrear su espacio latente.<br>
+      Muestrear $z$ al azar suele producir resultados sin sentido.
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué falta para poder generar nuevos datos?</div>
+  </section>
+
+  <section>
+    <h1>Idea clave de la sesión</h1>
+    <h2>Aprender comprimiendo</h2>
+    <p>Un autoencoder:</p>
+    <ul>
+      <li>no memoriza píxeles</li>
+      <li>aprende <strong>qué es esencial</strong></li>
+      <li>organiza el espacio sin supervisión</li>
+    </ul>
+    <div class="box" style="margin-top:16px">
+      <strong>Representar es decidir qué ignorar.</strong>
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué conexión ves con la generalización?</div>
+  </section>
+
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/math/math.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    plugins: [ RevealHighlight, RevealNotes, RevealMath.MathJax3 ]
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Transformers I: Secuencias y Atención</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/theme/black.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/monokai.css">
+<style>
+:root {
+  --teal:    #4ecdc4;
+  --red:     #ff6b6b;
+  --yellow:  #ffd93d;
+  --green:   #a8e6cf;
+  --dimgray: #888;
+}
+.reveal            { font-size: 28px; }
+.reveal h1         { color: var(--yellow); font-size: 1.6em; }
+.reveal h2         { color: var(--yellow); font-size: 1.2em; }
+.reveal h3         { color: var(--teal);   font-size: 1.0em; }
+.reveal pre        { font-size: 0.55em; }
+.reveal section    { height: 100%; }
+.h0  { color: var(--teal);   font-weight: bold; }
+.h1c { color: var(--red);    font-weight: bold; }
+.h2c { color: var(--green);  font-weight: bold; }
+.hi  { color: var(--yellow); }
+.dim { color: var(--dimgray); }
+.small { font-size: 0.65em; }
+.tiny  { font-size: 0.55em; }
+.box {
+  border: 1px solid var(--teal);
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin: 6px 0;
+  background: rgba(78, 205, 196, 0.07);
+}
+.box-red { border-color: var(--red); background: rgba(255, 107, 107, 0.07); }
+.box-yellow { border-color: var(--yellow); background: rgba(255, 217, 61, 0.07); }
+.two-col        { display: flex; gap: 20px; align-items: flex-start; }
+.two-col > *    { flex: 1; }
+.part-label {
+  display: inline-block;
+  background: var(--teal);
+  color: #111;
+  padding: 2px 12px;
+  border-radius: 4px;
+  font-size: 0.55em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.reveal table { font-size: 0.7em; border-collapse: collapse; }
+.reveal table td, .reveal table th { padding: 6px 12px; border: 1px solid #444; }
+.reveal table th { background: rgba(78,205,196,0.15); color: var(--teal); }
+.colab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--teal);
+  color: #111;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.75em;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+  <!-- Title -->
+  <section>
+    <br>
+    <h1>Transformers I: Secuencias y Atención</h1>
+    <h3 style="color:#aaa;font-size:0.85em;">De secuencias a atención</h3>
+    <br>
+    <p class="small">Deep Learning con Python</p>
+    <p class="tiny dim">Cesar Garcia · 2025</p>
+    <p style="margin-top:16px"><a class="colab-btn" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion13.ipynb" target="_blank">📓 Abrir en Colab</a></p>
+    <p class="tiny" style="margin-top:8px"><a href="index.html" style="color:var(--teal)">← Inicio</a></p>
+    <aside class="notes">Introducción a la sesión.</aside>
+  </section>
+
+  <!-- Introducción -->
+  <section>
+    <h1>Introducción</h1>
+    <ul>
+      <li>Hasta ahora trabajamos con <strong>datos espaciales</strong> (CNN)</li>
+      <li>Muchos problemas reales son <strong>secuenciales</strong></li>
+      <li>El orden importa: lenguaje, tiempo, series temporales</li>
+      <li><strong>Hoy:</strong> mecanismo de atención + preparación para Transformers</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué significa que un modelo "entienda" una secuencia?</div>
+  </section>
+
+  <!-- Attention is All You Need -->
+  <section>
+    <h1><a href="https://arxiv.org/abs/1706.03762" style="color:var(--yellow)">Attention is all you need</a></h1>
+    <img src="../images/Transformer.png" style="max-height:420px;display:block;margin:8px auto;">
+  </section>
+
+  <!-- Qué es una secuencia -->
+  <section>
+    <h1>Qué es una secuencia</h1>
+    <h2>Definición</h2>
+    <p>Una secuencia es:</p>
+    <ul>
+      <li>una lista ordenada de elementos</li>
+      <li>con dependencias entre posiciones</li>
+    </ul>
+    <p>Ejemplos:</p>
+    <ul>
+      <li>texto (palabras)</li>
+      <li>audio (frames)</li>
+      <li>precios (tiempo)</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué un MLP falla aquí?</div>
+  </section>
+
+  <!-- Tokens y embeddings -->
+  <section>
+    <h1>Tokens y embeddings</h1>
+    <h2>De símbolos a vectores</h2>
+    <p>Los modelos no operan sobre palabras directamente:</p>
+    <ul>
+      <li>tokenizamos</li>
+      <li>cada token se convierte en un vector (embedding)</li>
+    </ul>
+    <p>$$\text{token} \rightarrow \mathbb{R}^d$$</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué captura un embedding bien entrenado?</div>
+  </section>
+
+  <!-- Atención: idea central -->
+  <section>
+    <h1>Atención: idea central</h1>
+    <h2>Motivación</h2>
+    <p>En lugar de procesar secuencialmente:</p>
+    <ul>
+      <li>cada token decide a qué otros tokens prestar atención</li>
+    </ul>
+    <p>Atención = <strong>routing de información</strong></p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué significa "mirar" a otro token?</div>
+  </section>
+
+  <!-- Query, Key, Value -->
+  <section>
+    <h1>Query, Key, Value</h1>
+    <h2>Componentes</h2>
+    <p>Para cada token calculamos:</p>
+    <ul>
+      <li><strong>Query (Q):</strong> qué busco</li>
+      <li><strong>Key (K):</strong> qué ofrezco</li>
+      <li><strong>Value (V):</strong> qué transmito</li>
+    </ul>
+    <p>$$Q = XW^Q, \quad K = XW^K, \quad V = XW^V$$</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué necesitamos tres proyecciones distintas?</div>
+  </section>
+
+  <!-- Scaled Dot-Product Attention -->
+  <section>
+    <h1>Scaled Dot-Product Attention</h1>
+    <h2>Fórmula</h2>
+    <p>$$\text{Attention}(Q,K,V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$</p>
+    <ol>
+      <li>Similitud Q–K (producto punto)</li>
+      <li>Escalado por $\sqrt{d_k}$ (estabilidad)</li>
+      <li>Softmax (normalización)</li>
+      <li>Combinación ponderada de valores</li>
+    </ol>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué escalamos por $\sqrt{d_k}$?</div>
+  </section>
+
+  <!-- Auto-atención -->
+  <section>
+    <h1>Auto-atención</h1>
+    <h2>Self-Attention</h2>
+    <p>En transformers:</p>
+    <ul>
+      <li>Q, K, V vienen de la <strong>misma secuencia</strong></li>
+      <li>cada token se contextualiza con los demás</li>
+      <li>resultado: representación contextual de cada token</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué gana un token al auto-atenderse?</div>
+  </section>
+
+  <!-- Visualización de atención -->
+  <section>
+    <h1>Visualización de atención</h1>
+    <h2>Matriz de pesos</h2>
+    <p>Cada fila muestra:</p>
+    <ul>
+      <li>a qué posiciones presta atención ese token</li>
+      <li>valores más altos = mayor relevancia</li>
+    </ul>
+    <pre style="font-size:0.5em;background:#1a1a2e;padding:12px;border-radius:6px;border-left:3px solid var(--teal)">      k0   k1   k2   k3   k4   k5
+q0  [.1  .05  .02  .8  .02  .01]  ← token 0 mira principalmente k3
+q1  [.2  .3   .3   .1  .05  .05]  ← token 1 distribuido
+q2  [...]</pre>
+  </section>
+
+  <!-- Multi-Head Attention — merged -->
+  <section>
+    <h1>Multi-Head Attention</h1>
+    <div class="two-col">
+      <div>
+        <h2>De una cabeza a muchas</h2>
+        <p>Una sola atención = un solo patrón.</p>
+        <p><strong>Multi-head:</strong></p>
+        <ul>
+          <li>divide $d_{model}$ en $h$ cabezas</li>
+          <li>cada cabeza aprende un patrón diferente</li>
+          <li>ejemplo: cabeza 1 → sintaxis, cabeza 2 → semántica</li>
+        </ul>
+        <p>$$d_k = \frac{d_{model}}{h}$$</p>
+      </div>
+      <div>
+        <h2>Proceso</h2>
+        <ol>
+          <li>Dividir Q, K, V en $h$ cabezas</li>
+          <li>Atención independiente por cabeza</li>
+          <li>Concatenar resultados</li>
+          <li>Proyección de salida</li>
+        </ol>
+        <p>$$\text{MHA}(Q,K,V) = \text{Concat}(\text{head}_1,\dots,\text{head}_h)W^O$$</p>
+        <p class="small dim"><em>(Implementación completa en Sesión 14)</em></p>
+      </div>
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué ventaja tiene dividir la atención?</div>
+  </section>
+
+  <!-- Problema: el orden -->
+  <section>
+    <h1>Problema: el orden</h1>
+    <h2>Limitación</h2>
+    <p>La atención es <strong>invariante al orden</strong> por defecto.</p>
+    <p>Si permutamos tokens, el resultado es el mismo.</p>
+    <p>Solución: <strong>Positional Encoding</strong></p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué se perdería si permutamos "el gato come" → "come gato el"?</div>
+  </section>
+
+  <!-- Positional Encoding — merged (formula + properties) -->
+  <section>
+    <h1>Positional Encoding</h1>
+    <div class="two-col">
+      <div>
+        <h2>Funciones sinusoidales</h2>
+        <p>Agregamos información de posición al embedding:</p>
+        <p>$$PE_{(pos, 2i)} = \sin\left(\frac{pos}{10000^{2i/d}}\right)$$</p>
+        <p>$$PE_{(pos, 2i+1)} = \cos\left(\frac{pos}{10000^{2i/d}}\right)$$</p>
+        <p>Luego: $X_{final} = E + PE$</p>
+        <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué seno y coseno?</div>
+      </div>
+      <div>
+        <h2>Propiedades</h2>
+        <ul>
+          <li>Frecuencias diferentes para cada dimensión</li>
+          <li>Permite distinguir <strong>posiciones relativas</strong></li>
+          <li>Determinístico (no se aprende)</li>
+          <li>Extrapola a secuencias más largas</li>
+        </ul>
+        <div class="box small" style="margin-top:16px">
+          <strong>Intuición:</strong> patrón único para cada posición, como una "huella digital"
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Máscaras Causales — merged (text + visual) -->
+  <section>
+    <h1>Máscaras Causales</h1>
+    <div class="two-col">
+      <div>
+        <h2>Problema en generación</h2>
+        <p>Al generar texto:</p>
+        <ul>
+          <li>token $i$ <strong>no debe ver</strong> tokens futuros $(j > i)$</li>
+          <li>de lo contrario, "haría trampa"</li>
+        </ul>
+        <p><strong>Solución:</strong> máscara triangular superior</p>
+        <p>$$\text{scores}[i, j] = \begin{cases}\text{score} &amp; \text{si } j \le i \\ -\infty &amp; \text{si } j > i\end{cases}$$</p>
+      </div>
+      <div>
+        <h2>Visualización</h2>
+        <p class="small">Sin máscara (encoder):</p>
+        <pre style="font-size:0.5em;background:#1a1a2e;padding:10px;border-radius:6px;border-left:3px solid var(--teal)">  k0 k1 k2 k3
+q0 OK OK OK OK
+q1 OK OK OK OK
+q2 OK OK OK OK
+q3 OK OK OK OK</pre>
+        <p class="small">Con máscara (decoder):</p>
+        <pre style="font-size:0.5em;background:#1a1a2e;padding:10px;border-radius:6px;border-left:3px solid var(--red)">  k0 k1 k2 k3
+q0 OK  X  X  X
+q1 OK OK  X  X
+q2 OK OK OK  X
+q3 OK OK OK OK</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Idea clave -->
+  <section>
+    <h1>Idea clave de la sesión</h1>
+    <h2>Atención como mecanismo universal</h2>
+    <p>Transformers funcionan porque:</p>
+    <ul>
+      <li>desacoplan posición y dependencia</li>
+      <li>permiten paralelismo (vs RNN)</li>
+      <li>modelan relaciones globales</li>
+    </ul>
+    <div class="box" style="margin-top:20px">
+      <strong>No recorremos secuencias: las conectamos.</strong>
+    </div>
+  </section>
+
+  <!-- Próxima sesión -->
+  <section>
+    <h1>Próxima sesión</h1>
+    <h2>De bloques a arquitectura</h2>
+    <p>Veremos:</p>
+    <ul>
+      <li>cómo ensamblar un transformer completo</li>
+      <li>feedforward networks + residuales</li>
+      <li>encoder y decoder completos</li>
+      <li><strong>entrenar un modelo real</strong></li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 Prepárate para construir tu propio transformer</div>
+  </section>
+
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/math/math.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    plugins: [ RevealHighlight, RevealNotes, RevealMath.MathJax3 ]
+  });
+</script>
+</body>
+</html>

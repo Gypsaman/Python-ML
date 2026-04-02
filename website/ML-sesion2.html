@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Introducción a ML – Sesión 2: Redes Neuronales</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/theme/black.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/monokai.css">
+<style>
+:root {
+  --teal:    #4ecdc4;
+  --red:     #ff6b6b;
+  --yellow:  #ffd93d;
+  --green:   #a8e6cf;
+  --dimgray: #888;
+}
+.reveal            { font-size: 28px; }
+.reveal h1         { color: var(--yellow); font-size: 1.6em; }
+.reveal h2         { color: var(--yellow); font-size: 1.2em; }
+.reveal h3         { color: var(--teal);   font-size: 1.0em; }
+.reveal pre        { font-size: 0.55em; }
+.reveal section    { height: 100%; }
+.h0  { color: var(--teal);   font-weight: bold; }
+.h1c { color: var(--red);    font-weight: bold; }
+.h2c { color: var(--green);  font-weight: bold; }
+.hi  { color: var(--yellow); }
+.dim { color: var(--dimgray); }
+.small { font-size: 0.65em; }
+.tiny  { font-size: 0.55em; }
+.box {
+  border: 1px solid var(--teal);
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin: 6px 0;
+  background: rgba(78, 205, 196, 0.07);
+}
+.box-red { border-color: var(--red); background: rgba(255, 107, 107, 0.07); }
+.box-yellow { border-color: var(--yellow); background: rgba(255, 217, 61, 0.07); }
+.two-col        { display: flex; gap: 20px; align-items: flex-start; }
+.two-col > *    { flex: 1; }
+.part-label {
+  display: inline-block;
+  background: var(--teal);
+  color: #111;
+  padding: 2px 12px;
+  border-radius: 4px;
+  font-size: 0.55em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.reveal table { font-size: 0.7em; border-collapse: collapse; }
+.reveal table td, .reveal table th { padding: 6px 12px; border: 1px solid #444; }
+.reveal table th { background: rgba(78,205,196,0.15); color: var(--teal); }
+.colab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--teal);
+  color: #111;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.75em;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+  <!-- TITLE SLIDE -->
+  <section>
+    <br>
+    <h1>Introducción a ML<br>Sesión 2</h1>
+    <br>
+    <p class="small">Redes Neuronales Artificiales</p>
+    <p class="tiny dim">Cesar Garcia · 2025</p>
+    <aside class="notes">Sesión 2 de ML: Redes Neuronales. Neuronas artificiales, pesos, bias, activaciones y forward propagation.</aside>
+  </section>
+
+  <!-- OBJETIVOS -->
+  <section>
+    <p class="tiny" style="position:absolute;top:10px;right:10px"><a href="index.html" style="color:var(--teal)">← Inicio</a></p>
+    <h1>Objetivos</h1>
+    <ul>
+      <li>Comprender neuronas artificiales.</li>
+      <li>Conocer pesos, bias (sesgo), activaciones.</li>
+      <li>Entender flujo de información (forward propagation).</li>
+      <li>Familiarizarse con funciones de activación comunes.</li>
+    </ul>
+  </section>
+
+  <!-- RED NEURAL - DIAGRAMA -->
+  <section>
+    <h1>Red Neural</h1>
+    <svg width="380" height="180" viewBox="0 0 380 180" style="display:block;margin:0 auto">
+      <!-- Input layer -->
+      <circle cx="40" cy="40" r="14" fill="none" stroke="#4ecdc4" stroke-width="2"/>
+      <circle cx="40" cy="90" r="14" fill="none" stroke="#4ecdc4" stroke-width="2"/>
+      <circle cx="40" cy="140" r="14" fill="none" stroke="#4ecdc4" stroke-width="2"/>
+      <!-- Hidden layer -->
+      <circle cx="160" cy="20" r="14" fill="none" stroke="#ffd93d" stroke-width="2"/>
+      <circle cx="160" cy="55" r="14" fill="none" stroke="#ffd93d" stroke-width="2"/>
+      <circle cx="160" cy="90" r="14" fill="none" stroke="#ffd93d" stroke-width="2"/>
+      <circle cx="160" cy="125" r="14" fill="none" stroke="#ffd93d" stroke-width="2"/>
+      <circle cx="160" cy="160" r="14" fill="none" stroke="#ffd93d" stroke-width="2"/>
+      <!-- Output layer -->
+      <circle cx="280" cy="65" r="14" fill="none" stroke="#ff6b6b" stroke-width="2"/>
+      <circle cx="280" cy="115" r="14" fill="none" stroke="#ff6b6b" stroke-width="2"/>
+      <!-- Connections: input→hidden -->
+      <line x1="54" y1="40" x2="146" y2="20" stroke="#444" stroke-width="0.8"/>
+      <line x1="54" y1="40" x2="146" y2="55" stroke="#444" stroke-width="0.8"/>
+      <line x1="54" y1="40" x2="146" y2="90" stroke="#444" stroke-width="0.8"/>
+      <line x1="54" y1="40" x2="146" y2="125" stroke="#444" stroke-width="0.8"/>
+      <line x1="54" y1="40" x2="146" y2="160" stroke="#444" stroke-width="0.8"/>
+      <line x1="54" y1="90" x2="146" y2="20" stroke="#444" stroke-width="0.8"/>
+      <line x1="54" y1="90" x2="146" y2="55" stroke="#444" stroke-width="0.8"/>
+      <line x1="54" y1="90" x2="146" y2="90" stroke="#444" stroke-width="0.8"/>
+      <line x1="54" y1="90" x2="146" y2="125" stroke="#444" stroke-width="0.8"/>
+      <line x1="54" y1="90" x2="146" y2="160" stroke="#444" stroke-width="0.8"/>
+      <line x1="54" y1="140" x2="146" y2="20" stroke="#444" stroke-width="0.8"/>
+      <line x1="54" y1="140" x2="146" y2="55" stroke="#444" stroke-width="0.8"/>
+      <line x1="54" y1="140" x2="146" y2="90" stroke="#444" stroke-width="0.8"/>
+      <line x1="54" y1="140" x2="146" y2="125" stroke="#444" stroke-width="0.8"/>
+      <line x1="54" y1="140" x2="146" y2="160" stroke="#444" stroke-width="0.8"/>
+      <!-- hidden→output -->
+      <line x1="174" y1="20" x2="266" y2="65" stroke="#444" stroke-width="0.8"/>
+      <line x1="174" y1="55" x2="266" y2="65" stroke="#444" stroke-width="0.8"/>
+      <line x1="174" y1="90" x2="266" y2="65" stroke="#444" stroke-width="0.8"/>
+      <line x1="174" y1="125" x2="266" y2="65" stroke="#444" stroke-width="0.8"/>
+      <line x1="174" y1="160" x2="266" y2="65" stroke="#444" stroke-width="0.8"/>
+      <line x1="174" y1="20" x2="266" y2="115" stroke="#444" stroke-width="0.8"/>
+      <line x1="174" y1="55" x2="266" y2="115" stroke="#444" stroke-width="0.8"/>
+      <line x1="174" y1="90" x2="266" y2="115" stroke="#444" stroke-width="0.8"/>
+      <line x1="174" y1="125" x2="266" y2="115" stroke="#444" stroke-width="0.8"/>
+      <line x1="174" y1="160" x2="266" y2="115" stroke="#444" stroke-width="0.8"/>
+      <!-- Labels -->
+      <text x="40" y="175" text-anchor="middle" fill="#888" font-size="11">Entrada</text>
+      <text x="160" y="178" text-anchor="middle" fill="#888" font-size="11">Oculta</text>
+      <text x="280" y="135" text-anchor="middle" fill="#888" font-size="11">Salida</text>
+    </svg>
+  </section>
+
+  <!-- QUÉ ES UNA RED NEURONAL -->
+  <section>
+    <h1>¿Qué es una Red Neuronal?</h1>
+    <p>Una red neuronal es una función compuesta por varias transformaciones simples:</p>
+    <div class="two-col">
+      <div>
+        <h3>1. Capas</h3>
+        <ul class="small">
+          <li><strong>Capa de entrada:</strong> recibe las características del problema.</li>
+          <li><strong>Capas ocultas:</strong> combinan pesos, sesgos y activaciones para aprender patrones.</li>
+          <li><strong>Capa de salida:</strong> produce la predicción final.</li>
+        </ul>
+        <h3>3. Conexiones y aprendizaje</h3>
+        <ul class="small">
+          <li>Pesos que conectan una capa con la siguiente.</li>
+          <li>La red ajusta estos pesos durante el entrenamiento para minimizar el error.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>2. Neuronas</h3>
+        <p class="small">Cada neurona realiza:</p>
+        $$z = W x + b \qquad\Rightarrow\qquad a = f(z)$$
+      </div>
+    </div>
+  </section>
+
+  <!-- PERCEPTRÓN -->
+  <section>
+    <h1>Perceptron</h1>
+    <p class="small dim">[Diagrama: neurona con entradas x₁, x₂, x₃, pesos w₁, w₂, w₃, bias b, función de activación f(·) y salida y]</p>
+    <div class="box" style="margin-top:10px">
+      <p style="text-align:center">$$y = f\!\left(\sum_{i=1}^{n} w_i x_i + b\right)$$</p>
+    </div>
+    <ul class="small" style="margin-top:10px">
+      <li>Cada entrada $x_i$ se multiplica por su peso $w_i$.</li>
+      <li>Se suman todos los productos y se añade el sesgo $b$.</li>
+      <li>Se aplica la función de activación $f(\cdot)$ para obtener la salida.</li>
+    </ul>
+  </section>
+
+  <!-- TODO ES ÁLGEBRA LINEAL -->
+  <section>
+    <h1>Todo es Álgebra Lineal</h1>
+    <p style="text-align:center">$$z = W x + b$$</p>
+    <div class="box">
+      <p class="small" style="text-align:center">
+        $W$ es una matriz de pesos $(5 \times 3)$,
+        $x$ es el vector de entrada $(3 \times 1)$,
+        $b$ es el vector de bias $(5 \times 1)$,
+        $z$ es la salida $(5 \times 1)$.
+      </p>
+    </div>
+    <p class="small dim" style="margin-top:14px">
+      Cada capa aplica esta operación matricial seguida de una función de activación.
+    </p>
+  </section>
+
+  <!-- FORWARD PROPAGATION -->
+  <section>
+    <h1>Forward Propagation</h1>
+    <h2>Propagación hacia adelante</h2>
+    <ul>
+      <li>Tomamos las entradas $(x)$ del modelo.</li>
+      <li>En cada capa calculamos una combinación lineal: $(z = W x + b)$.</li>
+      <li>Aplicamos una función de activación: $(a = f(z))$.</li>
+      <li>Repetimos capa por capa hasta obtener la salida $(\hat{y})$.</li>
+    </ul>
+    <h2>Ejemplo: red con 1 capa oculta</h2>
+    $$
+    \begin{aligned}
+    z^{(1)} &= W^{(1)} x + b^{(1)} \\
+    a^{(1)} &= f\bigl(z^{(1)}\bigr) \\
+    z^{(2)} &= W^{(2)} a^{(1)} + b^{(2)} \\
+    \hat{y} &= g\bigl(z^{(2)}\bigr)
+    \end{aligned}
+    $$
+  </section>
+
+  <!-- FUNCIONES DE ACTIVACIÓN - INTRODUCCIÓN -->
+  <section>
+    <h1>Funciones de activación</h1>
+    <p><strong>¿Qué es una función de activación?</strong></p>
+    <ul>
+      <li>Es una transformación no lineal aplicada después de la combinación lineal $z = Wx + b$.</li>
+      <li>Permite que la red neuronal aprenda funciones complejas, no sólo líneas rectas.</li>
+      <li>Sin activaciones no lineales, toda la red sería equivalente a una sola transformación lineal.</li>
+      <li>Diferentes activaciones producen comportamientos distintos en el aprendizaje.</li>
+    </ul>
+  </section>
+
+  <!-- POR QUÉ NO LINEALIDAD -->
+  <section>
+    <h1>¿Por qué necesitamos no linealidad?</h1>
+    <div class="two-col">
+      <div>
+        <h2>Idea clave</h2>
+        <ul class="small">
+          <li>Si encadenamos varias capas solo lineales, la composición sigue siendo <strong>otra transformación lineal</strong>.</li>
+          <li>Una "red profunda" sin activaciones no lineales sería equivalente a <strong>una sola capa lineal</strong>.</li>
+          <li>No podríamos aproximar funciones complejas ni separar datos con fronteras no lineales.</li>
+        </ul>
+        <h2>Punto de vista algebraico</h2>
+        <div class="small">
+        $$
+        z^{(2)} = \bigl(W^{(2)} W^{(1)}\bigr) x + \bigl(W^{(2)} b^{(1)} + b^{(2)}\bigr) = W^{*} x + b^{*}
+        $$
+        </div>
+        <p class="small">Sigue siendo <strong>lineal</strong>.</p>
+      </div>
+      <div>
+        <p class="small dim">[Diagrama: puntos rojos en el centro y puntos azules formando un anillo. Una recta no puede separarlos, pero una frontera circular (no lineal) sí.]</p>
+        <div class="box-yellow box small" style="margin-top:10px">
+          Una recta no puede separar las clases, pero una frontera curva (no lineal) sí.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEOREMA DE APROXIMACIÓN UNIVERSAL -->
+  <section>
+    <h1>Teorema de Aproximación Universal</h1>
+    <p>Un perceptrón multicapa (MLP) con <strong>una sola capa oculta</strong>, pero con suficientes neuronas, puede aproximar <strong>cualquier función continua</strong> en un conjunto compacto. Esto requiere una función de activación <strong>no lineal</strong> (ReLU, Sigmoid, Tanh, etc.).</p>
+    <h2>Enunciado formal</h2>
+    <div class="box small">
+      Para toda función continua $f: \mathbb{R}^n \to \mathbb{R}$ y para todo $\varepsilon > 0$,
+      existe una red neuronal con <strong>una capa oculta</strong> y una activación no lineal $f(\cdot)$ tal que la red aproxima a $f$ con un error menor que $\varepsilon$ en todo el dominio compacto.
+    </div>
+    <ul class="small" style="margin-top:10px">
+      <li>En teoría, <strong>no necesitamos muchas capas</strong> para representar funciones complejas.</li>
+      <li>En la práctica, las redes profundas aprenden <strong>mejor, más rápido y con menos neuronas</strong> que una red extremadamente ancha de una sola capa.</li>
+    </ul>
+  </section>
+
+  <!-- RESUMEN FUNCIONES DE ACTIVACIÓN -->
+  <section>
+    <h1>Funciones de Activación</h1>
+    <div class="two-col">
+      <div>
+        <h2>Funciones comunes</h2>
+        <ul>
+          <li>ReLU</li>
+          <li>Sigmoid</li>
+          <li>Tanh</li>
+          <li>GELU</li>
+        </ul>
+      </div>
+      <div>
+        <h2>Otras populares</h2>
+        <ul>
+          <li>Leaky ReLU</li>
+          <li>ELU</li>
+          <li>Swish (SiLU)</li>
+        </ul>
+        <h2>Para salidas</h2>
+        <ul>
+          <li>Softmax</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELU -->
+  <section>
+    <h1>Función de activación: ReLU</h1>
+    <h2>Rectified Linear Unit (ReLU)</h2>
+    <div class="two-col">
+      <div>
+        <ul>
+          <li>Deja pasar solo valores positivos.</li>
+          <li>Muy usada en redes profundas por su simplicidad y buen comportamiento en la práctica.</li>
+          <li>Problema: neuronas pueden "morir" si la entrada es siempre negativa.</li>
+        </ul>
+        $$\text{ReLU}(x) = \max(0, x)$$
+      </div>
+      <div>
+        <p class="small dim">Visualización:</p>
+        <svg width="200" height="120" viewBox="-5 -1.5 10 5" style="display:block;margin:0 auto">
+          <line x1="-5" y1="0" x2="5" y2="0" stroke="#555" stroke-width="0.1"/>
+          <line x1="0" y1="-1" x2="0" y2="3.5" stroke="#555" stroke-width="0.1"/>
+          <polyline points="-4,0 0,0 4,4" fill="none" stroke="#4ecdc4" stroke-width="0.2"/>
+          <text x="3.5" y="-0.3" fill="#888" font-size="0.8">x</text>
+          <text x="0.2" y="3.2" fill="#888" font-size="0.8">f(x)</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIGMOID -->
+  <section>
+    <h1>Función de activación: Sigmoide</h1>
+    <h2>Sigmoid / logística</h2>
+    <div class="two-col">
+      <div>
+        <ul>
+          <li>Comprime cualquier valor real al intervalo $(0, 1)$.</li>
+          <li>Interpretación probabilística: salida como "probabilidad".</li>
+          <li>Problema: gradientes muy pequeños para valores grandes en magnitud (saturación).</li>
+        </ul>
+        $$\sigma(x) = \frac{1}{1 + e^{-x}}$$
+      </div>
+      <div>
+        <p class="small dim">Visualización:</p>
+        <svg width="200" height="120" viewBox="-6 -0.3 12 1.6" style="display:block;margin:0 auto">
+          <line x1="-6" y1="0" x2="6" y2="0" stroke="#555" stroke-width="0.05"/>
+          <line x1="0" y1="-0.1" x2="0" y2="1.3" stroke="#555" stroke-width="0.05"/>
+          <line x1="-6" y1="1" x2="6" y2="1" stroke="#444" stroke-width="0.03" stroke-dasharray="0.2,0.2"/>
+          <!-- Approximated sigmoid polyline -->
+          <polyline points="-6,0.002 -4,0.018 -3,0.047 -2,0.119 -1,0.269 0,0.5 1,0.731 2,0.881 3,0.953 4,0.982 6,0.998"
+            fill="none" stroke="#ffd93d" stroke-width="0.05"/>
+          <text x="5" y="-0.05" fill="#888" font-size="0.3">x</text>
+          <text x="0.1" y="1.2" fill="#888" font-size="0.3">σ(x)</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- TANH -->
+  <section>
+    <h1>Función de activación: Tanh</h1>
+    <h2>Tangente hiperbólica</h2>
+    <div class="two-col">
+      <div>
+        <ul>
+          <li>Similar a la sigmoide pero centrada en 0.</li>
+          <li>Rango en $(-1, 1)$.</li>
+          <li>Útil cuando queremos activaciones con media cercana a cero.</li>
+        </ul>
+        $$\tanh(x) = \frac{e^{x} - e^{-x}}{e^{x} + e^{-x}}$$
+      </div>
+      <div>
+        <p class="small dim">Visualización:</p>
+        <svg width="200" height="120" viewBox="-6 -1.5 12 3" style="display:block;margin:0 auto">
+          <line x1="-6" y1="0" x2="6" y2="0" stroke="#555" stroke-width="0.07"/>
+          <line x1="0" y1="-1.3" x2="0" y2="1.3" stroke="#555" stroke-width="0.07"/>
+          <line x1="-6" y1="1" x2="6" y2="1" stroke="#444" stroke-width="0.04" stroke-dasharray="0.2,0.2"/>
+          <line x1="-6" y1="-1" x2="6" y2="-1" stroke="#444" stroke-width="0.04" stroke-dasharray="0.2,0.2"/>
+          <polyline points="-6,-0.9999 -4,-0.9993 -3,-0.9951 -2,-0.964 -1,-0.762 0,0 1,0.762 2,0.964 3,0.9951 4,0.9993 6,0.9999"
+            fill="none" stroke="#a8e6cf" stroke-width="0.07"/>
+          <text x="5" y="-0.1" fill="#888" font-size="0.4">x</text>
+          <text x="0.1" y="1.2" fill="#888" font-size="0.4">tanh(x)</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- GELU -->
+  <section>
+    <h1>Función de activación: GELU</h1>
+    <h2>Gaussian Error Linear Unit (GELU)</h2>
+    <ul>
+      <li>Suaviza la ReLU usando una distribución normal.</li>
+      <li>Muy popular en modelos modernos (por ejemplo, Transformers).</li>
+      <li>Activa más fuertemente valores positivos grandes, pero de forma suave.</li>
+    </ul>
+    <p>Definición conceptual:</p>
+    $$\text{GELU}(x) = x \,\Phi(x)$$
+    <p class="small">donde $\Phi(x)$ es la CDF de la normal estándar.</p>
+    <p>Aproximación práctica:</p>
+    $$\text{GELU}(x) \approx 0.5\,x\Bigl(1 + \tanh\bigl(\sqrt{2/\pi}\,(x + 0.044715\,x^{3})\bigr)\Bigr)$$
+    <p class="small dim">[Diagrama: curva GELU — similar a ReLU pero suavizada cerca del origen, con una pequeña zona negativa para x ≈ -0.17]</p>
+  </section>
+
+  <!-- SOFTMAX -->
+  <section>
+    <h1>Función de activación: Softmax</h1>
+    <h2>Softmax</h2>
+    <div class="two-col">
+      <div>
+        <ul>
+          <li>Convierte un vector de scores en un vector de probabilidades.</li>
+          <li>Muy usada en la capa de salida para clasificación multiclase.</li>
+          <li>La suma de las salidas es 1.</li>
+        </ul>
+        <p>Para una salida de dimensión $K$:</p>
+        $$\text{softmax}(z)_i = \frac{e^{z_i}}{\sum_{j=1}^{K} e^{z_j}}, \quad i = 1,\dots,K$$
+      </div>
+      <div>
+        <h2>Ejemplo numérico</h2>
+        <p class="small">Entrada $z = [2.0, 1.0, 0.1]$</p>
+        <p class="small">$e^z \approx [7.389, 2.718, 1.105]$</p>
+        <p class="small">Suma $= 11.212$</p>
+        <p class="small">$\text{softmax}(z) \approx [0.66, 0.24, 0.10]$</p>
+        <p class="small dim" style="margin-top:10px">[Diagrama: vector z → caja softmax → vector p de probabilidades]</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEAKY RELU -->
+  <section>
+    <h1>Función de activación: Leaky ReLU</h1>
+    <h2>Leaky Rectified Linear Unit</h2>
+    <div class="two-col">
+      <div>
+        <ul>
+          <li>Variante de ReLU que permite un pequeño gradiente cuando $x &lt; 0$.</li>
+          <li>Evita el problema de "neuronas muertas".</li>
+          <li>Parámetro $\alpha$ controla la pendiente en la parte negativa (típicamente $\alpha = 0.01$).</li>
+        </ul>
+        $$\text{LeakyReLU}(x) = \begin{cases} x, & x \ge 0 \\ \alpha x, & x < 0 \end{cases}$$
+      </div>
+      <div>
+        <p class="small dim">Visualización ($\alpha = 0.1$ para mayor visibilidad):</p>
+        <svg width="200" height="120" viewBox="-5 -1.5 10 5.5" style="display:block;margin:0 auto">
+          <line x1="-5" y1="0" x2="5" y2="0" stroke="#555" stroke-width="0.1"/>
+          <line x1="0" y1="-1.3" x2="0" y2="4" stroke="#555" stroke-width="0.1"/>
+          <polyline points="-4,-0.4 0,0 4,4" fill="none" stroke="#ff6b6b" stroke-width="0.2"/>
+          <text x="4" y="-0.2" fill="#888" font-size="0.7">x</text>
+          <text x="0.2" y="3.8" fill="#888" font-size="0.7">f(x)</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ELU -->
+  <section>
+    <h1>Función de activación: ELU</h1>
+    <h2>Exponential Linear Unit (ELU)</h2>
+    <div class="two-col">
+      <div>
+        <ul>
+          <li>Similar a ReLU para $x \ge 0$, pero suave en la parte negativa.</li>
+          <li>Produce activaciones negativas que ayudan a centrar la salida alrededor de 0.</li>
+        </ul>
+        $$\text{ELU}(x) = \begin{cases} x, & x \ge 0 \\ \alpha \bigl(e^{x} - 1\bigr), & x < 0 \end{cases}$$
+        <p class="small">Típicamente $\alpha = 1$.</p>
+      </div>
+      <div>
+        <p class="small dim">Visualización:</p>
+        <svg width="200" height="140" viewBox="-4 -2 8 6" style="display:block;margin:0 auto">
+          <line x1="-4" y1="0" x2="4" y2="0" stroke="#555" stroke-width="0.12"/>
+          <line x1="0" y1="-1.8" x2="0" y2="4" stroke="#555" stroke-width="0.12"/>
+          <!-- ELU approx: negative part e^x - 1, positive part x -->
+          <polyline points="-4,-0.982 -3,-0.950 -2,-0.865 -1,-0.632 -0.5,-0.394 0,0"
+            fill="none" stroke="#ffd93d" stroke-width="0.15"/>
+          <polyline points="0,0 1,1 2,2 3,3" fill="none" stroke="#ffd93d" stroke-width="0.15"/>
+          <text x="3.5" y="-0.2" fill="#888" font-size="0.5">x</text>
+          <text x="0.1" y="3.8" fill="#888" font-size="0.5">f(x)</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- SWISH -->
+  <section>
+    <h1>Función de activación: Swish (SiLU)</h1>
+    <h2>Swish / SiLU – Sigmoid Linear Unit</h2>
+    <div class="two-col">
+      <div>
+        <ul>
+          <li>Activación moderna usada en redes eficientes (EfficientNet, etc.).</li>
+          <li>Similar a GELU en comportamiento.</li>
+        </ul>
+        $$\text{Swish}(x) = x \,\sigma(x) = \frac{x}{1 + e^{-x}}$$
+      </div>
+      <div>
+        <p class="small dim">Visualización:</p>
+        <svg width="200" height="140" viewBox="-5 -0.6 10 5.6" style="display:block;margin:0 auto">
+          <line x1="-5" y1="0" x2="5" y2="0" stroke="#555" stroke-width="0.12"/>
+          <line x1="0" y1="-0.5" x2="0" y2="5" stroke="#555" stroke-width="0.12"/>
+          <!-- Swish approx points: x * sigmoid(x) -->
+          <polyline points="-5,-0.034 -4,-0.072 -3,-0.142 -2,-0.238 -1,-0.269 -0.5,-0.197 0,0 0.5,0.311 1,0.731 2,1.762 3,2.857 4,3.928 5,4.966"
+            fill="none" stroke="#a8e6cf" stroke-width="0.15"/>
+          <text x="4.5" y="-0.1" fill="#888" font-size="0.5">x</text>
+          <text x="0.1" y="4.8" fill="#888" font-size="0.5">f(x)</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- TENSORFLOW PLAYGROUND -->
+  <section>
+    <h1>Tensorflow Playground</h1>
+    <p>Experimenta con redes neuronales de forma visual:</p>
+    <p style="margin-top:16px">
+      <a class="colab-btn" href="https://playground.tensorflow.org/" target="_blank">🧪 Abrir Tensorflow Playground</a>
+    </p>
+    <img src="../images/Playground-Tensorflow.png" alt="Playground" style="max-height:280px;margin:16px auto;display:block;">
+  </section>
+
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/math/math.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    plugins: [ RevealHighlight, RevealNotes, RevealMath.MathJax3 ]
+  });
+</script>
+</body>
+</html>

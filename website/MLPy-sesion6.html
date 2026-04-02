@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Inicialización de Pesos y Funciones de Activación</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/theme/black.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/monokai.css">
+<style>
+:root {
+  --teal:    #4ecdc4;
+  --red:     #ff6b6b;
+  --yellow:  #ffd93d;
+  --green:   #a8e6cf;
+  --dimgray: #888;
+}
+.reveal            { font-size: 28px; }
+.reveal h1         { color: var(--yellow); font-size: 1.6em; }
+.reveal h2         { color: var(--yellow); font-size: 1.2em; }
+.reveal h3         { color: var(--teal);   font-size: 1.0em; }
+.reveal pre        { font-size: 0.55em; }
+.reveal section    { height: 100%; }
+.h0  { color: var(--teal);   font-weight: bold; }
+.h1c { color: var(--red);    font-weight: bold; }
+.h2c { color: var(--green);  font-weight: bold; }
+.hi  { color: var(--yellow); }
+.dim { color: var(--dimgray); }
+.small { font-size: 0.65em; }
+.tiny  { font-size: 0.55em; }
+.box {
+  border: 1px solid var(--teal);
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin: 6px 0;
+  background: rgba(78, 205, 196, 0.07);
+}
+.box-red { border-color: var(--red); background: rgba(255, 107, 107, 0.07); }
+.box-yellow { border-color: var(--yellow); background: rgba(255, 217, 61, 0.07); }
+.two-col        { display: flex; gap: 20px; align-items: flex-start; }
+.two-col > *    { flex: 1; }
+.part-label {
+  display: inline-block;
+  background: var(--teal);
+  color: #111;
+  padding: 2px 12px;
+  border-radius: 4px;
+  font-size: 0.55em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.reveal table { font-size: 0.7em; border-collapse: collapse; }
+.reveal table td, .reveal table th { padding: 6px 12px; border: 1px solid #444; }
+.reveal table th { background: rgba(78,205,196,0.15); color: var(--teal); }
+.colab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--teal);
+  color: #111;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.75em;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+  <!-- TITLE SLIDE -->
+  <section>
+    <p class="tiny" style="position:absolute;top:8px;right:10px;z-index:10"><a href="index.html" style="color:var(--teal)">← Inicio</a></p>
+    <br>
+    <h1>Inicialización de Pesos y Funciones de Activación</h1>
+    <h3 style="color:#aaa;font-size:0.85em;">Estabilidad, flujo de gradientes y neuronas muertas</h3>
+    <br>
+    <p class="small">Machine Learning con Python</p>
+    <p class="tiny dim">Cesar Garcia · 2025</p>
+    <p style="margin-top:16px"><a class="colab-btn" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion6.ipynb" target="_blank">📓 Abrir en Colab</a></p>
+    <aside class="notes">Introducción a la sesión.</aside>
+  </section>
+
+  <!-- Introducción -->
+  <section>
+    <h1>Introducción</h1>
+    <ul>
+      <li>Entender por qué <strong>no cualquier inicialización funciona</strong></li>
+      <li>Explicar <strong>gradientes que desaparecen o explotan</strong></li>
+      <li>Comparar funciones de activación comunes</li>
+      <li>Introducir inicializaciones Xavier y He</li>
+      <li>Relacionar activación, inicialización y estabilidad</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué dos redes con la misma arquitectura pueden comportarse de forma radicalmente distinta?</div>
+  </section>
+
+  <!-- Recordatorio: forward y backward -->
+  <section>
+    <h1>Recordatorio: forward y backward</h1>
+    <h2>Propagación doble</h2>
+    <p>En una red profunda:</p>
+    <ul>
+      <li>el <strong>forward</strong> propaga activaciones</li>
+      <li>el <strong>backward</strong> propaga gradientes</li>
+    </ul>
+    <p>Ambos dependen de pesos y activaciones.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué ocurre si las activaciones crecen o se atenúan capa tras capa?</div>
+  </section>
+
+  <!-- El problema de los gradientes -->
+  <section>
+    <h1>El problema de los gradientes</h1>
+    <h2>Vanishing y exploding gradients</h2>
+    <p>En redes profundas:</p>
+    <ul>
+      <li>gradientes pueden <strong>hacerse muy pequeños</strong></li>
+      <li>o <strong>crecer sin control</strong></li>
+    </ul>
+    <p>Consecuencias:</p>
+    <ul>
+      <li>aprendizaje muy lento</li>
+      <li>inestabilidad numérica</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué este problema empeora al aumentar la profundidad?</div>
+  </section>
+
+  <!-- Intuición matemática -->
+  <section>
+    <h1>Intuición matemática</h1>
+    <h2>Producto de derivadas</h2>
+    <p>El gradiente total es un producto de derivadas locales:</p>
+    <p>$$\frac{\partial L}{\partial W} = \prod_k \frac{\partial z_{k+1}}{\partial z_k}$$</p>
+    <p>Si cada factor es:</p>
+    <ul>
+      <li>&lt; 1 → desaparece</li>
+      <li>&gt; 1 → explota</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué papel juegan aquí las funciones de activación?</div>
+  </section>
+
+  <!-- Funciones de activación -->
+  <section>
+    <h1>Funciones de activación</h1>
+    <h2>Por qué no basta con capas lineales</h2>
+    <p>Sin activaciones:</p>
+    <ul>
+      <li>la red colapsa a una sola transformación lineal</li>
+    </ul>
+    <p>Activaciones introducen:</p>
+    <ul>
+      <li>no linealidad</li>
+      <li>capacidad expresiva</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué perderíamos si quitamos todas las activaciones?</div>
+  </section>
+
+  <!-- Sigmoid y Tanh vs ReLU -->
+  <section>
+    <h1>Activaciones: clásicas vs modernas</h1>
+    <div class="two-col">
+      <div>
+        <h2>Sigmoid y Tanh</h2>
+        <p>Propiedades:</p>
+        <ul>
+          <li>salida acotada</li>
+          <li>derivadas pequeñas en saturación</li>
+        </ul>
+        <p>Problemas:</p>
+        <ul>
+          <li>gradientes que desaparecen</li>
+          <li>entrenamiento lento</li>
+        </ul>
+        <div class="fragment box box-yellow small" style="margin-top:8px">💭 ¿Por qué fueron problemáticas en redes profundas?</div>
+      </div>
+      <div>
+        <h2>ReLU</h2>
+        <p>$$f(x) = \max(0, x)$$</p>
+        <p>Ventajas:</p>
+        <ul>
+          <li>gradiente constante en región activa</li>
+          <li>entrenamiento más estable</li>
+        </ul>
+        <p>Problemas:</p>
+        <ul>
+          <li>neuronas muertas</li>
+        </ul>
+        <div class="fragment box box-yellow small" style="margin-top:8px">💭 ¿Qué significa que una neurona esté "muerta"?</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Variantes de ReLU -->
+  <section>
+    <h1>Variantes de ReLU</h1>
+    <h2>Mitigar neuronas muertas</h2>
+    <p>Ejemplos:</p>
+    <ul>
+      <li>Leaky ReLU</li>
+      <li>ELU (conceptual)</li>
+    </ul>
+    <p>Idea:</p>
+    <div class="box">permitir gradiente negativo pequeño</div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué compromiso introduce permitir valores negativos?</div>
+  </section>
+
+  <!-- Inicialización de pesos -->
+  <section>
+    <h1>Inicialización de pesos</h1>
+    <h2>El punto de partida importa</h2>
+    <p>Pesos mal inicializados pueden:</p>
+    <ul>
+      <li>amplificar señales</li>
+      <li>atenuarlas demasiado</li>
+    </ul>
+    <p>La inicialización busca:</p>
+    <div class="box">mantener varianza estable a través de las capas</div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué no inicializar todos los pesos en cero?</div>
+  </section>
+
+  <!-- Xavier y He (combinados) -->
+  <section>
+    <h1>Inicializaciones: Xavier y He</h1>
+    <div class="two-col">
+      <div>
+        <h2>Xavier (Glorot)</h2>
+        <p>Equilibrio forward/backward:</p>
+        <ul>
+          <li>preservar varianza de activaciones</li>
+          <li>preservar varianza de gradientes</li>
+        </ul>
+        <p>Funciona bien con:</p>
+        <ul>
+          <li>Tanh</li>
+          <li>Sigmoid</li>
+        </ul>
+        <div class="fragment box box-yellow small" style="margin-top:8px">💭 ¿Qué asume Xavier sobre la activación?</div>
+      </div>
+      <div>
+        <h2>He initialization</h2>
+        <p>Diseñada para ReLU:</p>
+        <ul>
+          <li>ajusta la varianza para ReLU</li>
+          <li>compensa activaciones que anulan valores negativos</li>
+        </ul>
+        <p>Resultado:</p>
+        <ul>
+          <li>flujo de gradientes más estable</li>
+        </ul>
+        <div class="fragment box box-yellow small" style="margin-top:8px">💭 ¿Por qué ReLU necesita una inicialización distinta?</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Activación + inicialización -->
+  <section>
+    <h1>Activación + inicialización</h1>
+    <h2>Paquetes coherentes</h2>
+    <div class="two-col">
+      <div>
+        <p><strong>Buenas combinaciones:</strong></p>
+        <ul>
+          <li class="h2c">ReLU + He</li>
+          <li class="h2c">Tanh + Xavier</li>
+        </ul>
+      </div>
+      <div>
+        <p><strong>Malas combinaciones:</strong></p>
+        <ul>
+          <li class="h1c">ReLU + Xavier (profundo)</li>
+          <li class="h1c">Sigmoid + inicialización arbitraria</li>
+        </ul>
+      </div>
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué problema esperas ver con una mala combinación?</div>
+  </section>
+
+  <!-- Señales prácticas -->
+  <section>
+    <h1>Señales prácticas</h1>
+    <h2>Diagnóstico temprano</h2>
+    <p>Síntomas de problemas:</p>
+    <ul>
+      <li>pérdida no cambia</li>
+      <li>gradientes ~ 0</li>
+      <li>activaciones saturadas</li>
+    </ul>
+    <p>Mirar:</p>
+    <ul>
+      <li>curvas de pérdida</li>
+      <li>estadísticas internas (gradientes, activaciones)</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué mirarías primero si una red no aprende?</div>
+  </section>
+
+  <!-- Puente al notebook -->
+  <section>
+    <h1>Puente al notebook</h1>
+    <h2>Qué vamos a observar</h2>
+    <p>En el notebook:</p>
+    <ul>
+      <li>compararemos inicializaciones</li>
+      <li>compararemos activaciones</li>
+      <li>mediremos gradientes y activaciones</li>
+    </ul>
+    <p>Todo con el <strong>mismo modelo y dataset</strong>.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué esperas que ocurra al cambiar solo la inicialización?</div>
+  </section>
+
+  <!-- Idea clave de la sesión -->
+  <section>
+    <h1>Idea clave de la sesión</h1>
+    <h2>Estabilidad antes que profundidad</h2>
+    <p>Antes de redes profundas:</p>
+    <ul>
+      <li>asegúrate de que el gradiente fluye</li>
+    </ul>
+    <p>Activación e inicialización:</p>
+    <div class="box"><strong>definen si aprender es posible</strong></div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué combinación te parece más robusta ahora?</div>
+  </section>
+
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/math/math.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    plugins: [ RevealHighlight, RevealNotes, RevealMath.MathJax3 ]
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Generalización y Aprendizaje de Representaciones</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/theme/black.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/monokai.css">
+<style>
+:root {
+  --teal:    #4ecdc4;
+  --red:     #ff6b6b;
+  --yellow:  #ffd93d;
+  --green:   #a8e6cf;
+  --dimgray: #888;
+}
+.reveal            { font-size: 28px; }
+.reveal h1         { color: var(--yellow); font-size: 1.6em; }
+.reveal h2         { color: var(--yellow); font-size: 1.2em; }
+.reveal h3         { color: var(--teal);   font-size: 1.0em; }
+.reveal pre        { font-size: 0.55em; }
+.reveal section    { height: 100%; }
+.h0  { color: var(--teal);   font-weight: bold; }
+.h1c { color: var(--red);    font-weight: bold; }
+.h2c { color: var(--green);  font-weight: bold; }
+.hi  { color: var(--yellow); }
+.dim { color: var(--dimgray); }
+.small { font-size: 0.65em; }
+.tiny  { font-size: 0.55em; }
+.box {
+  border: 1px solid var(--teal);
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin: 6px 0;
+  background: rgba(78, 205, 196, 0.07);
+}
+.box-red { border-color: var(--red); background: rgba(255, 107, 107, 0.07); }
+.box-yellow { border-color: var(--yellow); background: rgba(255, 217, 61, 0.07); }
+.two-col        { display: flex; gap: 20px; align-items: flex-start; }
+.two-col > *    { flex: 1; }
+.part-label {
+  display: inline-block;
+  background: var(--teal);
+  color: #111;
+  padding: 2px 12px;
+  border-radius: 4px;
+  font-size: 0.55em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.reveal table { font-size: 0.7em; border-collapse: collapse; }
+.reveal table td, .reveal table th { padding: 6px 12px; border: 1px solid #444; }
+.reveal table th { background: rgba(78,205,196,0.15); color: var(--teal); }
+.colab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--teal);
+  color: #111;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.75em;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+  <section>
+    <br>
+    <h1>Generalización y Aprendizaje de Representaciones</h1>
+    <h3 style="color:#aaa;font-size:0.85em;">Qué aprende realmente una red neuronal</h3>
+    <br>
+    <p class="small">Deep Learning con Python</p>
+    <p class="tiny dim">Cesar Garcia · 2025</p>
+    <p style="margin-top:16px"><a class="colab-btn" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion8.ipynb" target="_blank">📓 Abrir en Colab</a></p>
+    <p class="tiny" style="margin-top:8px"><a href="index.html" style="color:var(--teal)">← Inicio</a></p>
+    <aside class="notes">Bienvenidos a esta sesión.</aside>
+  </section>
+
+  <section>
+    <h1>Introducción</h1>
+    <h2>Objetivos</h2>
+    <ul>
+      <li>Entender qué significa <strong>generalizar</strong></li>
+      <li>Ir más allá de accuracy y loss</li>
+      <li>Introducir el concepto de <strong>representaciones internas</strong></li>
+      <li>Preparar el terreno para autoencoders</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Generalizar es simplemente memorizar mejor?</div>
+  </section>
+
+  <section>
+    <h1>De rendimiento a comprensión</h1>
+    <h2>Más allá de los números</h2>
+    <p>Dos modelos pueden tener:</p>
+    <ul>
+      <li>misma accuracy</li>
+      <li>misma pérdida</li>
+    </ul>
+    <p>Pero aprender cosas <strong>muy distintas</strong>.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Cómo podemos saber qué aprendió realmente una red?</div>
+  </section>
+
+  <section>
+    <h1>Bias–Variance tradeoff</h1>
+    <h2>Intuición</h2>
+    <div class="two-col">
+      <div class="box">
+        <p><strong>Modelos simples</strong></p>
+        <p>→ alto <span class="h1c">bias</span></p>
+        <p class="small dim">Subajustan — no capturan el patrón</p>
+      </div>
+      <div class="box">
+        <p><strong>Modelos complejos</strong></p>
+        <p>→ alta <span class="h2c">varianza</span></p>
+        <p class="small dim">Sobreajustan — memorizan el ruido</p>
+      </div>
+    </div>
+    <div class="box" style="margin-top:16px">
+      Generalizar es encontrar el <strong>equilibrio</strong>.
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué ocurre si aumentamos la capacidad sin control?</div>
+  </section>
+
+  <section>
+    <h1>Capacidad del modelo</h1>
+    <h2>Profundidad y parámetros</h2>
+    <p>Más capas implican:</p>
+    <ul>
+      <li>más parámetros</li>
+      <li>más capacidad expresiva</li>
+    </ul>
+    <p>Pero también:</p>
+    <ul>
+      <li>más riesgo de sobreajuste</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Más grande siempre significa mejor?</div>
+  </section>
+
+  <section>
+    <h1>Capas ocultas como extractores</h1>
+    <h2>Aprendizaje progresivo</h2>
+    <p>Cada capa:</p>
+    <ul>
+      <li>transforma el espacio</li>
+      <li>extrae características más abstractas</li>
+    </ul>
+    <div class="box" style="margin-top:16px">
+      Las capas más profundas ven el mundo en términos de las representaciones que construyeron las anteriores.
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué tipo de información vive en una capa intermedia?</div>
+  </section>
+
+  <section>
+    <h1>Aprendizaje de representaciones</h1>
+    <h2>Idea central</h2>
+    <p>La red aprende una nueva geometría del espacio de entrada.</p>
+    <div class="two-col" style="margin-top:16px">
+      <div class="box">
+        Puntos similares<br>→ <span class="h0">más cercanos</span>
+      </div>
+      <div class="box">
+        Puntos distintos<br>→ <span class="h1c">más separados</span>
+      </div>
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué esta reorganización ayuda a generalizar?</div>
+  </section>
+
+  <section>
+    <h1>Visualizar representaciones</h1>
+    <h2>De datos a activaciones</h2>
+    <p>En el notebook:</p>
+    <ul>
+      <li>compararemos modelos <strong>shallow</strong> vs <strong>deep</strong></li>
+      <li>visualizaremos activaciones internas</li>
+      <li>usaremos proyecciones 2D del espacio latente</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué esperarías ver en una buena representación?</div>
+  </section>
+
+  <section>
+    <h1>Puente a autoencoders</h1>
+    <h2>Mirando hacia adelante</h2>
+    <p>¿Y si entrenamos una red <strong>solo</strong> para aprender representaciones?</p>
+    <p>Eso motiva:</p>
+    <ul>
+      <li><strong>autoencoders</strong></li>
+      <li>espacios latentes</li>
+    </ul>
+    <div class="box" style="margin-top:16px">
+      En la próxima sesión: aprendizaje sin etiquetas.
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué pasaría si quitamos completamente las etiquetas?</div>
+  </section>
+
+  <section>
+    <h1>Idea clave de la sesión</h1>
+    <h2>Generalizar es estructurar</h2>
+    <p>Una red que generaliza bien:</p>
+    <ul>
+      <li>no memoriza</li>
+      <li>organiza el espacio</li>
+    </ul>
+    <div class="box" style="margin-top:16px">
+      <strong>Aprender es reconfigurar la geometría.</strong>
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué mirarías ahora además de la pérdida?</div>
+  </section>
+
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/math/math.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    plugins: [ RevealHighlight, RevealNotes, RevealMath.MathJax3 ]
+  });
+</script>
+</body>
+</html>

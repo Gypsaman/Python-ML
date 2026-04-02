@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Variational Autoencoders (VAEs)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/theme/black.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/monokai.css">
+<style>
+:root {
+  --teal:    #4ecdc4;
+  --red:     #ff6b6b;
+  --yellow:  #ffd93d;
+  --green:   #a8e6cf;
+  --dimgray: #888;
+}
+.reveal            { font-size: 28px; }
+.reveal h1         { color: var(--yellow); font-size: 1.6em; }
+.reveal h2         { color: var(--yellow); font-size: 1.2em; }
+.reveal h3         { color: var(--teal);   font-size: 1.0em; }
+.reveal pre        { font-size: 0.55em; }
+.reveal section    { height: 100%; }
+.h0  { color: var(--teal);   font-weight: bold; }
+.h1c { color: var(--red);    font-weight: bold; }
+.h2c { color: var(--green);  font-weight: bold; }
+.hi  { color: var(--yellow); }
+.dim { color: var(--dimgray); }
+.small { font-size: 0.65em; }
+.tiny  { font-size: 0.55em; }
+.box {
+  border: 1px solid var(--teal);
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin: 6px 0;
+  background: rgba(78, 205, 196, 0.07);
+}
+.box-red { border-color: var(--red); background: rgba(255, 107, 107, 0.07); }
+.box-yellow { border-color: var(--yellow); background: rgba(255, 217, 61, 0.07); }
+.two-col        { display: flex; gap: 20px; align-items: flex-start; }
+.two-col > *    { flex: 1; }
+.part-label {
+  display: inline-block;
+  background: var(--teal);
+  color: #111;
+  padding: 2px 12px;
+  border-radius: 4px;
+  font-size: 0.55em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.reveal table { font-size: 0.7em; border-collapse: collapse; }
+.reveal table td, .reveal table th { padding: 6px 12px; border: 1px solid #444; }
+.reveal table th { background: rgba(78,205,196,0.15); color: var(--teal); }
+.colab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--teal);
+  color: #111;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.75em;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+  <section>
+    <br>
+    <h1>Variational Autoencoders (VAEs)</h1>
+    <h3 style="color:#aaa;font-size:0.85em;">Representaciones probabilísticas y modelos generativos</h3>
+    <br>
+    <p class="small">Deep Learning con Python</p>
+    <p class="tiny dim">Cesar Garcia · 2025</p>
+    <p style="margin-top:16px"><a class="colab-btn" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion10.ipynb" target="_blank">📓 Abrir en Colab</a></p>
+    <p class="tiny" style="margin-top:8px"><a href="index.html" style="color:var(--teal)">← Inicio</a></p>
+    <aside class="notes">Bienvenidos a esta sesión.</aside>
+  </section>
+
+  <section>
+    <h1>Introducción</h1>
+    <h2>Objetivos</h2>
+    <ul>
+      <li>Recordatorio: autoencoders aprenden a <strong>reconstruir</strong></li>
+      <li>Problema: el espacio latente <strong>no está organizado para muestrear</strong></li>
+      <li>Solución (VAE): hacer el latente <strong>probabilístico y regularizado</strong></li>
+      <li>Objetivo: <strong>generar</strong> nuevos ejemplos de forma controlada</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué necesitamos agregar para que el espacio latente sea "muestreable"?</div>
+  </section>
+
+  <section>
+    <h1>Por qué un AE estándar no es generativo</h1>
+    <h2>La limitación</h2>
+    <p>En un autoencoder estándar:</p>
+    <ul>
+      <li>el encoder produce un punto $z$</li>
+      <li>no hay una distribución explícita sobre $z$</li>
+      <li>no sabemos qué regiones del espacio latente son "válidas"</li>
+    </ul>
+    <div class="box box-red" style="margin-top:16px">
+      Consecuencia: muestrear $z$ al azar suele producir basura al decodificar.
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué significa que el espacio latente tenga "agujeros"?</div>
+  </section>
+
+  <section>
+    <h1>Idea central de un VAE</h1>
+    <h2>Latente como variable aleatoria</h2>
+    <p>En un VAE:</p>
+    <ul>
+      <li>el encoder no produce un solo $z$</li>
+      <li>produce parámetros de una distribución:</li>
+    </ul>
+    <div class="two-col" style="margin-top:12px">
+      <div class="box">
+        Media: $\mu(x)$
+      </div>
+      <div class="box">
+        Varianza: $\log \sigma^2(x)$
+      </div>
+    </div>
+    <p style="margin-top:12px">Luego muestreamos: $z \sim q_\theta(z\mid x)$ y el decoder reconstruye desde ese $z$.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué sería útil introducir "incertidumbre" en el latente?</div>
+  </section>
+
+  <section>
+    <h1>Arquitectura VAE</h1>
+    <h2>Encoder produce $\mu$ y $\log \sigma^2$</h2>
+    <!-- SVG replacing TikZ diagram -->
+    <svg width="620" height="110" viewBox="0 0 620 110" style="display:block;margin:8px auto;font-size:11px;font-family:sans-serif">
+      <defs>
+        <marker id="arr2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#555"/>
+        </marker>
+      </defs>
+      <!-- Entrada -->
+      <rect x="5" y="33" width="80" height="44" rx="6" fill="none" stroke="#4ecdc4" stroke-width="1.5"/>
+      <text x="45" y="53" text-anchor="middle" fill="#ffd93d" font-size="11">Entrada</text>
+      <text x="45" y="68" text-anchor="middle" fill="#aaa" font-size="10">x</text>
+      <!-- arrow enc -->
+      <line x1="85" y1="55" x2="115" y2="55" stroke="#555" stroke-width="1.5" marker-end="url(#arr2)"/>
+      <!-- Encoder -->
+      <rect x="115" y="33" width="90" height="44" rx="6" fill="none" stroke="#4ecdc4" stroke-width="1.5"/>
+      <text x="160" y="53" text-anchor="middle" fill="#ffd93d" font-size="11">Encoder</text>
+      <text x="160" y="68" text-anchor="middle" fill="#aaa" font-size="10">f_θ</text>
+      <!-- Branch to mu -->
+      <line x1="205" y1="45" x2="230" y2="20" stroke="#555" stroke-width="1.5" marker-end="url(#arr2)"/>
+      <!-- Branch to logvar -->
+      <line x1="205" y1="65" x2="230" y2="88" stroke="#555" stroke-width="1.5" marker-end="url(#arr2)"/>
+      <!-- mu box -->
+      <rect x="230" y="5" width="80" height="30" rx="5" fill="rgba(255,217,61,0.1)" stroke="#ffd93d" stroke-width="1.5"/>
+      <text x="270" y="24" text-anchor="middle" fill="#ffd93d" font-size="11">μ(x)</text>
+      <!-- logvar box -->
+      <rect x="230" y="75" width="80" height="30" rx="5" fill="rgba(168,230,207,0.1)" stroke="#a8e6cf" stroke-width="1.5"/>
+      <text x="270" y="94" text-anchor="middle" fill="#a8e6cf" font-size="10">log σ²(x)</text>
+      <!-- arrows to sample -->
+      <line x1="310" y1="20" x2="340" y2="46" stroke="#555" stroke-width="1.5" marker-end="url(#arr2)"/>
+      <line x1="310" y1="90" x2="340" y2="64" stroke="#555" stroke-width="1.5" marker-end="url(#arr2)"/>
+      <!-- Muestreo z -->
+      <rect x="340" y="33" width="80" height="44" rx="6" fill="rgba(78,205,196,0.1)" stroke="#4ecdc4" stroke-width="2"/>
+      <text x="380" y="53" text-anchor="middle" fill="#ffd93d" font-size="11">Muestreo</text>
+      <text x="380" y="68" text-anchor="middle" fill="#aaa" font-size="10">z</text>
+      <text x="380" y="88" text-anchor="middle" fill="#888" font-size="9">reparametrización</text>
+      <!-- arrow dec -->
+      <line x1="420" y1="55" x2="450" y2="55" stroke="#555" stroke-width="1.5" marker-end="url(#arr2)"/>
+      <!-- Decoder -->
+      <rect x="450" y="33" width="80" height="44" rx="6" fill="none" stroke="#4ecdc4" stroke-width="1.5"/>
+      <text x="490" y="53" text-anchor="middle" fill="#ffd93d" font-size="11">Decoder</text>
+      <text x="490" y="68" text-anchor="middle" fill="#aaa" font-size="10">g_φ</text>
+      <!-- arrow xhat -->
+      <line x1="530" y1="55" x2="555" y2="55" stroke="#555" stroke-width="1.5" marker-end="url(#arr2)"/>
+      <!-- Xhat -->
+      <rect x="555" y="33" width="60" height="44" rx="6" fill="none" stroke="#4ecdc4" stroke-width="1.5"/>
+      <text x="585" y="53" text-anchor="middle" fill="#ffd93d" font-size="10">Reconst.</text>
+      <text x="585" y="68" text-anchor="middle" fill="#aaa" font-size="10">x̂</text>
+    </svg>
+    <div class="fragment box box-yellow small" style="margin-top:8px">💭 ¿Qué cambia respecto a un autoencoder "determinista"?</div>
+  </section>
+
+  <section>
+    <h1>Dos objetivos a la vez</h1>
+    <h2>Reconstruir y regularizar</h2>
+    <p>El VAE optimiza dos cosas:</p>
+    <div class="two-col" style="margin-top:12px">
+      <div class="box">
+        <strong>1. Reconstrucción</strong><br>
+        <span class="small">que $\hat{x}$ se parezca a $x$</span>
+      </div>
+      <div class="box">
+        <strong>2. Regularización</strong><br>
+        <span class="small">que el latente se parezca al prior normal $\mathcal{N}(0,I)$</span>
+      </div>
+    </div>
+    <div class="box" style="margin-top:12px">
+      Intuición: "reconstruye bien, pero no uses un latente raro o caótico"
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué querríamos que el latente se parezca a una Normal?</div>
+  </section>
+
+  <section>
+    <h1>KL Divergence</h1>
+    <h2>Distancia entre distribuciones</h2>
+    <p>El término KL mide qué tan distinta es:</p>
+    <div class="box" style="margin-top:12px;text-align:center">
+      $$q_\theta(z\mid x) \quad \text{vs} \quad p(z) = \mathcal{N}(0, I)$$
+    </div>
+    <p style="margin-top:12px">Interpretación:</p>
+    <ul>
+      <li>penaliza "latentes demasiado específicos"</li>
+      <li>evita memorizar en el latente</li>
+      <li>fuerza que el espacio latente sea continuo y sin agujeros</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué pasa si el KL es demasiado grande o demasiado pequeño?</div>
+  </section>
+
+  <section>
+    <h1>La pérdida total (ELBO)</h1>
+    <h2>Forma práctica</h2>
+    <div class="box" style="margin-top:12px;text-align:center">
+      $$\mathcal{L} = \underbrace{\mathcal{L}_{rec}(x,\hat{x})}_{\text{reconstrucción}} + \beta \; \underbrace{\mathrm{KL}(q_\theta(z\mid x)\,\|\,p(z))}_{\text{regularización}}$$
+    </div>
+    <p style="margin-top:16px">$\beta$ controla el balance (<em>beta-VAE</em>).</p>
+    <ul>
+      <li>$\beta = 1$ → VAE estándar</li>
+      <li>$\beta > 1$ → más énfasis en el prior (latente más organizado)</li>
+      <li>$\beta < 1$ → más énfasis en reconstrucción</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué efecto tiene aumentar $\beta$?</div>
+  </section>
+
+  <section>
+    <h1>El truco de reparametrización</h1>
+    <h2>Haciendo el muestreo diferenciable</h2>
+    <div class="box box-red" style="margin-top:8px">
+      <strong>Problema:</strong> queremos hacer backprop a través de un muestreo.<br>
+      Pero muestrear es "no diferenciable" si lo hacemos directo.
+    </div>
+    <div class="box" style="margin-top:12px;text-align:center">
+      <strong>Solución — reescribimos:</strong>
+      $$z = \mu + \sigma \odot \epsilon, \quad \epsilon \sim \mathcal{N}(0, I)$$
+    </div>
+    <p style="margin-top:12px">Así el azar vive en $\epsilon$ (no tiene parámetros) y el resto es diferenciable.</p>
+    <p class="small dim">El gradiente puede fluir hacia $\mu$ y $\sigma$ sin problema.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué esta reescritura sí permite gradientes?</div>
+  </section>
+
+  <section>
+    <h1>Muestreo y generación</h1>
+    <h2>Ahora sí podemos generar</h2>
+    <p>Una vez entrenado el VAE:</p>
+    <ol>
+      <li>muestreamos $z \sim \mathcal{N}(0,I)$</li>
+      <li>decodificamos $\hat{x} = g_\phi(z)$</li>
+    </ol>
+    <div class="box" style="margin-top:12px">
+      Además: interpolar en $z$ suele producir transiciones suaves entre ejemplos.
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué condición hizo esto posible en un VAE, pero no en un AE?</div>
+  </section>
+
+  <section>
+    <h1>Fallos típicos: posterior collapse</h1>
+    <h2>Qué es</h2>
+    <p>A veces el modelo aprende:</p>
+    <ul>
+      <li>$q(z\mid x) \approx \mathcal{N}(0,I)$ para todo $x$</li>
+      <li>el decoder ignora $z$</li>
+    </ul>
+    <div class="box box-red" style="margin-top:12px">
+      Resultado: KL muy pequeño, pero representación latente <strong>inútil</strong>.
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Cómo detectarías que el modelo está ignorando el latente?</div>
+  </section>
+
+  <section>
+    <h1>Idea clave de la sesión</h1>
+    <h2>Generar requiere estructura</h2>
+    <p>Un VAE convierte el espacio latente en:</p>
+    <ul>
+      <li><strong>continuo</strong></li>
+      <li><strong>muestreable</strong></li>
+      <li><strong>regularizado</strong></li>
+    </ul>
+    <div class="box" style="margin-top:16px">
+      <strong>No solo comprimimos: imponemos una geometría probabilística.</strong>
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué ganamos al "forzar" estructura en el latente?</div>
+  </section>
+
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/math/math.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    plugins: [ RevealHighlight, RevealNotes, RevealMath.MathJax3 ]
+  });
+</script>
+</body>
+</html>

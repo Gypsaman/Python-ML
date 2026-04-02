@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Generalización y el Panorama del Deep Learning</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/theme/black.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/monokai.css">
+<style>
+:root {
+  --teal:    #4ecdc4;
+  --red:     #ff6b6b;
+  --yellow:  #ffd93d;
+  --green:   #a8e6cf;
+  --dimgray: #888;
+}
+.reveal            { font-size: 28px; }
+.reveal h1         { color: var(--yellow); font-size: 1.6em; }
+.reveal h2         { color: var(--yellow); font-size: 1.2em; }
+.reveal h3         { color: var(--teal);   font-size: 1.0em; }
+.reveal pre        { font-size: 0.55em; }
+.reveal section    { height: 100%; }
+.h0  { color: var(--teal);   font-weight: bold; }
+.h1c { color: var(--red);    font-weight: bold; }
+.h2c { color: var(--green);  font-weight: bold; }
+.hi  { color: var(--yellow); }
+.dim { color: var(--dimgray); }
+.small { font-size: 0.65em; }
+.tiny  { font-size: 0.55em; }
+.box {
+  border: 1px solid var(--teal);
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin: 6px 0;
+  background: rgba(78, 205, 196, 0.07);
+}
+.box-red { border-color: var(--red); background: rgba(255, 107, 107, 0.07); }
+.box-yellow { border-color: var(--yellow); background: rgba(255, 217, 61, 0.07); }
+.two-col        { display: flex; gap: 20px; align-items: flex-start; }
+.two-col > *    { flex: 1; }
+.part-label {
+  display: inline-block;
+  background: var(--teal);
+  color: #111;
+  padding: 2px 12px;
+  border-radius: 4px;
+  font-size: 0.55em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.reveal table { font-size: 0.7em; border-collapse: collapse; }
+.reveal table td, .reveal table th { padding: 6px 12px; border: 1px solid #444; }
+.reveal table th { background: rgba(78,205,196,0.15); color: var(--teal); }
+.colab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--teal);
+  color: #111;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.75em;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+  <!-- TITLE SLIDE -->
+  <section>
+    <p class="tiny" style="position:absolute;top:8px;right:10px;z-index:10"><a href="index.html" style="color:var(--teal)">← Inicio</a></p>
+    <br>
+    <h1>Generalización y el Panorama del Deep Learning</h1>
+    <h3 style="color:#aaa;font-size:0.85em;">Qué problemas resolvemos y qué herramientas existen</h3>
+    <br>
+    <p class="small">Machine Learning con Python</p>
+    <p class="tiny dim">Cesar Garcia · 2025</p>
+    <p style="margin-top:16px"><a class="colab-btn" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion1.ipynb" target="_blank">📓 Abrir en Colab</a></p>
+    <aside class="notes">Introducción a la sesión.</aside>
+  </section>
+
+  <!-- Introducción -->
+  <section>
+    <h1>Introducción</h1>
+    <ul>
+      <li>Entender qué significa que un modelo <em>aprenda</em></li>
+      <li>Diferenciar: generalización, sobreajuste y subajuste</li>
+      <li>Reconocer los principales componentes de un proyecto de ML</li>
+      <li>Ubicar arquitecturas y optimizadores en el panorama general</li>
+    </ul>
+  </section>
+
+  <!-- ¿Qué significa aprender? -->
+  <section>
+    <h1>¿Qué significa aprender?</h1>
+    <h2>Idea central</h2>
+    <p>Un modelo aprende cuando:</p>
+    <ul>
+      <li>captura <strong>patrones reales</strong></li>
+      <li>funciona bien en <strong>datos no vistos</strong></li>
+    </ul>
+    <br>
+    <p>Aprender <strong>no es memorizar</strong>.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Un modelo que tiene 100 % de accuracy en entrenamiento necesariamente aprendió?</div>
+  </section>
+
+  <!-- Generalización -->
+  <section>
+    <h1>Generalización</h1>
+    <h2>Concepto clave</h2>
+    <p><strong>Generalizar</strong> significa que el modelo:</p>
+    <ul>
+      <li>funciona bien en datos nuevos</li>
+      <li>no depende de ejemplos específicos</li>
+    </ul>
+    <br>
+    <p>La generalización es el objetivo real del entrenamiento.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué nos importa más el rendimiento en validación que en entrenamiento?</div>
+  </section>
+
+  <!-- Sobreajuste -->
+  <section>
+    <h1>Sobreajuste</h1>
+    <h2>Overfitting</h2>
+    <p>Ocurre cuando el modelo:</p>
+    <ul>
+      <li>aprende detalles irrelevantes (ruido)</li>
+      <li>pierde capacidad de generalizar</li>
+    </ul>
+    <br>
+    <p><strong>Señales típicas:</strong></p>
+    <ul>
+      <li>pérdida muy baja en entrenamiento</li>
+      <li>pérdida alta en validación</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué tipo de modelo es más propenso al sobreajuste: uno simple o uno muy complejo?</div>
+  </section>
+
+  <!-- Subajuste -->
+  <section>
+    <h1>Subajuste</h1>
+    <h2>Underfitting</h2>
+    <p>Ocurre cuando el modelo:</p>
+    <ul>
+      <li>no tiene suficiente capacidad</li>
+      <li>no captura el patrón real</li>
+    </ul>
+    <p><strong>Señales típicas:</strong></p>
+    <ul>
+      <li>pérdida alta en entrenamiento</li>
+      <li>pérdida alta en validación</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Puede un modelo subajustado mejorar solo entrenando más tiempo?</div>
+  </section>
+
+  <!-- Técnicas para mejorar la generalización -->
+  <section>
+    <h1>Técnicas para mejorar la generalización</h1>
+    <h2>Visión general</h2>
+    <p>Algunas estrategias comunes:</p>
+    <ul>
+      <li>Regularización</li>
+      <li>Dropout</li>
+      <li>Early stopping</li>
+      <li>Más y mejores datos</li>
+    </ul>
+    <br>
+    <p>Todas buscan el mismo objetivo:</p>
+    <div class="box"><strong>controlar la complejidad efectiva del modelo</strong></div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Estas técnicas cambian el modelo o cambian cómo se entrena?</div>
+  </section>
+
+  <!-- Importancia de los datos -->
+  <section>
+    <h1>Importancia de los datos</h1>
+    <h2>Antes del modelo</h2>
+    <ul>
+      <li>Calidad &gt; cantidad</li>
+      <li>Datos mal preparados → modelos pobres</li>
+      <li>El modelo solo puede aprender lo que los datos contienen</li>
+    </ul>
+    <h2>Procesos comunes:</h2>
+    <ul>
+      <li>normalización</li>
+      <li>estandarización</li>
+      <li>balanceo (95% Clase A y 5% Clase B)</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Un modelo muy avanzado puede compensar datos de mala calidad?</div>
+  </section>
+
+  <!-- Flujo general de un proyecto de ML -->
+  <section>
+    <h1>Flujo general de un proyecto de ML</h1>
+    <h2>Panorama completo</h2>
+    <ol>
+      <li>Recolección de datos</li>
+      <li>Limpieza y procesamiento</li>
+      <li>División entrenamiento / validación</li>
+      <li>Selección del modelo</li>
+      <li>Entrenamiento</li>
+      <li>Evaluación</li>
+      <li>Ajuste y regularización</li>
+      <li>Implementación</li>
+    </ol>
+    <p class="small dim">Este flujo se repite iterativamente.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿En qué etapa crees que se cometen más errores en la práctica?</div>
+  </section>
+
+  <!-- Arquitecturas modernas -->
+  <section>
+    <h1>Arquitecturas modernas</h1>
+    <h2>Qué tipos de modelos existen</h2>
+    <ul>
+      <li><strong>Redes densas</strong>: datos tabulares</li>
+      <li><strong>Autoencoders</strong>: compresión y generación</li>
+      <li><strong>CNNs</strong>: imágenes</li>
+      <li><strong>RNNs / LSTM</strong>: secuencias</li>
+      <li><strong>Transformers</strong>: texto, visión, multimodal</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué no usamos la misma arquitectura para todos los problemas?</div>
+  </section>
+
+  <!-- Optimizadores modernos -->
+  <section>
+    <h1>Optimizadores modernos</h1>
+    <h2>Visión general (sin entrar en detalles)</h2>
+    <p>Durante el entrenamiento ajustamos parámetros usando optimizadores:</p>
+    <ul>
+      <li><strong>SGD</strong>: descenso básico</li>
+      <li><strong>Momentum</strong>: acumula dirección</li>
+      <li><strong>RMSProp</strong>: adapta el paso por parámetro</li>
+      <li><strong>Adam</strong>: combina velocidad y estabilidad</li>
+    </ul>
+    <p>Los estudiaremos <strong>en profundidad más adelante</strong>.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué tendría sentido usar distintos optimizadores para el mismo modelo?</div>
+  </section>
+
+  <!-- Idea clave de la sesión -->
+  <section>
+    <h1>Idea clave de la sesión</h1>
+    <h2>Todo se conecta</h2>
+    <ul>
+      <li>Datos influyen en generalización</li>
+      <li>Arquitectura define capacidad</li>
+      <li>Optimizadores controlan el aprendizaje</li>
+      <li>El objetivo final es <strong>generalizar</strong></li>
+    </ul>
+    <p>Hoy construimos el mapa; luego veremos el mecanismo.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué parte del proceso te genera más curiosidad o incertidumbre ahora?</div>
+  </section>
+
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/math/math.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    plugins: [ RevealHighlight, RevealNotes, RevealMath.MathJax3 ]
+  });
+</script>
+</body>
+</html>

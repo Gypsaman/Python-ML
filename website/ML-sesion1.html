@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Introducción a ML – Sesión 1</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/theme/black.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/monokai.css">
+<style>
+:root {
+  --teal:    #4ecdc4;
+  --red:     #ff6b6b;
+  --yellow:  #ffd93d;
+  --green:   #a8e6cf;
+  --dimgray: #888;
+}
+.reveal            { font-size: 28px; }
+.reveal h1         { color: var(--yellow); font-size: 1.6em; }
+.reveal h2         { color: var(--yellow); font-size: 1.2em; }
+.reveal h3         { color: var(--teal);   font-size: 1.0em; }
+.reveal pre        { font-size: 0.55em; }
+.reveal section    { height: 100%; }
+.h0  { color: var(--teal);   font-weight: bold; }
+.h1c { color: var(--red);    font-weight: bold; }
+.h2c { color: var(--green);  font-weight: bold; }
+.hi  { color: var(--yellow); }
+.dim { color: var(--dimgray); }
+.small { font-size: 0.65em; }
+.tiny  { font-size: 0.55em; }
+.box {
+  border: 1px solid var(--teal);
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin: 6px 0;
+  background: rgba(78, 205, 196, 0.07);
+}
+.box-red { border-color: var(--red); background: rgba(255, 107, 107, 0.07); }
+.box-yellow { border-color: var(--yellow); background: rgba(255, 217, 61, 0.07); }
+.two-col        { display: flex; gap: 20px; align-items: flex-start; }
+.two-col > *    { flex: 1; }
+.part-label {
+  display: inline-block;
+  background: var(--teal);
+  color: #111;
+  padding: 2px 12px;
+  border-radius: 4px;
+  font-size: 0.55em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.reveal table { font-size: 0.7em; border-collapse: collapse; }
+.reveal table td, .reveal table th { padding: 6px 12px; border: 1px solid #444; }
+.reveal table th { background: rgba(78,205,196,0.15); color: var(--teal); }
+.colab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--teal);
+  color: #111;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.75em;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+  <!-- TITLE SLIDE -->
+  <section>
+    <br>
+    <h1>Introducción a ML<br>Sesión 1</h1>
+    <br>
+    <p class="small">Machine Learning con Python</p>
+    <p class="tiny dim">Cesar Garcia · 2025</p>
+    <p style="margin-top:16px"><a class="colab-btn" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/modelos_clasicos_ml_demo.ipynb" target="_blank">📓 Abrir Notebook en Colab</a></p>
+    <aside class="notes">Sesión 1 de Machine Learning. Introducción al aprendizaje automático y algoritmos clásicos.</aside>
+  </section>
+
+  <!-- OBJETIVOS -->
+  <section>
+    <p class="tiny" style="position:absolute;top:10px;right:10px"><a href="index.html" style="color:var(--teal)">← Inicio</a></p>
+    <h1>Introducción</h1>
+    <p><strong>Objetivos de la sesión</strong></p>
+    <ul>
+      <li>Comprender qué es el aprendizaje automático (Machine Learning).</li>
+      <li>Diferenciar entre aprendizaje clásico y aprendizaje profundo.</li>
+      <li>Identificar tipos de problemas: regresión, clasificación, clustering.</li>
+      <li>Revisión de algoritmos clásicos:
+        <ul>
+          <li>Regresión lineal</li>
+          <li>KNN</li>
+          <li>Árboles de decisión</li>
+          <li>SVM</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- QUÉ ES ML -->
+  <section>
+    <h1>¿Qué es el Machine Learning?</h1>
+    <h2>Definición</h2>
+    <p>El Machine Learning permite a los sistemas aprender patrones a partir de datos sin ser programados explícitamente.</p>
+    <img src="../images/ML-Ciclo.jpeg" alt="Ciclo típico de Machine Learning" style="max-height:260px;margin:10px auto;display:block;">
+  </section>
+
+  <!-- POR QUÉ FUNCIONA -->
+  <section>
+    <h1>Por qué funciona el Machine Learning</h1>
+    <ul>
+      <li>El ML identifica patrones que no son evidentes a primera vista de los datos.</li>
+      <li>Aprende relaciones multivariadas donde cada variable influye en combinación con otras.</li>
+      <li>Encuentra fronteras de decisión o reglas matemáticas imposibles de deducir manualmente.</li>
+      <li>Aprovecha grandes volúmenes de datos para reducir ruido y generalizar a nuevos casos.</li>
+    </ul>
+    <h2>Ejemplo intuitivo</h2>
+    <p class="small">Detección de fraude en tarjetas de crédito:</p>
+    <ul class="small">
+      <li>No hay una única señal clara de fraude.</li>
+      <li>El ML aprende combinaciones sutiles: hora + monto + ubicación + historial + categoría del comercio.</li>
+      <li>Los humanos jamás podrían ver todos esos patrones simultáneamente.</li>
+    </ul>
+  </section>
+
+  <!-- TIPOS DE PROBLEMAS -->
+  <section>
+    <h1>Tipos de Problemas</h1>
+    <table>
+      <thead>
+        <tr><th>Tarea</th><th>Descripción</th><th>Ejemplo</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Regresión</strong></td>
+          <td>Predicción de valores numéricos.</td>
+          <td><img src="../images/Regression.png" alt="Regresión" style="max-height:60px;"></td>
+        </tr>
+        <tr>
+          <td><strong>Clasificación</strong></td>
+          <td>Asignación de categorías.</td>
+          <td><img src="../images/Classification.jpg" alt="Clasificación" style="max-height:60px;"></td>
+        </tr>
+        <tr>
+          <td><strong>Clustering</strong></td>
+          <td>Agrupación sin etiquetas.</td>
+          <td><img src="../images/Clustering.jpg" alt="Clustering" style="max-height:60px;"></td>
+        </tr>
+        <tr>
+          <td><strong>NLP</strong></td>
+          <td>Procesamiento de texto y voz.</td>
+          <td><img src="../images/NLP.png" alt="NLP" style="max-height:60px;"></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ALGORITMOS -->
+  <section>
+    <h1>Algoritmos de Machine Learning</h1>
+    <div class="two-col">
+      <div>
+        <h2>Algoritmos Clásicos</h2>
+        <ul>
+          <li>Regresión lineal/polinomial</li>
+          <li>KNN</li>
+          <li>Árboles de decisión</li>
+          <li>Random Forests</li>
+          <li>Support Vector Machines (SVM)</li>
+        </ul>
+      </div>
+      <div>
+        <h2>Deep Learning (Redes Neuronales)</h2>
+        <ul>
+          <li>Redes Feedforward (FNN)</li>
+          <li>Convolucionales (CNN)</li>
+          <li>Recurrentes (RNN, LSTM)</li>
+          <li>Variational Autoencoders (VAE)</li>
+          <li>Generative Adversarial Networks (GAN)</li>
+          <li>Transformers (ChatGPT, Gemini)</li>
+        </ul>
+      </div>
+    </div>
+    <aside class="notes">Sección: Algoritmos Clásicos de ML.</aside>
+  </section>
+
+  <!-- SECCIÓN: REGRESIÓN -->
+  <section>
+    <div class="part-label">SECCIÓN — REGRESIÓN</div>
+    <h2>Modelos de Regresión</h2>
+    <ul>
+      <li>Regresión lineal</li>
+      <li>Regresión polinomial</li>
+    </ul>
+  </section>
+
+  <!-- REGRESIÓN LINEAL -->
+  <section>
+    <h1>Regresión lineal – Características</h1>
+    <div class="two-col">
+      <div>
+        <h2>Ventajas</h2>
+        <ul>
+          <li>Muy interpretables: cada coeficiente indica el efecto de una variable.</li>
+          <li>Entrenamiento rápido incluso con muchos datos.</li>
+          <li>Buena base para entender otros modelos.</li>
+        </ul>
+        <h2>Desventajas</h2>
+        <ul>
+          <li>No captura relaciones altamente no lineales.</li>
+          <li>Sensible a outliers.</li>
+          <li>Supone cierta estructura en los datos (linealidad, homocedasticidad, etc.).</li>
+        </ul>
+      </div>
+      <div>
+        <img src="../images/regresion_lineal.png" alt="Regresion Lineal" style="max-height:220px;margin:10px auto;display:block;">
+      </div>
+    </div>
+  </section>
+
+  <!-- REGRESIÓN POLINOMIAL -->
+  <section>
+    <h1>Regresión polinomial</h1>
+    <ul>
+      <li>Idea: si la relación no es lineal, <strong>ampliamos las características</strong>.</li>
+      <li>Ejemplo (una variable): $\hat{y} = w_0 + w_1 x + w_2 x^2 + w_3 x^3$</li>
+      <li>En la práctica:
+        <ul>
+          <li>Creamos nuevas columnas: $( x, x^2, x^3, \cdots )$</li>
+          <li>Aplicamos regresión lineal sobre estas características.</li>
+        </ul>
+      </li>
+      <li><strong>Cuidado:</strong>
+        <ul>
+          <li>Grado muy alto → riesgo de <strong>sobreajuste</strong>.</li>
+          <li>Se suele combinar con <strong>regularización</strong> (Ridge, Lasso).</li>
+        </ul>
+      </li>
+    </ul>
+    <img src="../images/regresion_polinomial.png" alt="Regresion Polinomial" style="max-height:160px;margin:10px auto;display:block;">
+  </section>
+
+  <!-- SECCIÓN: KNN -->
+  <section>
+    <div class="part-label">SECCIÓN — KNN</div>
+    <h2>K-Nearest Neighbors</h2>
+  </section>
+
+  <!-- KNN INTUICIÓN -->
+  <section>
+    <h1>K-Nearest Neighbors (KNN) – Intuición</h1>
+    <div class="two-col">
+      <div>
+        <ul>
+          <li>No construye una fórmula explícita, sino que <strong>memoriza los datos</strong>.</li>
+          <li>Para predecir un nuevo punto:
+            <ol>
+              <li>Busca los <strong>k vecinos más cercanos</strong> en el conjunto de entrenamiento.</li>
+              <li>Clasificación: votación mayoritaria entre las clases de esos vecinos.</li>
+              <li>Regresión: promedio de los valores numéricos de los vecinos.</li>
+            </ol>
+          </li>
+          <li>Depende fuertemente de la <strong>noción de distancia</strong> (normalmente Euclídea).</li>
+        </ul>
+      </div>
+      <div>
+        <img src="../images/KNN.png" alt="KNN" style="max-height:220px;margin:10px auto;display:block;">
+      </div>
+    </div>
+  </section>
+
+  <!-- KNN VENTAJAS/DESVENTAJAS -->
+  <section>
+    <h1>KNN – Ventajas, desventajas e hiperparámetros</h1>
+    <div class="two-col">
+      <div>
+        <h2>Ventajas</h2>
+        <ul>
+          <li>Sencillo de entender e implementar.</li>
+          <li>Puede modelar fronteras de decisión muy complejas.</li>
+          <li>No necesita entrenamiento costoso (el "costo" está en la predicción).</li>
+        </ul>
+        <h2>Desventajas</h2>
+        <ul>
+          <li>Lento para predecir con muchos datos.</li>
+          <li>Muy sensible a: escala de las características y elección de k.</li>
+          <li>Mal rendimiento en espacios de alta dimensión.</li>
+        </ul>
+      </div>
+      <div>
+        <h2>Hiperparámetros clave</h2>
+        <ul>
+          <li><strong>k</strong>: número de vecinos.
+            <ul>
+              <li>k pequeño → sobreajuste.</li>
+              <li>k grande → subajuste.</li>
+            </ul>
+          </li>
+          <li><strong>Tipo de distancia:</strong> Euclídea, Manhattan, Minkowski, Coseno.</li>
+          <li><strong>Peso de los vecinos:</strong> iguales o ponderados por distancia.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN: ÁRBOLES -->
+  <section>
+    <div class="part-label">SECCIÓN — ÁRBOLES DE DECISIÓN</div>
+    <h2>Árboles de Decisión y Random Forests</h2>
+  </section>
+
+  <!-- ÁRBOLES INTUICIÓN -->
+  <section>
+    <h1>Árboles de decisión – Intuición</h1>
+    <div class="two-col">
+      <div>
+        <ul>
+          <li>Modelo que aprende una secuencia de <strong>decisiones tipo "si/entonces"</strong>.</li>
+          <li>Estructura en forma de árbol:
+            <ul>
+              <li><strong>Nodo interno:</strong> condición (ej. "¿edad > 30?").</li>
+              <li><strong>Rama:</strong> resultado de la condición (sí/no).</li>
+              <li><strong>Hoja:</strong> predicción final (clase o valor numérico).</li>
+            </ul>
+          </li>
+          <li>Objetivo: dividir el espacio de características en regiones cada vez más "puras".</li>
+        </ul>
+      </div>
+      <div>
+        <img src="../images/arboles_decision.png" alt="Árbol de Decisión" style="max-height:220px;margin:10px auto;display:block;">
+      </div>
+    </div>
+  </section>
+
+  <!-- ÁRBOLES CONSTRUCCIÓN Y PROS/CONTRAS -->
+  <section>
+    <h1>Árboles de decisión – Construcción y características</h1>
+    <div class="two-col">
+      <div>
+        <h2>Construcción</h2>
+        <ul class="small">
+          <li>En cada nodo se prueba dividir por alguna característica y umbral.</li>
+          <li>Se mide la bondad de la división: Gini, entropía (clasificación) o MSE (regresión).</li>
+          <li>Se repite recursivamente hasta profundidad máxima, mínimo de muestras o sin mejora.</li>
+        </ul>
+        <img src="../images/arboles_decision_arbol.png" alt="Arbol de Decision - Flujo" style="max-height:120px;margin:6px auto;display:block;">
+      </div>
+      <div>
+        <h2>Ventajas</h2>
+        <ul class="small">
+          <li>Muy interpretables (se puede visualizar el árbol).</li>
+          <li>Manejan bien variables categóricas y numéricas.</li>
+          <li>Capturan relaciones no lineales y efectos de interacción.</li>
+        </ul>
+        <h2>Desventajas</h2>
+        <ul class="small">
+          <li>Un solo árbol profundo tiende a <strong>sobreajustar</strong>.</li>
+          <li>Pequeños cambios en los datos pueden generar árboles muy diferentes.</li>
+          <li>Menor rendimiento que ensambles.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- RANDOM FORESTS -->
+  <section>
+    <h1>Random Forests</h1>
+    <div class="two-col">
+      <div>
+        <h2>Intuición</h2>
+        <ul>
+          <li>Un <strong>ensamble de árboles de decisión</strong>.</li>
+          <li>Se entrenan muchos árboles sobre diferentes subconjuntos de datos y características.</li>
+          <li>Idea clave: muchos modelos débiles → un modelo fuerte mediante <strong>promediado</strong>.</li>
+        </ul>
+        <h2>Dos fuentes de aleatoriedad</h2>
+        <ul>
+          <li><strong>Bootstrap:</strong> cada árbol ve una muestra aleatoria (con reemplazo).</li>
+          <li><strong>Subconjunto de características:</strong> en cada división se considera sólo un subconjunto aleatorio.</li>
+        </ul>
+      </div>
+      <div>
+        <img src="../images/random_forest.png" alt="Random Forests" style="max-height:160px;margin:10px auto;display:block;">
+        <h2>Ventajas / Desventajas</h2>
+        <ul class="small">
+          <li>Buen rendimiento "out of the box".</li>
+          <li>Menos sobreajuste que un único árbol.</li>
+          <li>Proporciona medidas de <strong>importancia de variables</strong>.</li>
+          <li>Menos interpretable y más pesado que un árbol individual.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN: SVM -->
+  <section>
+    <div class="part-label">SECCIÓN — SVM</div>
+    <h2>Support Vector Machines</h2>
+  </section>
+
+  <!-- SVM -->
+  <section>
+    <h1>Support Vector Machines (SVM) – Intuición</h1>
+    <div class="two-col">
+      <div>
+        <ul>
+          <li>Problema típico: <strong>clasificación binaria</strong>.</li>
+          <li>Objetivo: encontrar un <strong>hiperplano</strong> que separe las clases con el <strong>mayor margen posible</strong>.</li>
+          <li>Los puntos más cercanos al hiperplano se llaman <strong>vectores de soporte</strong>.</li>
+          <li>Intuición: entre todas las fronteras que separan las clases, SVM elige la que ofrece más "colchón".</li>
+        </ul>
+      </div>
+      <div>
+        <img src="../images/svm.png" alt="SVM" style="max-height:220px;margin:10px auto;display:block;">
+      </div>
+    </div>
+  </section>
+
+  <!-- SVM MARGEN Y ERRORES -->
+  <section>
+    <h1>SVM – Margen, errores y características</h1>
+    <div class="two-col">
+      <div>
+        <h2>Margen y parámetro C</h2>
+        <ul>
+          <li>En datos perfectamente separables: se maximiza la distancia entre clases y el hiperplano.</li>
+          <li>En datos reales: el parámetro $C$ controla errores permitidos.
+            <ul>
+              <li>$C$ alto → menos errores, margen más ajustado (riesgo de sobreajuste).</li>
+              <li>$C$ bajo → más errores, margen más ancho (mejor generalización).</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h2>Ventajas</h2>
+        <ul>
+          <li>Buen rendimiento en problemas con pocas muestras y alta dimensión.</li>
+          <li>Puede aprender fronteras de decisión muy complejas (con kernels).</li>
+          <li>Basado en un principio teórico sólido.</li>
+        </ul>
+        <h2>Desventajas</h2>
+        <ul>
+          <li>Entrenamiento costoso con conjuntos de datos muy grandes.</li>
+          <li>Menos interpretable.</li>
+          <li>Requiere cuidado al elegir kernel, $C$ y $\gamma$.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARACIÓN -->
+  <section>
+    <h1>Comparación rápida de modelos</h1>
+    <table>
+      <thead>
+        <tr><th>Modelo</th><th>Mejor para...</th><th>Riesgo principal</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Regresión Lineal</td><td>Relaciones simples, interpretable</td><td>Subajuste en no lineales</td></tr>
+        <tr><td>KNN</td><td>Fronteras complejas</td><td>Lento en grandes datos</td></tr>
+        <tr><td>Árboles/Random Forest</td><td>No linealidades e interacciones</td><td>Sobreajuste (árbol único)</td></tr>
+        <tr><td>SVM</td><td>Alta dimensión y no lineal (kernel)</td><td>Costoso en datasets grandes</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/math/math.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    plugins: [ RevealHighlight, RevealNotes, RevealMath.MathJax3 ]
+  });
+</script>
+</body>
+</html>

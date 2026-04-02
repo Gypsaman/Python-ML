@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Construyendo una Red Neuronal desde Cero</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/theme/black.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/monokai.css">
+<style>
+:root {
+  --teal:    #4ecdc4;
+  --red:     #ff6b6b;
+  --yellow:  #ffd93d;
+  --green:   #a8e6cf;
+  --dimgray: #888;
+}
+.reveal            { font-size: 28px; }
+.reveal h1         { color: var(--yellow); font-size: 1.6em; }
+.reveal h2         { color: var(--yellow); font-size: 1.2em; }
+.reveal h3         { color: var(--teal);   font-size: 1.0em; }
+.reveal pre        { font-size: 0.55em; }
+.reveal section    { height: 100%; }
+.h0  { color: var(--teal);   font-weight: bold; }
+.h1c { color: var(--red);    font-weight: bold; }
+.h2c { color: var(--green);  font-weight: bold; }
+.hi  { color: var(--yellow); }
+.dim { color: var(--dimgray); }
+.small { font-size: 0.65em; }
+.tiny  { font-size: 0.55em; }
+.box {
+  border: 1px solid var(--teal);
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin: 6px 0;
+  background: rgba(78, 205, 196, 0.07);
+}
+.box-red { border-color: var(--red); background: rgba(255, 107, 107, 0.07); }
+.box-yellow { border-color: var(--yellow); background: rgba(255, 217, 61, 0.07); }
+.two-col        { display: flex; gap: 20px; align-items: flex-start; }
+.two-col > *    { flex: 1; }
+.part-label {
+  display: inline-block;
+  background: var(--teal);
+  color: #111;
+  padding: 2px 12px;
+  border-radius: 4px;
+  font-size: 0.55em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.reveal table { font-size: 0.7em; border-collapse: collapse; }
+.reveal table td, .reveal table th { padding: 6px 12px; border: 1px solid #444; }
+.reveal table th { background: rgba(78,205,196,0.15); color: var(--teal); }
+.colab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--teal);
+  color: #111;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.75em;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+  <!-- TITLE SLIDE -->
+  <section>
+    <p class="tiny" style="position:absolute;top:8px;right:10px;z-index:10"><a href="index.html" style="color:var(--teal)">← Inicio</a></p>
+    <br>
+    <h1>Construyendo una Red Neuronal desde Cero</h1>
+    <h3 style="color:#aaa;font-size:0.85em;">Forward, pérdida, gradientes y actualización (sin nn.Module)</h3>
+    <br>
+    <p class="small">Machine Learning con Python</p>
+    <p class="tiny dim">Cesar Garcia · 2025</p>
+    <p style="margin-top:16px"><a class="colab-btn" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion3.ipynb" target="_blank">📓 Abrir en Colab</a></p>
+    <aside class="notes">Introducción a la sesión.</aside>
+  </section>
+
+  <!-- Introducción -->
+  <section>
+    <h1>Introducción</h1>
+    <ul>
+      <li>Implementar una red neuronal <strong>sin</strong> <code>nn.Module</code></li>
+      <li>Entender el <strong>forward pass</strong> como álgebra lineal</li>
+      <li>Calcular una pérdida escalar y obtener gradientes con Autograd</li>
+      <li>Actualizar parámetros manualmente (un paso de SGD)</li>
+      <li>Relacionar cada línea de código con un concepto (sin "magia")</li>
+    </ul>
+  </section>
+
+  <!-- Qué significa "desde cero" -->
+  <section>
+    <h1>Qué significa "desde cero"</h1>
+    <div class="two-col">
+      <div>
+        <h2>Alcance</h2>
+        <p>Hoy "desde cero" significa:</p>
+        <ul>
+          <li>Parámetros explícitos: $W, b$</li>
+          <li>Operaciones explícitas: $XW + b$, activación, pérdida</li>
+          <li>Actualización explícita: $\theta \leftarrow \theta - \eta \nabla_\theta L$</li>
+        </ul>
+      </div>
+      <div>
+        <h2>No significa:</h2>
+        <ul>
+          <li>implementar Autograd</li>
+          <li>escribir CUDA</li>
+          <li>reescribir PyTorch</li>
+        </ul>
+      </div>
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué cosas estás dispuesto a "tomar prestadas" de PyTorch y cuáles no?</div>
+  </section>
+
+  <!-- La capa lineal -->
+  <section>
+    <h1>La capa lineal</h1>
+    <h2>Una operación central</h2>
+    <p>Una capa lineal es:</p>
+    <p>$$z = XW + b$$</p>
+    <p>Dimensiones típicas (mini-batch):</p>
+    <ul>
+      <li>$X \in \mathbb{R}^{N\times d}$</li>
+      <li>$W \in \mathbb{R}^{d\times h}$</li>
+      <li>$b \in \mathbb{R}^{h}$</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 Si $X$ es $32\times 2$ y queremos $h=16$, ¿qué forma debe tener $W$?</div>
+  </section>
+
+  <!-- Activación -->
+  <section>
+    <h1>Activación</h1>
+    <h2>No linealidad</h2>
+    <p>Sin activación, varias capas lineales colapsan en una sola.</p>
+    <p>Ejemplos comunes:</p>
+    <ul>
+      <li>ReLU: $\max(0, z)$</li>
+      <li>Tanh: $\tanh(z)$</li>
+      <li>Sigmoid: $\sigma(z)$</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué problema aparece si apilamos capas lineales sin activaciones?</div>
+  </section>
+
+  <!-- Red mínima (2 capas) -->
+  <section>
+    <h1>Red mínima (2 capas)</h1>
+    <h2>Forward pass completo</h2>
+    <p>Pipeline:</p>
+    <p>$$X \rightarrow (XW_1 + b_1) \rightarrow \text{ReLU} \rightarrow H \rightarrow (HW_2 + b_2) \rightarrow \text{logits}$$</p>
+    <p>$$\text{logits} \rightarrow \text{softmax} \rightarrow \hat{y}$$</p>
+    <p class="small">(En clasificación, usualmente trabajamos con <strong>logits</strong> y usamos cross-entropy.)</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué solemos usar "logits" en lugar de probabilidades durante el entrenamiento?</div>
+  </section>
+
+  <!-- Pérdida -->
+  <section>
+    <h1>Pérdida</h1>
+    <h2>De muchas predicciones a un número</h2>
+    <p>La pérdida produce un <strong>escalar</strong>:</p>
+    <ul>
+      <li>Para clasificación: cross-entropy</li>
+      <li>Para regresión: MSE</li>
+    </ul>
+    <p>Intuición:</p>
+    <ul>
+      <li>pérdida baja → predicciones correctas</li>
+      <li>pérdida alta → predicciones incorrectas</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué es útil que todo el batch se reduzca a un solo número?</div>
+  </section>
+
+  <!-- Gradientes y backward -->
+  <section>
+    <h1>Gradientes y backward</h1>
+    <h2>Qué ocurre con <code>.backward()</code></h2>
+    <ul>
+      <li>Autograd ya construyó el grafo durante el forward</li>
+      <li><code>.backward()</code>:
+        <ul>
+          <li>aplica regla de la cadena</li>
+          <li>llena <code>W.grad</code>, <code>b.grad</code>, etc.</li>
+        </ul>
+      </li>
+    </ul>
+    <br>
+    <p>Importante:</p>
+    <div class="box">Gradientes se <strong>acumulan</strong> si no los limpiamos</div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué <code>grad</code> se acumula y por qué eso puede romper el entrenamiento?</div>
+  </section>
+
+  <!-- Actualización manual (SGD) -->
+  <section>
+    <h1>Actualización manual (SGD)</h1>
+    <h2>Un paso de aprendizaje</h2>
+    <p>Con learning rate $\eta$:</p>
+    <p>$$\theta \leftarrow \theta - \eta \nabla_\theta L$$</p>
+    <p>En código, típicamente:</p>
+    <ul>
+      <li>entramos en <code>torch.no_grad()</code></li>
+      <li>actualizamos tensores de parámetros</li>
+      <li>reiniciamos gradientes</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué cambia si el learning rate es demasiado grande? ¿y si es demasiado pequeño?</div>
+  </section>
+
+  <!-- Resumen y puente -->
+  <section>
+    <h1>Resumen y puente a la próxima sesión</h1>
+    <h2>Qué ganamos hoy</h2>
+    <p>Hoy construimos un entrenamiento real con piezas explícitas:</p>
+    <div class="two-col">
+      <div>
+        <ul>
+          <li>parámetros</li>
+          <li>forward</li>
+          <li>pérdida</li>
+          <li>backward</li>
+          <li>update</li>
+        </ul>
+      </div>
+      <div>
+        <p><strong>Próxima sesión:</strong></p>
+        <p><code>nn.Module</code> y <code>optim</code> harán esto más limpio, pero ya sabes exactamente <strong>qué están automatizando</strong>.</p>
+      </div>
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué parte de este flujo te parece más "frágil" o fácil de romper?</div>
+  </section>
+
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/math/math.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    plugins: [ RevealHighlight, RevealNotes, RevealMath.MathJax3 ]
+  });
+</script>
+</body>
+</html>

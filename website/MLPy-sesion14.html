@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Transformers II: Construyendo el Modelo</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/theme/black.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/monokai.css">
+<style>
+:root {
+  --teal:    #4ecdc4;
+  --red:     #ff6b6b;
+  --yellow:  #ffd93d;
+  --green:   #a8e6cf;
+  --dimgray: #888;
+}
+.reveal            { font-size: 28px; }
+.reveal h1         { color: var(--yellow); font-size: 1.6em; }
+.reveal h2         { color: var(--yellow); font-size: 1.2em; }
+.reveal h3         { color: var(--teal);   font-size: 1.0em; }
+.reveal pre        { font-size: 0.55em; }
+.reveal section    { height: 100%; }
+.h0  { color: var(--teal);   font-weight: bold; }
+.h1c { color: var(--red);    font-weight: bold; }
+.h2c { color: var(--green);  font-weight: bold; }
+.hi  { color: var(--yellow); }
+.dim { color: var(--dimgray); }
+.small { font-size: 0.65em; }
+.tiny  { font-size: 0.55em; }
+.box {
+  border: 1px solid var(--teal);
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin: 6px 0;
+  background: rgba(78, 205, 196, 0.07);
+}
+.box-red { border-color: var(--red); background: rgba(255, 107, 107, 0.07); }
+.box-yellow { border-color: var(--yellow); background: rgba(255, 217, 61, 0.07); }
+.two-col        { display: flex; gap: 20px; align-items: flex-start; }
+.two-col > *    { flex: 1; }
+.part-label {
+  display: inline-block;
+  background: var(--teal);
+  color: #111;
+  padding: 2px 12px;
+  border-radius: 4px;
+  font-size: 0.55em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.reveal table { font-size: 0.7em; border-collapse: collapse; }
+.reveal table td, .reveal table th { padding: 6px 12px; border: 1px solid #444; }
+.reveal table th { background: rgba(78,205,196,0.15); color: var(--teal); }
+.colab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--teal);
+  color: #111;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.75em;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+}
+.checklist { list-style: none; padding-left: 0; }
+.checklist li { padding: 4px 0; }
+.checklist li::before { content: "✅ "; }
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+  <!-- Title -->
+  <section>
+    <br>
+    <h1>Transformers II: Construyendo el Modelo</h1>
+    <h3 style="color:#aaa;font-size:0.85em;">De bloques a arquitectura completa</h3>
+    <br>
+    <p class="small">Deep Learning con Python</p>
+    <p class="tiny dim">Cesar Garcia · 2025</p>
+    <p style="margin-top:16px"><a class="colab-btn" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion14.ipynb" target="_blank">📓 Abrir en Colab</a></p>
+    <p class="tiny" style="margin-top:8px"><a href="index.html" style="color:var(--teal)">← Inicio</a></p>
+    <aside class="notes">Introducción a la sesión.</aside>
+  </section>
+
+  <!-- Introducción -->
+  <section>
+    <h1>Introducción</h1>
+    <ul>
+      <li><strong>Sesión anterior:</strong> mecanismo de atención</li>
+      <li><strong>Hoy:</strong> construir un transformer completo</li>
+      <li><strong>Enfoque:</strong> hands-on, desde cero</li>
+      <li><strong>Meta:</strong> entrenar un modelo real</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 Hoy programamos más que hablamos</div>
+  </section>
+
+  <!-- Recordatorio rápido -->
+  <section>
+    <h1>Recordatorio rápido</h1>
+    <h2>Bloques que ya conocemos</h2>
+    <ul>
+      <li>Scaled dot-product attention</li>
+      <li>Q, K, V proyecciones</li>
+      <li>Positional encoding</li>
+      <li>Máscaras causales</li>
+    </ul>
+    <div class="box" style="margin-top:20px">
+      <strong>Hoy:</strong> los ensamblamos en un modelo completo
+    </div>
+  </section>
+
+  <!-- Multi-Head Attention: implementación + proceso (merged) -->
+  <section>
+    <h1>Multi-Head Attention</h1>
+    <div class="two-col">
+      <div>
+        <h2>Implementación manual</h2>
+        <pre><code class="python" data-trim>class MultiHeadAttention(nn.Module):
+    def __init__(self, d_model, num_heads):
+        self.d_k = d_model // num_heads
+        self.W_q = nn.Linear(d_model, d_model)
+        self.W_k = nn.Linear(d_model, d_model)
+        self.W_v = nn.Linear(d_model, d_model)
+        self.W_o = nn.Linear(d_model, d_model)</code></pre>
+      </div>
+      <div>
+        <h2>Proceso</h2>
+        <ol class="small">
+          <li><strong>Proyectar:</strong> Q, K, V usando $W^Q$, $W^K$, $W^V$</li>
+          <li><strong>Dividir:</strong> en $h$ cabezas (reshape)</li>
+          <li><strong>Atención:</strong> por cabeza independiente</li>
+          <li><strong>Concatenar:</strong> salidas de todas las cabezas</li>
+          <li><strong>Proyectar:</strong> salida final con $W^O$</li>
+        </ol>
+        <div class="fragment box box-yellow small" style="margin-top:12px">💭 Cada paso es diferenciable → backprop funciona</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feedforward Network -->
+  <section>
+    <h1>Feedforward Network</h1>
+    <h2>Capa posicional</h2>
+    <p>Cada token pasa por una MLP:</p>
+    <pre><code class="python" data-trim>class FeedForward(nn.Module):
+    def __init__(self, d_model, d_ff):
+        self.fc1 = nn.Linear(d_model, d_ff)
+        self.fc2 = nn.Linear(d_ff, d_model)
+
+    def forward(self, x):
+        return self.fc2(F.relu(self.fc1(x)))</code></pre>
+    <div class="box small" style="margin-top:16px">
+      Típicamente: $d_{ff} = 4 \times d_{model}$
+    </div>
+  </section>
+
+  <!-- Conexiones Residuales -->
+  <section>
+    <h1>Conexiones Residuales</h1>
+    <h2>Por qué son críticas</h2>
+    <div class="two-col">
+      <div>
+        <p>Sin residuales:</p>
+        <p>$$X_{out} = \text{Sublayer}(X_{in})$$</p>
+      </div>
+      <div>
+        <p>Con residuales:</p>
+        <p>$$X_{out} = X_{in} + \text{Sublayer}(X_{in})$$</p>
+      </div>
+    </div>
+    <div class="box" style="margin-top:20px">
+      <strong>Beneficio:</strong> gradientes fluyen directamente (evita vanishing)
+    </div>
+  </section>
+
+  <!-- Layer Normalization -->
+  <section>
+    <h1>Layer Normalization</h1>
+    <h2>Estabilidad</h2>
+    <p>Después de cada subcapa:</p>
+    <p>$$\text{LayerNorm}(X + \text{Sublayer}(X))$$</p>
+    <p>Normaliza por dimensiones del embedding:</p>
+    <p>$$\hat{x} = \frac{x - \mu}{\sigma + \epsilon}$$</p>
+    <div class="box" style="margin-top:16px">
+      <strong>Resultado:</strong> entrenamiento más estable y rápido
+    </div>
+  </section>
+
+  <!-- Bloque Encoder -->
+  <section>
+    <h1>Bloque Encoder</h1>
+    <h2>Receta</h2>
+    <pre><code class="python" data-trim>class EncoderLayer(nn.Module):
+    def forward(self, x):
+        # 1. Self-attention + residual + norm
+        attn = self.self_attn(x, x, x)
+        x = self.norm1(x + attn)
+
+        # 2. FFN + residual + norm
+        ffn = self.ffn(x)
+        x = self.norm2(x + ffn)
+        return x</code></pre>
+    <div class="box small" style="margin-top:12px">
+      Apilar $N$ bloques → encoder profundo
+    </div>
+  </section>
+
+  <!-- Transformer Completo -->
+  <section>
+    <h1>Transformer Completo</h1>
+    <h2>Arquitectura</h2>
+    <ol>
+      <li><strong>Input:</strong> tokens → embeddings</li>
+      <li><strong>Positional Encoding:</strong> suma</li>
+      <li><strong>N × Encoder Layers</strong></li>
+      <li><strong>Output:</strong> predicción (ej: siguiente token)</li>
+    </ol>
+    <pre style="font-size:0.5em;background:#1a1a2e;padding:12px;border-radius:6px;border-left:3px solid var(--teal);margin-top:16px">Tokens → Embedding → +PE → Encoder_1 → ... → EncoderN → Linear → Softmax</pre>
+  </section>
+
+  <!-- Máscara Causal -->
+  <section>
+    <h1>Máscara Causal</h1>
+    <h2>Para decoders</h2>
+    <pre><code class="python" data-trim>def create_causal_mask(seq_len):
+    mask = torch.tril(torch.ones(seq_len, seq_len))
+    return mask  # triangular inferior = 1 (permitido)</code></pre>
+    <pre style="font-size:0.5em;background:#1a1a2e;padding:12px;border-radius:6px;border-left:3px solid var(--teal);margin-top:12px">1 0 0 0   ← token 0 solo ve posición 0
+1 1 0 0   ← token 1 ve 0, 1
+1 1 1 0   ← token 2 ve 0, 1, 2
+1 1 1 1   ← token 3 ve 0, 1, 2, 3</pre>
+  </section>
+
+  <!-- Tarea Práctica -->
+  <section>
+    <h1>Tarea Práctica</h1>
+    <h2>Character-Level Prediction</h2>
+    <ul>
+      <li><strong>Dataset:</strong> texto en español</li>
+      <li><strong>Tarea:</strong> predecir siguiente caracter</li>
+      <li><strong>Arquitectura:</strong> pequeño transformer (2 capas, 4 heads)</li>
+      <li><strong>Resultado:</strong> generación de texto</li>
+    </ul>
+    <pre style="font-size:0.5em;background:#1a1a2e;padding:12px;border-radius:6px;border-left:3px solid var(--teal);margin-top:16px">Input:  "hola mun"
+Output: "do"</pre>
+  </section>
+
+  <!-- Proceso de Entrenamiento -->
+  <section>
+    <h1>Proceso de Entrenamiento</h1>
+    <h2>Pipeline</h2>
+    <ol>
+      <li>Tokenizar texto (char-level)</li>
+      <li>Crear batches de secuencias</li>
+      <li>Forward pass con máscara causal</li>
+      <li>Loss: cross-entropy</li>
+      <li>Backward + optimizer step</li>
+    </ol>
+    <div class="box small" style="margin-top:16px">
+      <strong>Epoch time:</strong> ~10 segundos (CPU)
+    </div>
+  </section>
+
+  <!-- Generación de Texto -->
+  <section>
+    <h1>Generación de Texto</h1>
+    <h2>Sampling autoregresivo</h2>
+    <pre><code class="python" data-trim>def generate(model, start, max_len):
+    context = tokenize(start)
+    for _ in range(max_len):
+        logits = model(context)
+        next_token = sample(logits[-1])  # último token
+        context = append(context, next_token)
+    return decode(context)</code></pre>
+  </section>
+
+  <!-- Por qué Escalan -->
+  <section>
+    <h1>Por qué Escalan los Transformers</h1>
+    <h2>Tres claves</h2>
+    <ol>
+      <li><strong>Paralelismo total:</strong> no hay dependencias secuenciales</li>
+      <li><strong>Dependencias globales:</strong> cada token puede atender a todos</li>
+      <li><strong>Arquitectura homogénea:</strong> mismo bloque repetido</li>
+    </ol>
+    <pre style="font-size:0.5em;background:#1a1a2e;padding:12px;border-radius:6px;border-left:3px solid var(--teal);margin-top:16px">RNN:         O(n) steps (secuencial)
+Transformer: O(1) steps (paralelo)</pre>
+  </section>
+
+  <!-- Limitaciones -->
+  <section>
+    <h1>Limitaciones</h1>
+    <h2>Trade-offs</h2>
+    <ul>
+      <li><strong>Memoria:</strong> $O(n^2)$ por la matriz de atención</li>
+      <li><strong>Complejidad:</strong> $O(n^2 \cdot d)$ por forward pass</li>
+      <li><strong>Secuencias largas:</strong> prohibitivas sin optimizaciones</li>
+    </ul>
+    <div class="box small" style="margin-top:16px">
+      <strong>Soluciones modernas:</strong> Sparse attention, Linear attention, etc.
+    </div>
+  </section>
+
+  <!-- Idea clave -->
+  <section>
+    <h1>Idea clave de la sesión</h1>
+    <h2>Construcción modular</h2>
+    <p>Los transformers son:</p>
+    <ul>
+      <li><strong>Modulares:</strong> bloques independientes y reusables</li>
+      <li><strong>Escalables:</strong> más capas = más capacidad</li>
+      <li><strong>Paralelizables:</strong> GPU-friendly</li>
+    </ul>
+    <div class="box" style="margin-top:20px">
+      <strong>La arquitectura es simple. El poder viene del escalado.</strong>
+    </div>
+  </section>
+
+  <!-- Resumen -->
+  <section>
+    <h1>Resumen</h1>
+    <h2>Bloques construidos</h2>
+    <ul class="checklist">
+      <li>Multi-head attention</li>
+      <li>Feedforward network</li>
+      <li>Layer normalization + residuales</li>
+      <li>Positional encoding</li>
+      <li>Máscara causal</li>
+      <li>Encoder completo</li>
+      <li>Modelo entrenado</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 Ahora tienes las herramientas para construir cualquier variante de transformer</div>
+  </section>
+
+  <!-- Próximos pasos -->
+  <section>
+    <h1>Próximos pasos</h1>
+    <h2>Variantes modernas</h2>
+    <ul>
+      <li><strong>BERT:</strong> encoder bidireccional (masked language modeling)</li>
+      <li><strong>GPT:</strong> decoder causal (autoregresivo)</li>
+      <li><strong>T5:</strong> encoder-decoder (seq2seq)</li>
+      <li><strong>ViT:</strong> transformers para imágenes</li>
+    </ul>
+    <div class="box" style="margin-top:20px">
+      <strong>Todos usan los mismos bloques que construimos hoy.</strong>
+    </div>
+  </section>
+
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/math/math.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    plugins: [ RevealHighlight, RevealNotes, RevealMath.MathJax3 ]
+  });
+</script>
+</body>
+</html>

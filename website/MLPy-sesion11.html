@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>CNN Fundamentals: Convoluciones y Mapas de Características</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/theme/black.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/monokai.css">
+<style>
+:root {
+  --teal:    #4ecdc4;
+  --red:     #ff6b6b;
+  --yellow:  #ffd93d;
+  --green:   #a8e6cf;
+  --dimgray: #888;
+}
+.reveal            { font-size: 28px; }
+.reveal h1         { color: var(--yellow); font-size: 1.6em; }
+.reveal h2         { color: var(--yellow); font-size: 1.2em; }
+.reveal h3         { color: var(--teal);   font-size: 1.0em; }
+.reveal pre        { font-size: 0.55em; }
+.reveal section    { height: 100%; }
+.h0  { color: var(--teal);   font-weight: bold; }
+.h1c { color: var(--red);    font-weight: bold; }
+.h2c { color: var(--green);  font-weight: bold; }
+.hi  { color: var(--yellow); }
+.dim { color: var(--dimgray); }
+.small { font-size: 0.65em; }
+.tiny  { font-size: 0.55em; }
+.box {
+  border: 1px solid var(--teal);
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin: 6px 0;
+  background: rgba(78, 205, 196, 0.07);
+}
+.box-red { border-color: var(--red); background: rgba(255, 107, 107, 0.07); }
+.box-yellow { border-color: var(--yellow); background: rgba(255, 217, 61, 0.07); }
+.two-col        { display: flex; gap: 20px; align-items: flex-start; }
+.two-col > *    { flex: 1; }
+.part-label {
+  display: inline-block;
+  background: var(--teal);
+  color: #111;
+  padding: 2px 12px;
+  border-radius: 4px;
+  font-size: 0.55em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.reveal table { font-size: 0.7em; border-collapse: collapse; }
+.reveal table td, .reveal table th { padding: 6px 12px; border: 1px solid #444; }
+.reveal table th { background: rgba(78,205,196,0.15); color: var(--teal); }
+.colab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--teal);
+  color: #111;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.75em;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+  <section>
+    <br>
+    <h1>CNN Fundamentals</h1>
+    <h3 style="color:#aaa;font-size:0.85em;">Convoluciones y Mapas de Características</h3>
+    <br>
+    <p class="small">Deep Learning con Python</p>
+    <p class="tiny dim">Cesar Garcia · 2025</p>
+    <p style="margin-top:16px"><a class="colab-btn" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion11.ipynb" target="_blank">📓 Abrir en Colab</a></p>
+    <p class="tiny" style="margin-top:8px"><a href="index.html" style="color:var(--teal)">← Inicio</a></p>
+    <aside class="notes">Bienvenidos a esta sesión.</aside>
+  </section>
+
+  <section>
+    <h1>Introducción</h1>
+    <h2>Motivación</h2>
+    <ul>
+      <li>Problema: una imagen 28×28 tiene <strong>784</strong> entradas</li>
+      <li>Una capa densa aprende conexiones con <strong>todos</strong> los píxeles</li>
+      <li>En imágenes, la estructura es <strong>local</strong> (bordes, esquinas, texturas)</li>
+      <li>Las CNNs explotan esa estructura con <strong>convoluciones</strong></li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué "tipo" de información se repite en distintas partes de una imagen?</div>
+  </section>
+
+  <section>
+    <h1>¿Por qué no usar solo capas densas?</h1>
+    <h2>Intuición</h2>
+    <p>Una red densa para imágenes:</p>
+    <ul>
+      <li>ignora la vecindad local (un pixel no vive "solo")</li>
+      <li>necesita demasiados parámetros</li>
+      <li>es sensible a traslaciones (mover el dígito cambia todo)</li>
+    </ul>
+    <div class="box" style="margin-top:16px">
+      Las CNNs imponen una hipótesis fuerte: <strong>patrones locales + pesos compartidos</strong>
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Cuál es la ventaja de asumir estructura local?</div>
+  </section>
+
+  <section>
+    <h1>Convolución: idea central</h1>
+    <h2>Filtro que "se desliza"</h2>
+    <p>Una convolución aplica un <strong>mismo filtro</strong> a muchas regiones pequeñas:</p>
+    <ul>
+      <li>el filtro detecta un patrón (por ejemplo, borde vertical)</li>
+      <li>la salida mide "dónde aparece" ese patrón</li>
+    </ul>
+    <p style="margin-top:8px">Resultado: un <strong>mapa de características</strong> (feature map)</p>
+    <!-- Inline SVG replacing TikZ convolution diagram -->
+    <svg width="360" height="100" viewBox="0 0 360 100" style="display:block;margin:8px auto;font-size:10px">
+      <!-- Input 5x5 -->
+      <rect x="10" y="10" width="70" height="70" fill="none" stroke="#555" stroke-width="0.5"/>
+      <!-- Highlight 3x3 region -->
+      <rect x="24" y="24" width="42" height="42" fill="rgba(78,205,196,0.15)" stroke="#4ecdc4" stroke-width="1.5"/>
+      <text x="45" y="90" text-anchor="middle" fill="#888" font-size="9">Imagen 5×5</text>
+      <!-- Arrow -->
+      <text x="100" y="50" fill="#888" font-size="18">→</text>
+      <!-- Filter 3x3 -->
+      <rect x="115" y="24" width="42" height="42" fill="rgba(255,217,61,0.15)" stroke="#ffd93d" stroke-width="1.5"/>
+      <text x="136" y="90" text-anchor="middle" fill="#888" font-size="9">Filtro 3×3</text>
+      <!-- Arrow -->
+      <text x="170" y="50" fill="#888" font-size="18">→</text>
+      <!-- Feature map 3x3 -->
+      <rect x="195" y="24" width="42" height="42" fill="rgba(255,107,107,0.15)" stroke="#ff6b6b" stroke-width="1.5"/>
+      <text x="216" y="90" text-anchor="middle" fill="#888" font-size="9">Feature Map</text>
+    </svg>
+    <div class="fragment box box-yellow small" style="margin-top:4px">💭 ¿Qué significa que el filtro use los "mismos pesos" en toda la imagen?</div>
+  </section>
+
+  <section>
+    <h1>Receptive field y pesos compartidos</h1>
+    <h2>Por qué funciona</h2>
+    <div class="two-col">
+      <div>
+        <p><strong>Receptive field local:</strong></p>
+        <ul class="small">
+          <li>cada neurona ve solo una región pequeña</li>
+          <li>captura patrones de vecindad</li>
+        </ul>
+      </div>
+      <div>
+        <p><strong>Pesos compartidos:</strong></p>
+        <ul class="small">
+          <li>el mismo filtro se aplica en toda la imagen</li>
+          <li>detecta el patrón en cualquier ubicación</li>
+          <li>reduce drásticamente los parámetros</li>
+        </ul>
+      </div>
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué el receptive field pequeño es una buena idea para imágenes?</div>
+  </section>
+
+  <section>
+    <h1>Canales y filtros</h1>
+    <h2>De 1 canal a muchos mapas</h2>
+    <p>Una imagen puede tener:</p>
+    <ul>
+      <li>1 canal (grayscale) o 3 (RGB)</li>
+    </ul>
+    <p style="margin-top:8px">Una capa conv con $K$ filtros produce:</p>
+    <ul>
+      <li>$K$ mapas de características</li>
+      <li>Cada filtro aprende un patrón diferente</li>
+    </ul>
+    <div class="box" style="margin-top:12px">
+      Más filtros = más tipos de patrones detectados.
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué tipo de patrones esperarías en capas conv tempranas?</div>
+  </section>
+
+  <section>
+    <h1>Stride y Padding</h1>
+    <h2>Controlan tamaño y resolución</h2>
+    <div class="two-col">
+      <div class="box">
+        <strong>Stride</strong><br>
+        <span class="small">cuántos píxeles avanza el filtro</span><br>
+        <span class="small dim">mayor stride → menos resolución</span>
+      </div>
+      <div class="box">
+        <strong>Padding</strong><br>
+        <span class="small">ceros alrededor del borde</span><br>
+        <span class="small dim">mantiene tamaño y preserva bordes</span>
+      </div>
+    </div>
+    <div class="box" style="margin-top:12px">
+      stride baja = más detalle &nbsp;|&nbsp; stride alta = más compresión
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué tradeoff estás aceptando al aumentar el stride?</div>
+  </section>
+
+  <section>
+    <h1>Pooling</h1>
+    <h2>Reducción y robustez</h2>
+    <p>Pooling (ej. max-pooling) hace:</p>
+    <ul>
+      <li>reduce resolución</li>
+      <li>aumenta invariancia local</li>
+      <li>disminuye costo computacional</li>
+    </ul>
+    <div class="box box-red" style="margin-top:12px">
+      Pero también: puede perder detalle fino.
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué tipo de información puede destruir el pooling?</div>
+  </section>
+
+  <section>
+    <h1>¿Qué aprende una CNN?</h1>
+    <h2>Jerarquía de representaciones</h2>
+    <div class="two-col">
+      <div>
+        <p><span class="part-label">Capas tempranas</span></p>
+        <ul class="small">
+          <li>bordes</li>
+          <li>esquinas</li>
+          <li>texturas</li>
+        </ul>
+      </div>
+      <div>
+        <p><span class="part-label" style="background:var(--yellow)">Capas medias</span></p>
+        <ul class="small">
+          <li>partes de objetos</li>
+        </ul>
+        <p><span class="part-label" style="background:var(--red)">Capas profundas</span></p>
+        <ul class="small">
+          <li>conceptos abstractos</li>
+        </ul>
+      </div>
+    </div>
+    <div class="box" style="margin-top:12px">
+      Esto conecta con Sesión 8: <strong>representaciones jerárquicas</strong>.
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué tiene sentido que las representaciones sean jerárquicas?</div>
+  </section>
+
+  <section>
+    <h1>CNN vs MLP</h1>
+    <h2>Parámetros y generalización</h2>
+    <table>
+      <thead>
+        <tr><th></th><th>CNN</th><th>MLP</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Parámetros</td><td>Menos (pesos compartidos)</td><td>Muchos</td></tr>
+        <tr><td>Inductive bias</td><td>Espacial (local)</td><td>Ninguno</td></tr>
+        <tr><td>Generalización</td><td>Mejor con menos datos</td><td>Necesita más datos</td></tr>
+        <tr><td>Traslación</td><td>Invariante</td><td>Sensible</td></tr>
+      </tbody>
+    </table>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Cuándo podría un MLP competir razonablemente con una CNN?</div>
+  </section>
+
+  <section>
+    <h1>Idea clave de la sesión</h1>
+    <h2>Convolución = prior sobre el mundo visual</h2>
+    <p>Las CNNs funcionan porque asumen:</p>
+    <ul>
+      <li>patrones locales importan</li>
+      <li>los mismos patrones pueden aparecer en cualquier lugar</li>
+      <li>la jerarquía emerge al apilar capas</li>
+    </ul>
+    <div class="box" style="margin-top:16px">
+      <strong>Imponemos estructura para aprender mejor.</strong>
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué "supuestos" sobre el mundo están codificados en una CNN?</div>
+  </section>
+
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/math/math.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    plugins: [ RevealHighlight, RevealNotes, RevealMath.MathJax3 ]
+  });
+</script>
+</body>
+</html>

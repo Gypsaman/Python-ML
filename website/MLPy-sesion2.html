@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Tensores, Autograd y Grafos Computacionales</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/theme/black.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/monokai.css">
+<style>
+:root {
+  --teal:    #4ecdc4;
+  --red:     #ff6b6b;
+  --yellow:  #ffd93d;
+  --green:   #a8e6cf;
+  --dimgray: #888;
+}
+.reveal            { font-size: 28px; }
+.reveal h1         { color: var(--yellow); font-size: 1.6em; }
+.reveal h2         { color: var(--yellow); font-size: 1.2em; }
+.reveal h3         { color: var(--teal);   font-size: 1.0em; }
+.reveal pre        { font-size: 0.55em; }
+.reveal section    { height: 100%; }
+.h0  { color: var(--teal);   font-weight: bold; }
+.h1c { color: var(--red);    font-weight: bold; }
+.h2c { color: var(--green);  font-weight: bold; }
+.hi  { color: var(--yellow); }
+.dim { color: var(--dimgray); }
+.small { font-size: 0.65em; }
+.tiny  { font-size: 0.55em; }
+.box {
+  border: 1px solid var(--teal);
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin: 6px 0;
+  background: rgba(78, 205, 196, 0.07);
+}
+.box-red { border-color: var(--red); background: rgba(255, 107, 107, 0.07); }
+.box-yellow { border-color: var(--yellow); background: rgba(255, 217, 61, 0.07); }
+.two-col        { display: flex; gap: 20px; align-items: flex-start; }
+.two-col > *    { flex: 1; }
+.part-label {
+  display: inline-block;
+  background: var(--teal);
+  color: #111;
+  padding: 2px 12px;
+  border-radius: 4px;
+  font-size: 0.55em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.reveal table { font-size: 0.7em; border-collapse: collapse; }
+.reveal table td, .reveal table th { padding: 6px 12px; border: 1px solid #444; }
+.reveal table th { background: rgba(78,205,196,0.15); color: var(--teal); }
+.colab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--teal);
+  color: #111;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.75em;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+  <!-- TITLE SLIDE -->
+  <section>
+    <p class="tiny" style="position:absolute;top:8px;right:10px;z-index:10"><a href="index.html" style="color:var(--teal)">← Inicio</a></p>
+    <br>
+    <h1>Tensores, Autograd y Grafos Computacionales</h1>
+    <h3 style="color:#aaa;font-size:0.85em;">Cómo PyTorch calcula gradientes (sin magia)</h3>
+    <br>
+    <p class="small">Machine Learning con Python</p>
+    <p class="tiny dim">Cesar Garcia · 2025</p>
+    <p style="margin-top:16px"><a class="colab-btn" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion2.ipynb" target="_blank">📓 Abrir en Colab</a></p>
+    <aside class="notes">Introducción a la sesión.</aside>
+  </section>
+
+  <!-- Introducción -->
+  <section>
+    <h1>Introducción</h1>
+    <h2>Objetivos de la sesión</h2>
+    <ul>
+      <li>Entender <strong>cómo</strong> PyTorch representa cálculos matemáticos</li>
+      <li>Ver <strong>de dónde salen los gradientes</strong></li>
+      <li>Interpretar <code>.backward()</code> como recorrido de un grafo</li>
+      <li>Preparar la implementación manual de una red neuronal</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué parte del entrenamiento de una red te resulta más "mágica" hasta ahora?</div>
+  </section>
+
+  <!-- ¿Qué es un Tensor? -->
+  <section>
+    <h1>¿Qué es un Tensor?</h1>
+    <h2>Más que un array</h2>
+    <p>Un <strong>tensor</strong> es una generalización matemática:</p>
+    <ul>
+      <li>Escalar → tensor 0D</li>
+      <li>Vector → tensor 1D</li>
+      <li>Matriz → tensor 2D</li>
+      <li>Tensor ND → imágenes, secuencias, lotes</li>
+    </ul>
+    <br>
+    <p>En PyTorch, un tensor <strong>no solo almacena datos</strong>, también participa en un grafo.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué tipo de tensor representaría una imagen RGB de 224×224?</div>
+  </section>
+
+  <!-- Tensores en PyTorch -->
+  <section>
+    <h1>Tensores en PyTorch</h1>
+    <h2>Propiedades relevantes para deep learning</h2>
+    <ul>
+      <li>Tienen forma (<code>shape</code>)</li>
+      <li>Tienen tipo (<code>dtype</code>)</li>
+      <li>Pueden vivir en CPU o GPU</li>
+      <li><strong>Pueden recordar operaciones</strong></li>
+    </ul>
+    <br>
+    <p>Esta "memoria" es la base del cálculo automático de gradientes.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué un array de NumPy no es suficiente para entrenar una red neuronal?</div>
+  </section>
+
+  <!-- Gradientes -->
+  <section>
+    <h1>Gradientes</h1>
+    <h2>Sensibilidad local</h2>
+    <p>El gradiente mide:</p>
+    <div class="box"><strong>Cómo cambia una salida ante cambios pequeños en un parámetro</strong></div>
+    <p>En aprendizaje automático:</p>
+    <div class="box">Parámetros = pesos y sesgos</div>
+    <div class="box">Gradientes indican <strong>cómo ajustarlos</strong></div>
+    <br>
+    <p>Los gradientes son <strong>locales</strong>, no globales.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 Si un gradiente es cero, ¿qué nos dice eso sobre ese parámetro?</div>
+  </section>
+
+  <!-- El problema clásico -->
+  <section>
+    <h1>El problema clásico</h1>
+    <h2>Derivadas a mano no escalan</h2>
+    <ul>
+      <li>Redes reales tienen millones de parámetros</li>
+      <li>Cada parámetro requiere una derivada parcial</li>
+      <li>El proceso manual es <strong>inviable en la práctica</strong></li>
+    </ul>
+    <br>
+    <p>Necesitamos un sistema automático y confiable.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿El problema es matemático o práctico? ¿Por qué?</div>
+  </section>
+
+  <!-- Autograd -->
+  <section>
+    <h1>Autograd</h1>
+    <h2>Diferenciación automática en PyTorch</h2>
+    <p>Autograd es el sistema que:</p>
+    <ol>
+      <li>Registra operaciones matemáticas</li>
+      <li>Construye un <strong>grafo computacional</strong></li>
+      <li>Aplica la <strong>regla de la cadena</strong></li>
+    </ol>
+    <br>
+    <p>El grafo se construye <strong>dinámicamente</strong>, mientras el código se ejecuta.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué es importante que el grafo sea dinámico y no fijo?</div>
+  </section>
+
+  <!-- Grafo Computacional -->
+  <section>
+    <h1>Grafo Computacional</h1>
+    <h2>Fórmula</h2>
+    <p>$$d = a \cdot b + a$$</p>
+    <h2>Intuición visual</h2>
+    <p class="small dim">[ver diagrama en notebook]</p>
+    <p>Cada nodo representa <strong>una operación real ejecutada en el código</strong>.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Por qué el tensor <code>a</code> aparece dos veces en este grafo?</div>
+  </section>
+
+  <!-- Forward y Backward -->
+  <section>
+    <h1>Forward y Backward</h1>
+    <h2>Dos fases del mismo proceso</h2>
+    <ul>
+      <li><strong>Forward pass</strong>: calcular valores</li>
+      <li><strong>Backward pass</strong>: propagar gradientes</li>
+    </ul>
+    <br>
+    <p>El backward pass no "invierte" el cálculo:</p>
+    <div class="box">Aplica la regla de la cadena siguiendo las dependencias del grafo</div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿El backward pass necesita volver a ejecutar el forward? ¿Por qué?</div>
+  </section>
+
+  <!-- Qué NO es magia -->
+  <section>
+    <h1>Qué NO es magia</h1>
+    <h2>Desmitificando el entrenamiento</h2>
+    <ul>
+      <li>PyTorch no "adivina" derivadas</li>
+      <li>No hay reglas especiales para redes neuronales</li>
+      <li>Todo se reduce a:
+        <ul>
+          <li>sumas</li>
+          <li>multiplicaciones</li>
+          <li>regla de la cadena</li>
+        </ul>
+      </li>
+    </ul>
+    <p>Las redes neuronales son <strong>grafos grandes</strong>, no objetos especiales.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué operación básica aparece en todas las capas de una red?</div>
+  </section>
+
+  <!-- ¿Por qué esto importa? -->
+  <section>
+    <h1>¿Por qué esto importa?</h1>
+    <h2>Conexión con redes neuronales</h2>
+    <ul>
+      <li>Cada capa = operaciones en un grafo</li>
+      <li>Entrenar = recorrer el grafo hacia atrás</li>
+      <li>Optimizadores = usar los gradientes calculados</li>
+    </ul>
+    <br>
+    <p>Sin <strong>autograd</strong>, no hay deep learning moderno.</p>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué parte de este proceso cambiaría si la red tuviera más capas?</div>
+  </section>
+
+  <!-- Resumen -->
+  <section>
+    <h1>Resumen</h1>
+    <ul>
+      <li>Tensores almacenan datos <strong>y relaciones</strong></li>
+      <li>Autograd construye grafos computacionales</li>
+      <li><code>.backward()</code> aplica la regla de la cadena</li>
+      <li>Esto es la base de backpropagation</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Qué concepto de esta sesión es imprescindible para construir una red desde cero?</div>
+  </section>
+
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/math/math.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    plugins: [ RevealHighlight, RevealNotes, RevealMath.MathJax3 ]
+  });
+</script>
+</body>
+</html>

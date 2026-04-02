@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Agentes de IA I: Fundamentos</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/theme/black.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/monokai.css">
+<style>
+:root {
+  --teal:    #4ecdc4;
+  --red:     #ff6b6b;
+  --yellow:  #ffd93d;
+  --green:   #a8e6cf;
+  --dimgray: #888;
+}
+.reveal            { font-size: 28px; }
+.reveal h1         { color: var(--yellow); font-size: 1.6em; }
+.reveal h2         { color: var(--yellow); font-size: 1.2em; }
+.reveal h3         { color: var(--teal);   font-size: 1.0em; }
+.reveal pre        { font-size: 0.55em; }
+.reveal section    { height: 100%; }
+.h0  { color: var(--teal);   font-weight: bold; }
+.h1c { color: var(--red);    font-weight: bold; }
+.h2c { color: var(--green);  font-weight: bold; }
+.hi  { color: var(--yellow); }
+.dim { color: var(--dimgray); }
+.small { font-size: 0.65em; }
+.tiny  { font-size: 0.55em; }
+.box {
+  border: 1px solid var(--teal);
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin: 6px 0;
+  background: rgba(78, 205, 196, 0.07);
+}
+.box-red { border-color: var(--red); background: rgba(255, 107, 107, 0.07); }
+.box-yellow { border-color: var(--yellow); background: rgba(255, 217, 61, 0.07); }
+.two-col        { display: flex; gap: 20px; align-items: flex-start; }
+.two-col > *    { flex: 1; }
+.part-label {
+  display: inline-block;
+  background: var(--teal);
+  color: #111;
+  padding: 2px 12px;
+  border-radius: 4px;
+  font-size: 0.55em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.reveal table { font-size: 0.7em; border-collapse: collapse; }
+.reveal table td, .reveal table th { padding: 6px 12px; border: 1px solid #444; }
+.reveal table th { background: rgba(78,205,196,0.15); color: var(--teal); }
+.colab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--teal);
+  color: #111;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.75em;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+  <!-- Title -->
+  <section>
+    <br>
+    <h1>Agentes de IA I: Fundamentos</h1>
+    <h3 style="color:#aaa;font-size:0.85em;">Loops, prompts y herramientas</h3>
+    <br>
+    <p class="small">Deep Learning con Python</p>
+    <p class="tiny dim">Cesar Garcia · 2025</p>
+    <p class="tiny dim" style="margin-top:4px">Requiere API key de Anthropic</p>
+    <p style="margin-top:16px"><a class="colab-btn" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion15.ipynb" target="_blank">📓 Abrir en Colab</a></p>
+    <p class="tiny" style="margin-top:8px"><a href="index.html" style="color:var(--teal)">← Inicio</a></p>
+    <aside class="notes">Introducción a la sesión.</aside>
+  </section>
+
+  <!-- Introducción -->
+  <section>
+    <h1>Introducción</h1>
+    <ul>
+      <li><strong>Sesiones anteriores:</strong> modelos, arquitecturas, transformers</li>
+      <li><strong>Hoy:</strong> los modelos como <strong>agentes</strong> que toman decisiones y actúan</li>
+      <li><strong>Diferencia clave:</strong> un LLM genera texto; un agente resuelve tareas</li>
+      <li><strong>Meta:</strong> construir un agente funcional desde cero con la API de Claude</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 ¿Cuándo deja de ser un chatbot y se convierte en un agente?</div>
+  </section>
+
+  <!-- ¿Qué es un Agente? -->
+  <section>
+    <h1>¿Qué es un Agente?</h1>
+    <h2>Definición</h2>
+    <p>Un <strong>agente</strong> es un sistema que:</p>
+    <ul>
+      <li><strong>Percibe</strong> su entorno (texto, datos, resultados de herramientas)</li>
+      <li><strong>Razona</strong> sobre qué hacer (LLM)</li>
+      <li><strong>Actúa</strong> ejecutando herramientas o código</li>
+      <li><strong>Observa</strong> el resultado y repite</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 La diferencia no está en el modelo. Está en el <strong>loop</strong>.</div>
+  </section>
+
+  <!-- El Loop del Agente -->
+  <section>
+    <h1>El Loop del Agente</h1>
+    <h2>Ciclo fundamental</h2>
+    <img src="../images/agent_loop.png" style="max-height:220px;display:block;margin:8px auto;">
+    <p><strong>El loop continúa hasta:</strong></p>
+    <ul>
+      <li>Tarea completada</li>
+      <li>Límite de pasos alcanzado</li>
+      <li>Error irrecuperable</li>
+    </ul>
+  </section>
+
+  <!-- Agente vs Llamada Simple -->
+  <section>
+    <h1>Agente vs Llamada Simple</h1>
+    <h2>Comparación</h2>
+    <table>
+      <thead>
+        <tr><th></th><th>Llamada simple</th><th>Agente</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Pasos</strong></td><td>1</td><td>Múltiples</td></tr>
+        <tr><td><strong>Herramientas</strong></td><td>No</td><td>Sí</td></tr>
+        <tr><td><strong>Estado</strong></td><td>No</td><td>Sí</td></tr>
+        <tr><td><strong>Decisiones</strong></td><td>No</td><td>Sí</td></tr>
+      </tbody>
+    </table>
+    <div class="box small" style="margin-top:16px">
+      <strong>Ejemplo:</strong> "¿Cuánto gasté en enero?" requiere buscar datos, sumar, interpretar.
+    </div>
+  </section>
+
+  <!-- IA vs Procesos Deterministas — merged (espectro + regla práctica) -->
+  <section>
+    <h1>IA vs Procesos Deterministas</h1>
+    <div class="two-col">
+      <div>
+        <h2>El espectro de control</h2>
+        <pre style="font-size:0.5em;background:#1a1a2e;padding:12px;border-radius:6px;border-left:3px solid var(--teal)"> Determinista &lt;------------------------&gt; IA pura
+      |                                    |
+  Código puro                        LLM sin código
+  (exacto, rígido)               (flexible, impreciso)
+      |                                    |
+      +------------ Agentes ---------------+
+                  (lo mejor de ambos)</pre>
+      </div>
+      <div>
+        <h2>Regla práctica</h2>
+        <p class="small">Usar <strong>código determinista</strong> para:</p>
+        <ul class="small">
+          <li>Cálculos matemáticos exactos</li>
+          <li>Consultas a bases de datos</li>
+          <li>Transformaciones de datos</li>
+          <li>Validaciones de formato</li>
+        </ul>
+        <p class="small" style="margin-top:10px">Usar <strong>IA</strong> para:</p>
+        <ul class="small">
+          <li>Interpretar lenguaje natural</li>
+          <li>Decidir qué acción tomar</li>
+          <li>Sintetizar y explicar resultados</li>
+        </ul>
+      </div>
+    </div>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 El agente <strong>decide</strong> qué hacer. El código determinista lo <strong>ejecuta</strong>.</div>
+  </section>
+
+  <!-- Tipos de Prompts -->
+  <section>
+    <h1>Tipos de Prompts</h1>
+    <h2>Los tres roles</h2>
+    <pre><code class="python" data-trim>mensajes = [
+    {"role": "system",
+     "content": "Eres un asistente financiero..."},
+
+    {"role": "user",
+     "content": "¿Cuánto gasté en comida?"},
+
+    {"role": "assistant",
+     "content": "Según los datos de enero..."},
+
+    {"role": "user",
+     "content": "¿Y en transporte?"},
+]</code></pre>
+  </section>
+
+  <!-- System Prompt -->
+  <section>
+    <h1>System Prompt</h1>
+    <h2>Componentes esenciales</h2>
+    <ol>
+      <li><strong>Persona:</strong> quién es el agente y cuál es su función</li>
+      <li><strong>Instrucciones:</strong> qué puede y qué no puede hacer</li>
+      <li><strong>Herramientas disponibles:</strong> qué tiene a su disposición</li>
+      <li><strong>Formato de respuesta:</strong> cómo debe presentar resultados</li>
+      <li><strong>Restricciones de seguridad:</strong> límites del comportamiento</li>
+    </ol>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 Un buen system prompt es la diferencia entre un agente útil y uno impredecible.</div>
+  </section>
+
+  <!-- User y Assistant Messages -->
+  <section>
+    <h1>User y Assistant Messages</h1>
+    <h2>Construcción del contexto</h2>
+    <p>El historial de mensajes <strong>es</strong> la memoria del agente:</p>
+    <pre><code class="python" data-trim># Turno 1
+mensajes = [{"role": "user", "content": "Hola"}]
+# -> Respuesta: "Hola, ¿cómo puedo ayudarte?"
+
+# Turno 2 — añadimos el historial
+mensajes += [
+    {"role": "assistant", "content": "Hola, ¿cómo puedo ayudarte?"},
+    {"role": "user",      "content": "¿Qué dijiste antes?"}
+]</code></pre>
+    <div class="box small" style="margin-top:12px">
+      <strong>El modelo no tiene memoria propia.</strong> Nosotros se la damos.
+    </div>
+  </section>
+
+  <!-- Herramientas (Tools) -->
+  <section>
+    <h1>Herramientas (Tools)</h1>
+    <h2>¿Qué es una herramienta?</h2>
+    <p>Una <strong>herramienta</strong> es una función que el agente puede <em>solicitar</em> ejecutar.</p>
+    <pre style="font-size:0.5em;background:#1a1a2e;padding:12px;border-radius:6px;border-left:3px solid var(--teal)">Agente -> "Necesito calcular 2^10"
+       -> solicita tool: calcular("2**10")
+
+Tu código -> ejecuta: eval("2**10") -> devuelve: 1024
+
+Agente -> recibe 1024 -> "El resultado es 1,024"</pre>
+    <div class="box small" style="margin-top:12px">
+      <strong>Clave:</strong> el modelo <em>no ejecuta código</em>. Solicita que tu código lo ejecute.
+    </div>
+  </section>
+
+  <!-- Definición de Herramientas -->
+  <section>
+    <h1>Definición de Herramientas</h1>
+    <h2>Esquema JSON</h2>
+    <pre><code class="python" data-trim>{
+    "name": "calcular",
+    "description": "Evalúa expresiones matemáticas de Python",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "expresion": {
+                "type": "string",
+                "description": "Expresión a evaluar, ej: 'sum([10, 20, 30])'"
+            }
+        },
+        "required": ["expresion"]
+    }
+}</code></pre>
+  </section>
+
+  <!-- Ciclo Completo de Tool Use -->
+  <section>
+    <h1>Ciclo Completo de Tool Use</h1>
+    <h2>Flujo</h2>
+    <pre style="font-size:0.5em;background:#1a1a2e;padding:12px;border-radius:6px;border-left:3px solid var(--teal)">User: "¿Cuánto es la suma de mis gastos de enero?"
+  v
+Modelo: [stop_reason = "tool_use"]
+        solicita -> consultar_gastos(mes="enero")
+  v
+Tu código: carga gastos.json, filtra enero -> [280, 45, 30, ...]
+  v
+Modelo: recibe lista -> calcular(expresion="sum([280, 45, 30, ...])")
+  v
+Tu código: eval -> 885.5
+  v
+Modelo: [stop_reason = "end_turn"]
+        "En enero gastaste $885.50 en total."</pre>
+  </section>
+
+  <!-- stop_reason -->
+  <section>
+    <h1>stop_reason</h1>
+    <h2>Las dos respuestas del modelo</h2>
+    <ul>
+      <li><code>"end_turn"</code> → el modelo terminó, extrae el texto final</li>
+      <li><code>"tool_use"</code> → el modelo quiere usar una herramienta:
+        <ol class="small" style="margin-top:8px">
+          <li>Extrae nombre y parámetros</li>
+          <li>Ejecuta la función correspondiente</li>
+          <li>Añade el resultado al historial</li>
+          <li>Vuelve a llamar al modelo</li>
+        </ol>
+      </li>
+    </ul>
+    <pre><code class="python" data-trim>while respuesta.stop_reason == "tool_use":
+    # ejecutar herramientas y continuar
+    pass</code></pre>
+  </section>
+
+  <!-- Seguridad en Herramientas -->
+  <section>
+    <h1>Seguridad en Herramientas</h1>
+    <h2>Principio de mínimo privilegio</h2>
+    <ul>
+      <li>Validar entradas <strong>antes</strong> de ejecutar</li>
+      <li>Nunca usar <code>eval()</code> sin lista blanca de funciones permitidas</li>
+      <li>Limitar acceso a sistema de archivos y red</li>
+      <li>Registrar (log) todas las llamadas a herramientas</li>
+      <li>Imponer límites: máximo de pasos, timeout, costo</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 Con grandes herramientas vienen grandes responsabilidades.</div>
+  </section>
+
+  <!-- Ejemplo Práctico -->
+  <section>
+    <h1>Ejemplo Práctico</h1>
+    <h2>Agente Asistente Financiero</h2>
+    <p><strong>Herramientas disponibles:</strong></p>
+    <ul>
+      <li><code>calcular(expresion)</code> — operaciones matemáticas</li>
+      <li><code>obtener_fecha()</code> — fecha actual</li>
+      <li><code>consultar_gastos(categoria, mes)</code> — lee gastos.json</li>
+    </ul>
+    <div class="box small" style="margin-top:16px">
+      <strong>Pregunta de ejemplo:</strong><br>
+      "¿Cuánto gasté en alimentación y transporte en enero? ¿Cuál fue el porcentaje de cada categoría?"
+    </div>
+    <p class="small" style="margin-top:10px">El agente decide el orden y la combinación de llamadas.</p>
+  </section>
+
+  <!-- Idea clave -->
+  <section>
+    <h1>Idea clave de la sesión</h1>
+    <h2>El agente es un loop</h2>
+    <p>Los agentes son:</p>
+    <ul>
+      <li><strong>Un loop:</strong> observar → razonar → actuar</li>
+      <li><strong>Híbridos:</strong> IA para razonar, código determinista para ejecutar</li>
+      <li><strong>Controlados por prompts:</strong> el system prompt define el comportamiento</li>
+      <li><strong>Extensibles:</strong> más herramientas = más capacidades</li>
+    </ul>
+    <div class="box" style="margin-top:20px">
+      <strong>El modelo no cambia. Lo que cambia es lo que puede hacer.</strong>
+    </div>
+  </section>
+
+  <!-- Resumen -->
+  <section>
+    <h1>Resumen</h1>
+    <h2>Conceptos vistos</h2>
+    <ul>
+      <li>Definición de agente y el loop</li>
+      <li>IA vs procesos deterministas</li>
+      <li>Tipos de mensajes: system, user, assistant</li>
+      <li>Definición de herramientas (JSON schema)</li>
+      <li>Ciclo completo de tool use</li>
+      <li>stop_reason y el loop del agente</li>
+      <li>Agente funcional con la API de Claude</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 Ahora sabes cómo darle "manos" a un LLM</div>
+  </section>
+
+  <!-- Próxima sesión -->
+  <section>
+    <h1>Próxima sesión</h1>
+    <h2>Agentes Avanzados</h2>
+    <ul>
+      <li>Patrones de razonamiento: <strong>ReAct</strong>, Plan-Execute, Chain-of-Thought</li>
+      <li>Estado y memoria entre pasos</li>
+      <li>Coordinación <strong>multi-agente</strong>: orquestador + subagentes</li>
+      <li>Guardrails y diseño responsable</li>
+    </ul>
+  </section>
+
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/math/math.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    plugins: [ RevealHighlight, RevealNotes, RevealMath.MathJax3 ]
+  });
+</script>
+</body>
+</html>

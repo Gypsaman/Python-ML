@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Agentes de IA II: Coordinación y Sistemas Avanzados</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/theme/black.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/monokai.css">
+<style>
+:root {
+  --teal:    #4ecdc4;
+  --red:     #ff6b6b;
+  --yellow:  #ffd93d;
+  --green:   #a8e6cf;
+  --dimgray: #888;
+}
+.reveal            { font-size: 28px; }
+.reveal h1         { color: var(--yellow); font-size: 1.6em; }
+.reveal h2         { color: var(--yellow); font-size: 1.2em; }
+.reveal h3         { color: var(--teal);   font-size: 1.0em; }
+.reveal pre        { font-size: 0.55em; }
+.reveal section    { height: 100%; }
+.h0  { color: var(--teal);   font-weight: bold; }
+.h1c { color: var(--red);    font-weight: bold; }
+.h2c { color: var(--green);  font-weight: bold; }
+.hi  { color: var(--yellow); }
+.dim { color: var(--dimgray); }
+.small { font-size: 0.65em; }
+.tiny  { font-size: 0.55em; }
+.box {
+  border: 1px solid var(--teal);
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin: 6px 0;
+  background: rgba(78, 205, 196, 0.07);
+}
+.box-red { border-color: var(--red); background: rgba(255, 107, 107, 0.07); }
+.box-yellow { border-color: var(--yellow); background: rgba(255, 217, 61, 0.07); }
+.two-col        { display: flex; gap: 20px; align-items: flex-start; }
+.two-col > *    { flex: 1; }
+.part-label {
+  display: inline-block;
+  background: var(--teal);
+  color: #111;
+  padding: 2px 12px;
+  border-radius: 4px;
+  font-size: 0.55em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.reveal table { font-size: 0.7em; border-collapse: collapse; }
+.reveal table td, .reveal table th { padding: 6px 12px; border: 1px solid #444; }
+.reveal table th { background: rgba(78,205,196,0.15); color: var(--teal); }
+.colab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--teal);
+  color: #111;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.75em;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+  <!-- Title -->
+  <section>
+    <br>
+    <h1>Agentes de IA II: Coordinación y Sistemas Avanzados</h1>
+    <h3 style="color:#aaa;font-size:0.85em;">Memoria, razonamiento y multi-agentes</h3>
+    <br>
+    <p class="small">Deep Learning con Python</p>
+    <p class="tiny dim">Cesar Garcia · 2025</p>
+    <p class="tiny dim" style="margin-top:4px">Requiere API key de Anthropic</p>
+    <p style="margin-top:16px"><a class="colab-btn" href="https://colab.research.google.com/github/gypsaman/Python-ML/blob/master/notebooks/MLPy-sesion16.ipynb" target="_blank">📓 Abrir en Colab</a></p>
+    <p class="tiny" style="margin-top:8px"><a href="index.html" style="color:var(--teal)">← Inicio</a></p>
+    <aside class="notes">Introducción a la sesión.</aside>
+  </section>
+
+  <!-- Introducción -->
+  <section>
+    <h1>Introducción</h1>
+    <ul>
+      <li><strong>Sesión anterior:</strong> loop del agente, prompts, herramientas básicas</li>
+      <li><strong>Hoy:</strong> patrones de razonamiento, memoria y coordinación</li>
+      <li><strong>Meta:</strong> construir un sistema multi-agente real</li>
+      <li><strong>Proyecto:</strong> análisis de gastos personales con varios agentes especializados</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 Un agente solo puede hacer mucho. Un equipo de agentes puede hacer más.</div>
+  </section>
+
+  <!-- Recordatorio: El Loop -->
+  <section>
+    <h1>Recordatorio: El Loop</h1>
+    <h2>Base de todo lo que sigue</h2>
+    <pre style="font-size:0.5em;background:#1a1a2e;padding:12px;border-radius:6px;border-left:3px solid var(--teal)">Observación -> Razonamiento -> Acción -> Resultado
+      ^                                    |
+      +------------------------------------+</pre>
+    <p><strong>Hoy expandimos:</strong></p>
+    <ul>
+      <li><em>Razonamiento:</em> patrones más sofisticados (ReAct, Plan-Execute)</li>
+      <li><em>Estado:</em> memoria entre pasos y entre agentes</li>
+      <li><em>Acción:</em> delegar a otros agentes especializados</li>
+    </ul>
+  </section>
+
+  <!-- Patrones de Razonamiento: tabla -->
+  <section>
+    <h1>Patrones de Razonamiento</h1>
+    <h2>Tres enfoques principales</h2>
+    <table>
+      <thead>
+        <tr><th>Patrón</th><th>Estilo</th><th>Cuándo usarlo</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>ReAct</strong></td><td>Razona → Actúa (intercalado)</td><td>Tareas exploratorias</td></tr>
+        <tr><td><strong>Chain-of-Thought</strong></td><td>Razona primero, luego actúa</td><td>Problemas complejos</td></tr>
+        <tr><td><strong>Plan-Execute</strong></td><td>Planifica → Ejecuta pasos</td><td>Tareas estructuradas</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ReAct -->
+  <section>
+    <h1>ReAct (Reason + Act)</h1>
+    <h2>Interleaving de pensamiento y acción</h2>
+    <pre style="font-size:0.5em;background:#1a1a2e;padding:12px;border-radius:6px;border-left:3px solid var(--teal)">Thought: Necesito saber el total de gastos en enero.
+Action: consultar_gastos(mes="enero")
+Observation: [280.5, 45.0, 30.0, 120.0, 85.5, 60.0]
+
+Thought: Ahora calculo la suma.
+Action: calcular(expresion="sum([280.5, 45.0, ...])")
+Observation: 621.0
+
+Thought: Ya tengo el dato. Puedo responder.
+Answer: En enero gastaste $621.00 en total.</pre>
+    <div class="box small" style="margin-top:12px">
+      <strong>Ventaja:</strong> cada pensamiento informa la siguiente acción.
+    </div>
+  </section>
+
+  <!-- Chain-of-Thought -->
+  <section>
+    <h1>Chain-of-Thought (CoT)</h1>
+    <h2>Razonamiento extendido</h2>
+    <p>El modelo <em>piensa en voz alta</em> antes de actuar:</p>
+    <pre><code class="python" data-trim>system = """
+Antes de usar cualquier herramienta, explica paso a paso
+tu plan de acción. Luego ejecuta cada paso.
+Formato:
+  Plan: [pasos numerados]
+  Ejecución: [herramientas y resultados]
+  Respuesta: [conclusión final]
+"""</code></pre>
+    <div class="box small" style="margin-top:12px">
+      <strong>Ventaja:</strong> el razonamiento es auditable y corregible.
+    </div>
+  </section>
+
+  <!-- Plan-Execute -->
+  <section>
+    <h1>Plan-Execute</h1>
+    <h2>Separación de fases</h2>
+    <pre style="font-size:0.5em;background:#1a1a2e;padding:12px;border-radius:6px;border-left:3px solid var(--teal)">Fase 1 — PLANIFICACIÓN:
+  Input: "Analiza mis gastos del primer trimestre"
+  Output: Plan de 4 pasos definidos
+
+Fase 2 — EJECUCIÓN:
+  Paso 1: consultar_gastos(mes="enero")
+  Paso 2: consultar_gastos(mes="febrero")
+  Paso 3: consultar_gastos(mes="marzo")
+  Paso 4: calcular y comparar totales
+
+Fase 3 — SÍNTESIS:
+  Output: Reporte estructurado</pre>
+    <div class="box small" style="margin-top:12px">
+      <strong>Ventaja:</strong> el plan puede ser revisado antes de ejecutar.
+    </div>
+  </section>
+
+  <!-- Estado y Memoria -->
+  <section>
+    <h1>Estado y Memoria</h1>
+    <h2>Tipos de memoria</h2>
+    <ul>
+      <li><strong>Memoria de contexto (corto plazo):</strong> el historial de mensajes
+        <ul class="small"><li>Límite: ventana de contexto del modelo</li></ul>
+      </li>
+      <li><strong>Memoria de trabajo:</strong> un diccionario que tu código mantiene
+        <ul class="small"><li>Persiste entre pasos sin ocupar tokens</li></ul>
+      </li>
+      <li><strong>Memoria externa:</strong> base de datos, archivos, vector stores
+        <ul class="small"><li>Escala a millones de registros</li></ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Memoria de Trabajo -->
+  <section>
+    <h1>Memoria de Trabajo</h1>
+    <h2>State dict</h2>
+    <pre><code class="python" data-trim>estado = {
+    "gastos_enero": None,
+    "gastos_febrero": None,
+    "total_calculado": None,
+    "categorias_analizadas": [],
+}
+
+# El agente actualiza el estado en cada paso
+# Tu código lo pasa como contexto al siguiente paso
+
+system = f"""Estado actual:
+{json.dumps(estado, ensure_ascii=False, indent=2)}
+
+Usa esta información antes de llamar herramientas."""</code></pre>
+  </section>
+
+  <!-- Ventana de Contexto -->
+  <section>
+    <h1>Ventana de Contexto</h1>
+    <h2>Estrategias para contextos largos</h2>
+    <p><strong>Problema:</strong> el historial crece con cada turno.</p>
+    <p><strong>Soluciones:</strong></p>
+    <ol>
+      <li><strong>Ventana deslizante:</strong> conservar solo los últimos N mensajes</li>
+      <li><strong>Resumen progresivo:</strong> comprimir mensajes antiguos</li>
+      <li><strong>Memoria selectiva:</strong> extraer y guardar solo lo importante</li>
+      <li><strong>Retrieval:</strong> buscar en memoria externa solo lo relevante</li>
+    </ol>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 El contexto es el recurso más valioso del agente. Adminístralo.</div>
+  </section>
+
+  <!-- Coordinación Multi-Agente — merged (diagrama + ventajas) -->
+  <section>
+    <h1>Coordinación Multi-Agente</h1>
+    <div class="two-col">
+      <div>
+        <h2>Patrón Orquestador + Subagentes</h2>
+        <pre style="font-size:0.45em;background:#1a1a2e;padding:12px;border-radius:6px;border-left:3px solid var(--teal)">              +-----------------+
+  Tarea ------> |  Orquestador    |
+                |  (coordina)     |
+                +--------+--------+
+                         | descompone
+            +------------+------------+
+            v            v            v
+      +----------+ +----------+ +----------+
+      |  Agente  | |  Agente  | |  Agente  |
+      |  Datos   | | Análisis | | Escritor |
+      +----------+ +----------+ +----------+</pre>
+      </div>
+      <div>
+        <h2>Ventajas</h2>
+        <ul class="small">
+          <li><strong>Especialización:</strong> cada agente tiene un system prompt específico</li>
+          <li><strong>Paralelismo:</strong> subagentes pueden ejecutarse en paralelo</li>
+          <li><strong>Modularidad:</strong> fácil agregar o reemplazar subagentes</li>
+          <li><strong>Contextos limpios:</strong> cada agente solo ve lo que necesita</li>
+        </ul>
+        <div class="box-red box small" style="margin-top:10px">
+          <strong>Desafíos:</strong> comunicación entre agentes, manejo de errores en cadena, costo acumulado de tokens
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Agente de Datos -->
+  <section>
+    <h1>Agente de Datos</h1>
+    <h2>Especializado en acceso</h2>
+    <pre><code class="python" data-trim>sistema_datos = """
+Eres un agente especializado en acceso a datos.
+Tu ÚNICA función es: leer, filtrar y transformar datos.
+NO interpretes. NO hagas recomendaciones.
+Devuelve SIEMPRE datos en formato JSON.
+"""</code></pre>
+    <div class="box small" style="margin-top:12px">
+      <strong>Herramientas:</strong> consultar_gastos, filtrar_por_categoria, calcular_totales
+    </div>
+  </section>
+
+  <!-- Agente Analista -->
+  <section>
+    <h1>Agente Analista</h1>
+    <h2>Especializado en interpretación</h2>
+    <pre><code class="python" data-trim>sistema_analista = """
+Eres un analista financiero experto.
+Recibirás datos ya procesados en JSON.
+Tu función es: interpretar, identificar patrones,
+comparar períodos y hacer recomendaciones.
+NO accedas a datos directamente.
+"""</code></pre>
+    <div class="two-col small" style="margin-top:12px">
+      <div class="box"><strong>Input:</strong> JSON del agente de datos</div>
+      <div class="box"><strong>Output:</strong> análisis en lenguaje natural</div>
+    </div>
+  </section>
+
+  <!-- Agente Escritor -->
+  <section>
+    <h1>Agente Escritor</h1>
+    <h2>Especializado en formato</h2>
+    <pre><code class="python" data-trim>sistema_escritor = """
+Eres un comunicador experto.
+Recibirás un análisis técnico.
+Tu función es: convertirlo en un reporte claro,
+bien estructurado y fácil de entender.
+Usa bullet points, secciones y resaltado.
+"""</code></pre>
+    <div class="two-col small" style="margin-top:12px">
+      <div class="box"><strong>Input:</strong> análisis del agente analista</div>
+      <div class="box"><strong>Output:</strong> reporte final formateado</div>
+    </div>
+  </section>
+
+  <!-- El Orquestador -->
+  <section>
+    <h1>El Orquestador</h1>
+    <h2>Director de orquesta</h2>
+    <pre><code class="python" data-trim>def orquestador(pregunta):
+    # 1. Obtener datos (agente_datos)
+    datos = agente_datos(pregunta)
+
+    # 2. Analizar resultados (agente_analista)
+    analisis = agente_analista(datos)
+
+    # 3. Formatear reporte (agente_escritor)
+    reporte = agente_escritor(analisis)
+
+    return reporte</code></pre>
+    <div class="box small" style="margin-top:12px">
+      <strong>El orquestador decide el flujo.</strong> Los subagentes ejecutan.
+    </div>
+  </section>
+
+  <!-- Guardrails — merged (texto + código) -->
+  <section>
+    <h1>Guardrails</h1>
+    <div class="two-col">
+      <div>
+        <h2>Diseño responsable</h2>
+        <p class="small"><strong>Validación de entrada:</strong></p>
+        <ul class="small">
+          <li>Sanitizar texto antes de usarlo en prompts</li>
+          <li>Limitar longitud de inputs del usuario</li>
+        </ul>
+        <p class="small" style="margin-top:10px"><strong>Validación de salida:</strong></p>
+        <ul class="small">
+          <li>Verificar que la respuesta tiene el formato esperado</li>
+          <li>Detectar alucinaciones o datos inventados</li>
+        </ul>
+        <p class="small" style="margin-top:10px"><strong>Límites operacionales:</strong></p>
+        <ul class="small">
+          <li>Máximo de pasos por agente (ej: 10)</li>
+          <li>Timeout por llamada</li>
+          <li>Presupuesto máximo de tokens</li>
+        </ul>
+      </div>
+      <div>
+        <h2>Fail-safe</h2>
+        <pre><code class="python" data-trim>MAX_PASOS = 10
+pasos = 0
+
+while respuesta.stop_reason == "tool_use":
+    pasos += 1
+    if pasos > MAX_PASOS:
+        return "Error: límite de pasos alcanzado"
+    # continuar loop...</code></pre>
+        <div class="box small" style="margin-top:12px">
+          <strong>Regla:</strong> todo agente debe tener una condición de salida garantizada.
+        </div>
+        <div class="fragment box box-yellow small" style="margin-top:8px">💭 Un agente sin límites es un agente impredecible.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ejemplo Final -->
+  <section>
+    <h1>Ejemplo Final</h1>
+    <h2>Sistema de Análisis Financiero</h2>
+    <div class="box small" style="margin-bottom:12px">
+      <strong>Pregunta:</strong> "Dame un resumen de mis gastos del primer trimestre"
+    </div>
+    <pre style="font-size:0.5em;background:#1a1a2e;padding:12px;border-radius:6px;border-left:3px solid var(--teal)">Orquestador
+  +-- Agente Datos:
+  |     consultar_gastos(mes="enero")
+  |     consultar_gastos(mes="febrero")
+  |     consultar_gastos(mes="marzo")
+  |     calcular_por_categoria(datos)
+  |
+  +-- Agente Analista:
+  |     identifica patrones, picos, categorías altas
+  |
+  +-- Agente Escritor:
+        reporte final con secciones y recomendaciones</pre>
+  </section>
+
+  <!-- Idea clave -->
+  <section>
+    <h1>Idea clave de la sesión</h1>
+    <h2>Sistemas &gt; Agentes individuales</h2>
+    <p>Los sistemas multi-agente son:</p>
+    <ul>
+      <li><strong>Más capaces:</strong> división del trabajo y especialización</li>
+      <li><strong>Más robustos:</strong> errores en un agente no bloquean todo</li>
+      <li><strong>Más mantenibles:</strong> cambiar un agente no afecta los demás</li>
+      <li><strong>Más escalables:</strong> agregar agentes = agregar capacidades</li>
+    </ul>
+    <div class="box" style="margin-top:20px">
+      <strong>La inteligencia emerge de la coordinación, no de un solo modelo.</strong>
+    </div>
+  </section>
+
+  <!-- Resumen -->
+  <section>
+    <h1>Resumen</h1>
+    <h2>Conceptos vistos</h2>
+    <ul>
+      <li>Patrones de razonamiento: ReAct, CoT, Plan-Execute</li>
+      <li>Estado y memoria: contexto, working memory, externa</li>
+      <li>Gestión de ventana de contexto</li>
+      <li>Patrón Orquestador + Subagentes</li>
+      <li>Agentes especializados (datos, análisis, escritura)</li>
+      <li>Guardrails y diseño responsable</li>
+      <li>Sistema multi-agente completo</li>
+    </ul>
+    <div class="fragment box box-yellow small" style="margin-top:12px">💭 Tienes las herramientas para construir sistemas de IA reales.</div>
+  </section>
+
+  <!-- Próximos Pasos -->
+  <section>
+    <h1>Próximos Pasos</h1>
+    <h2>Hacia producción</h2>
+    <ul>
+      <li><strong>Frameworks:</strong> LangChain, LlamaIndex, CrewAI, AutoGen</li>
+      <li><strong>Observabilidad:</strong> trazas, logs, métricas de costo</li>
+      <li><strong>Evaluación:</strong> cómo medir si el agente es bueno</li>
+      <li><strong>Seguridad:</strong> prompt injection, jailbreaks, datos sensibles</li>
+      <li><strong>Escalado:</strong> agentes en la nube, colas de tareas</li>
+    </ul>
+    <div class="box" style="margin-top:20px">
+      <strong>El campo evoluciona rápidamente. Los fundamentos que aprendiste aquí son permanentes.</strong>
+    </div>
+  </section>
+
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/math/math.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    plugins: [ RevealHighlight, RevealNotes, RevealMath.MathJax3 ]
+  });
+</script>
+</body>
+</html>
