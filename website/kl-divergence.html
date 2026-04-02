@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Divergencia KL — Cesar Garcia</title>
+<script>
+MathJax = {
+  tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
+  options: { skipHtmlTags: ['script','noscript','style','textarea'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+:root {
+  --bg: #0e0e0e;
+  --surface: #181818;
+  --border: #2a2a2a;
+  --teal: #4ecdc4;
+  --yellow: #ffd93d;
+  --red: #ff6b6b;
+  --green: #a8e6cf;
+  --dim: #888;
+  --text: #e0e0e0;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+}
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.logo { color: var(--teal); font-weight: 700; font-size: 0.85em; letter-spacing: 1px; text-transform: uppercase; }
+header a { color: var(--dim); text-decoration: none; font-size: 0.82em; transition: color .2s; }
+header a:hover { color: var(--teal); }
+
+.container { max-width: 820px; margin: 0 auto; padding: 48px 40px 80px; }
+
+.tag {
+  display: inline-block;
+  background: var(--teal);
+  color: #111;
+  font-size: 0.68em;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+h1.page-title {
+  font-size: 2em;
+  color: var(--yellow);
+  line-height: 1.2;
+  margin-bottom: 10px;
+}
+.subtitle { color: var(--dim); font-size: 0.9em; margin-bottom: 32px; }
+
+hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+h2 {
+  color: var(--yellow);
+  font-size: 1.15em;
+  margin: 32px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+h3 { color: var(--teal); font-size: 0.95em; margin: 20px 0 8px; }
+p { margin-bottom: 12px; }
+ul, ol { padding-left: 20px; margin-bottom: 14px; }
+li { margin-bottom: 4px; }
+
+.math-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--teal);
+  border-radius: 6px;
+  padding: 14px 20px;
+  margin: 14px 0;
+  overflow-x: auto;
+}
+.math-block.key {
+  border-left-color: var(--yellow);
+  background: rgba(255,217,61,0.05);
+}
+.math-block.result {
+  border-left-color: var(--red);
+  background: rgba(255,107,107,0.05);
+}
+.math-block.green {
+  border-left-color: var(--green);
+  background: rgba(168,230,207,0.05);
+}
+
+.insight {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 16px 0;
+  font-size: 0.9em;
+}
+.insight-label {
+  color: var(--teal);
+  font-weight: 700;
+  font-size: 0.78em;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+code {
+  font-family: ui-monospace, monospace;
+  background: rgba(255,255,255,0.07);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.88em;
+}
+
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 32px;
+}
+.toc h3 { margin: 0 0 10px; color: var(--teal); font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px; }
+.toc ol { margin: 0; }
+.toc a { color: var(--dim); text-decoration: none; font-size: 0.88em; }
+.toc a:hover { color: var(--teal); }
+
+footer {
+  text-align: center;
+  padding: 24px;
+  color: var(--dim);
+  font-size: 0.78em;
+  border-top: 1px solid var(--border);
+}
+footer a { color: var(--teal); text-decoration: none; }
+
+@media (max-width: 600px) {
+  .container { padding: 32px 20px 60px; }
+  header { padding: 14px 20px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ML con Python</div>
+  <a href="index.html">← Inicio</a>
+</header>
+
+<div class="container">
+
+  <div class="tag">Referencia Avanzada</div>
+  <h1 class="page-title">Divergencia KL<br><span style="font-size:0.6em;color:var(--dim)">Kullback-Leibler</span></h1>
+  <p class="subtitle">Explicación detallada: definición, propiedades, conexión con entropía, ELBO y VAEs. A menudo llamada "distancia KL", aunque <strong>no es una métrica verdadera</strong>.</p>
+
+  <div class="toc">
+    <h3>Contenido</h3>
+    <ol>
+      <li><a href="#qmide">Qué mide la KL</a></li>
+      <li><a href="#discreta">Definición discreta</a></li>
+      <li><a href="#continua">Definición continua</a></li>
+      <li><a href="#derivacion">Derivación desde verosimilitudes</a></li>
+      <li><a href="#entropia">Conexión con entropía y entropía cruzada</a></li>
+      <li><a href="#noneg">No negatividad</a></li>
+      <li><a href="#asimetria">Asimetría</a></li>
+      <li><a href="#bernoulli">Ejemplo: Bernoulli</a></li>
+      <li><a href="#normales">KL entre normales (caso VAE)</a></li>
+      <li><a href="#ml">KL en Machine Learning</a></li>
+      <li><a href="#elbo">KL y el ELBO</a></li>
+    </ol>
+  </div>
+
+  <hr>
+
+  <h2 id="qmide">1. Qué mide la divergencia KL</h2>
+
+  <p>Dadas dos distribuciones sobre el mismo espacio $\mathcal{X}$:</p>
+  <ul>
+    <li>$P(x)$: la distribución <strong>verdadera</strong> o de referencia</li>
+    <li>$Q(x)$: una <strong>aproximación</strong> a $P(x)$</li>
+  </ul>
+
+  <p>La <strong>divergencia KL de $Q$ con respecto a $P$</strong> responde a:</p>
+
+  <div class="insight">
+    <div class="insight-label">Pregunta central</div>
+    ¿Cuánta "información extra" o "sorpresa adicional" introduzco si uso $Q$ en lugar de $P$?
+  </div>
+
+  <p>Se escribe $D_{\mathrm{KL}}(P\;\|\;Q)$ y se lee: "divergencia KL de $P$ a $Q$".</p>
+
+  <hr>
+
+  <h2 id="discreta">2. Definición (caso discreto)</h2>
+
+  <div class="math-block key">
+    $$D_{\mathrm{KL}}(P\;\|\;Q) = \sum_{x \in \mathcal{X}} P(x)\,\log \frac{P(x)}{Q(x)}$$
+  </div>
+
+  <p><strong>Convenciones importantes:</strong></p>
+  <ul>
+    <li>Base 2 → unidades en <strong>bits</strong>; base $e$ → <strong>nats</strong></li>
+    <li>Si $P(x) = 0$: el término aporta $0$ (límite continuo)</li>
+    <li>Si $P(x) > 0$ pero $Q(x) = 0$: entonces $D_{\mathrm{KL}} = \infty$</li>
+  </ul>
+
+  <hr>
+
+  <h2 id="continua">3. Definición (caso continuo)</h2>
+
+  <div class="math-block key">
+    $$D_{\mathrm{KL}}(p\;\|\;q) = \int p(x)\,\log \frac{p(x)}{q(x)} \, dx$$
+  </div>
+
+  <hr>
+
+  <h2 id="derivacion">4. Derivación desde la razón de verosimilitudes</h2>
+
+  <p>Partimos del logaritmo de la razón y tomamos la esperanza bajo $P(x)$:</p>
+
+  <div class="math-block">
+    $$D_{\mathrm{KL}}(P\;\|\;Q) = \mathbb{E}_{x \sim P}\!\left[\log \frac{P(x)}{Q(x)}\right] = \mathbb{E}_{P}[\log P(x)] - \mathbb{E}_{P}[\log Q(x)]$$
+  </div>
+
+  <hr>
+
+  <h2 id="entropia">5. Conexión con entropía y entropía cruzada</h2>
+
+  <h3>(a) Entropía de $P$</h3>
+  <div class="math-block">$$H(P) = -\mathbb{E}_{P}[\log P(x)] = -\sum_x P(x)\log P(x)$$</div>
+
+  <h3>(b) Entropía cruzada $H(P,Q)$</h3>
+  <div class="math-block">$$H(P,Q) = -\mathbb{E}_{P}[\log Q(x)] = -\sum_x P(x)\log Q(x)$$</div>
+
+  <h3>(c) KL = entropía cruzada − entropía</h3>
+  <div class="math-block key">
+    $$D_{\mathrm{KL}}(P\;\|\;Q) = H(P,Q) - H(P)$$
+  </div>
+
+  <div class="insight">
+    <div class="insight-label">Interpretación</div>
+    <ul style="margin:0">
+      <li>$H(P)$: incertidumbre intrínseca de la distribución verdadera</li>
+      <li>$H(P,Q)$: incertidumbre si "fingimos" que los datos vienen de $Q$</li>
+      <li>Su diferencia es el <strong>costo por usar $Q$ en lugar de $P$</strong></li>
+    </ul>
+  </div>
+
+  <hr>
+
+  <h2 id="noneg">6. No negatividad (teorema clave)</h2>
+
+  <div class="math-block key">
+    $$D_{\mathrm{KL}}(P\;\|\;Q) \ge 0 \qquad \text{con igualdad si y solo si } P = Q$$
+  </div>
+
+  <h3>Demostración (esquema con Jensen)</h3>
+  <p>Sea $r(x) = Q(x)/P(x)$. Entonces:</p>
+  <div class="math-block">
+    $$D_{\mathrm{KL}} = -\mathbb{E}_{P}[\log r(x)]$$
+  </div>
+  <p>Como $\log$ es cóncava, por la desigualdad de Jensen: $\mathbb{E}_{P}[\log r(x)] \le \log \mathbb{E}_{P}[r(x)]$.</p>
+  <p>Y como $\mathbb{E}_{P}[r(x)] = \sum_x P(x)\frac{Q(x)}{P(x)} = \sum_x Q(x) = 1$, tenemos $\log 1 = 0$, luego $D_{\mathrm{KL}} \ge 0$. $\square$</p>
+
+  <hr>
+
+  <h2 id="asimetria">7. Asimetría (por qué KL no es una distancia)</h2>
+
+  <div class="math-block result">$$D_{\mathrm{KL}}(P\;\|\;Q) \ne D_{\mathrm{KL}}(Q\;\|\;P) \quad \text{en general}$$</div>
+
+  <ul>
+    <li>$D_{\mathrm{KL}}(P\;\|\;Q)$: costo de aproximar $P$ <strong>con</strong> $Q$</li>
+    <li>$D_{\mathrm{KL}}(Q\;\|\;P)$: costo de aproximar $Q$ <strong>con</strong> $P$</li>
+  </ul>
+  <p>Son preguntas distintas.</p>
+
+  <hr>
+
+  <h2 id="bernoulli">8. Ejemplo: dos distribuciones Bernoulli</h2>
+
+  <p>Con $P = \text{Bernoulli}(p)$ y $Q = \text{Bernoulli}(q)$:</p>
+
+  <div class="math-block">
+    $$D_{\mathrm{KL}}(P\;\|\;Q) = p \log \frac{p}{q} + (1-p) \log \frac{1-p}{1-q}$$
+  </div>
+
+  <hr>
+
+  <h2 id="normales">9. KL entre dos distribuciones normales</h2>
+
+  <p>Con $P = \mathcal{N}(\mu_1, \sigma_1^2)$ y $Q = \mathcal{N}(\mu_2, \sigma_2^2)$:</p>
+
+  <div class="math-block key">
+    $$D_{\mathrm{KL}}(P\;\|\;Q) = \frac{1}{2}\left[\frac{\sigma_1^2}{\sigma_2^2} + \frac{(\mu_2 - \mu_1)^2}{\sigma_2^2} - 1 + \log \frac{\sigma_2^2}{\sigma_1^2}\right]$$
+  </div>
+
+  <p>Esta expresión es fundamental en <strong>Autoencoders Variacionales (VAEs)</strong>. Con prior $p(z) = \mathcal{N}(0,I)$ y $q_\phi(z|x) = \mathcal{N}(\mu, \sigma^2)$ se simplifica a:</p>
+
+  <div class="math-block result">
+    $$D_{\mathrm{KL}} = \frac{1}{2}\sum_j \left(\sigma_j^2 + \mu_j^2 - 1 - \log \sigma_j^2\right)$$
+  </div>
+
+  <hr>
+
+  <h2 id="ml">10. KL en Machine Learning</h2>
+
+  <h3>(a) Inferencia variacional</h3>
+  <p>Aproximamos una posterior intratable $p(z|x)$ con $q(z)$ minimizando $D_{\mathrm{KL}}(q(z)\;\|\;p(z|x))$.</p>
+
+  <h3>(b) Función de pérdida en VAE</h3>
+
+  <div class="math-block green">
+    $$\mathcal{L} = \underbrace{\mathbb{E}_{q(z|x)}[\log p(x|z)]}_{\text{Reconstrucción}} - \underbrace{D_{\mathrm{KL}}(q(z|x)\;\|\;p(z))}_{\text{Regularización KL}}$$
+  </div>
+
+  <p>El término KL obliga a que la distribución latente sea cercana al prior (típicamente $\mathcal{N}(0,I)$), haciendo el espacio latente continuo y muestreable.</p>
+
+  <hr>
+
+  <h2 id="elbo">11. Relación KL ↔ ELBO</h2>
+
+  <h3>Punto de partida</h3>
+  <p>En inferencia bayesiana, la evidencia marginal $p(x) = \int p(x,z)\,dz$ suele ser intratable. Aproximamos $p(z|x)$ con $q_\phi(z|x)$ y minimizamos la KL al posterior.</p>
+
+  <h3>Derivación</h3>
+  <p>Sustituyendo $p(z|x) = p(x,z)/p(x)$ en la KL y reordenando:</p>
+
+  <div class="math-block key">
+    $$\log p(x) = \underbrace{\mathbb{E}_{q}[\log p(x,z)] - \mathbb{E}_{q}[\log q(z|x)]}_{\text{ELBO}} + D_{\mathrm{KL}}\!\left(q(z|x)\;\|\;p(z|x)\right)$$
+  </div>
+
+  <h3>Forma práctica del ELBO</h3>
+  <p>Usando $p(x,z) = p(x|z)\,p(z)$:</p>
+
+  <div class="math-block result">
+    $$\text{ELBO} = \underbrace{\mathbb{E}_{q(z|x)}[\log p(x|z)]}_{\text{Reconstrucción}} - \underbrace{D_{\mathrm{KL}}\!\left(q(z|x)\;\|\;p(z)\right)}_{\text{Regularización KL}}$$
+  </div>
+
+  <h3>Conexión final</h3>
+  <p>Como $D_{\mathrm{KL}} \ge 0$, se tiene que $\text{ELBO} \le \log p(x)$ — de ahí su nombre: <strong>Evidence Lower Bound</strong>.</p>
+
+  <div class="math-block key">
+    $$\max_q \; \text{ELBO} \quad \Longleftrightarrow \quad \min_q \; D_{\mathrm{KL}}\!\left(q(z|x)\;\|\;p(z|x)\right)$$
+  </div>
+
+  <div class="insight">
+    <div class="insight-label">En un VAE típico</div>
+    <ul style="margin:0">
+      <li>Encoder: $q_\phi(z|x) = \mathcal{N}(\mu_\phi(x), \sigma_\phi(x))$</li>
+      <li>Prior: $p(z) = \mathcal{N}(0,I)$</li>
+      <li>Se minimiza $-\text{ELBO}$ = pérdida de reconstrucción + penalización KL</li>
+    </ul>
+  </div>
+
+</div>
+
+<footer>
+  Cesar Garcia · <a href="https://github.com/gypsaman/Python-ML" target="_blank">github.com/gypsaman/Python-ML</a> · 2025
+</footer>
+
+</body>
+</html>
